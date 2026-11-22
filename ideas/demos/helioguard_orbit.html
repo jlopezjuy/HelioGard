@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HelioGuard Orbit — Simulador Cenital de Parque Solar</title>
+  <style>
+    :root{
+      --bg:#071018;
+      --panel:#10202d;
+      --panel-2:#0e1a24;
+      --line:#294457;
+      --accent:#45d7ff;
+      --ok:#2fe48d;
+      --warn:#ffca3a;
+      --danger:#ff6262;
+      --muted:#8fa7b7;
+      --text:#e9f3fb;
+      --card:#0c1721e6;
+      --shadow:0 16px 40px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: radial-gradient(circle at top,#103048 0%, #071018 38%, #050b10 100%);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .app{
+      display:grid;
+      grid-template-columns:minmax(340px,390px) 1fr;
+      min-height:100vh;
+      gap:18px;
+      padding:18px;
+    }
+    .panel{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .sidebar{padding:18px; overflow:auto; max-height:calc(100vh - 36px)}
+    h1{
+      margin:0 0 6px;
+      font-size:1.45rem;
+      letter-spacing:.02em;
+    }
+    .sub{color:var(--muted); font-size:.93rem; line-height:1.45; margin-bottom:16px}
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border-radius:999px; font-size:.76rem; background:rgba(69,215,255,.12); color:#bfefff; border:1px solid rgba(69,215,255,.18); margin-bottom:10px}
+    .group{margin:14px 0 18px}
+    .group h2{font-size:.96rem; margin:0 0 10px; color:#cfe5f5}
+    .buttons{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+    .scenario-grid{display:grid; grid-template-columns:1fr; gap:9px}
+    button,.select, input[type="range"]{
+      width:100%;
+    }
+    button{
+      cursor:pointer;
+      border:none;
+      border-radius:14px;
+      padding:11px 12px;
+      font-weight:700;
+      color:white;
+      background:linear-gradient(135deg,#1d5c7f,#2caee2);
+      box-shadow:0 10px 18px rgba(44,174,226,.18);
+      transition:.18s transform,.18s opacity,.18s filter;
+    }
+    button.secondary{background:#162431; color:#d7ebf8; box-shadow:none; border:1px solid rgba(255,255,255,.08)}
+    button.warn{background:linear-gradient(135deg,#7c5211,#f2ae26)}
+    button.danger{background:linear-gradient(135deg,#7d1b1b,#ff6262)}
+    button:active{transform:translateY(1px) scale(.99)}
+    button:hover{filter:brightness(1.05)}
+    .scenario-btn{padding:12px 14px; text-align:left; background:#13202b; border:1px solid rgba(255,255,255,.08); box-shadow:none}
+    .scenario-btn.active{outline:2px solid rgba(69,215,255,.35); background:#173040}
+    .kpis{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+    .kpi{background:#0c1822; border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:12px}
+    .kpi small{display:block; color:var(--muted); font-size:.75rem; margin-bottom:7px}
+    .kpi strong{font-size:1.18rem}
+    .timeline{display:grid; gap:7px}
+    .step{display:flex; gap:10px; align-items:flex-start; padding:10px 11px; background:#0c1822; border-radius:14px; border:1px solid rgba(255,255,255,.06)}
+    .step .dot{width:12px; height:12px; border-radius:50%; background:#385565; margin-top:3px; flex:none}
+    .step.active{border-color:rgba(69,215,255,.35); background:#122434}
+    .step.active .dot{background:var(--accent); box-shadow:0 0 0 5px rgba(69,215,255,.12)}
+    .step.done .dot{background:var(--ok)}
+    .step .txt{font-size:.83rem; color:#daebf8; line-height:1.4}
+    .legend{display:grid; gap:8px; font-size:.82rem; color:#d7e8f5}
+    .lg{display:flex; align-items:center; gap:10px}
+    .sw{width:16px;height:16px;border-radius:5px; border:1px solid rgba(255,255,255,.15)}
+    .viewer-wrap{position:relative; overflow:hidden}
+    .viewer-header{display:flex; justify-content:space-between; align-items:center; padding:14px 16px 0}
+    .viewer-title{font-weight:700}
+    .mini{font-size:.83rem; color:var(--muted)}
+    .canvas-wrap{padding:10px 14px 14px; height:calc(100vh - 130px)}
+    svg{width:100%; height:100%; display:block; border-radius:20px; background:#07141d}
+    .hud{
+      position:absolute;
+      left:24px; top:64px;
+      display:flex; gap:10px; flex-wrap:wrap; z-index:3;
+    }
+    .chip{padding:8px 10px; border-radius:12px; background:rgba(8,16,24,.78); border:1px solid rgba(255,255,255,.08); font-size:.8rem; color:#deedf9}
+    .top-info{position:absolute; right:24px; top:66px; display:grid; gap:8px; z-index:3; max-width:300px}
+    .alert-card{padding:10px 12px; border-radius:14px; background:rgba(8,16,24,.86); border:1px solid rgba(255,255,255,.08); font-size:.82rem; color:#deedf9; line-height:1.45}
+    .alert-card b{color:white}
+    .footer-msg{position:absolute; bottom:28px; left:26px; right:26px; z-index:3; padding:12px 14px; border-radius:16px; background:linear-gradient(135deg, rgba(10,16,24,.9), rgba(16,31,42,.88)); border:1px solid rgba(255,255,255,.08); font-size:.88rem; line-height:1.5; color:#deeff9}
+    .footer-msg b{color:#fff}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .range-lbl{display:flex; justify-content:space-between; font-size:.8rem; color:var(--muted); margin-bottom:6px}
+    .file-actions{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 1120px){
+      .app{grid-template-columns:1fr;}
+      .sidebar{max-height:none; overflow:visible}
+      .canvas-wrap{height:70vh}
+    }
+    @media (max-width: 650px){
+      .buttons,.kpis,.file-actions{grid-template-columns:1fr}
+      .canvas-wrap{height:62vh; padding:8px}
+      .hud{left:14px; top:56px; right:14px}
+      .top-info{position:absolute; top:auto; bottom:120px; right:14px; left:14px; max-width:none}
+      .footer-msg{left:14px; right:14px; bottom:16px; font-size:.8rem}
+      .viewer-header{padding:12px 12px 0}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel sidebar">
+    <div class="badge">🛰️ Vista cenital ilustrativa + operación completa</div>
+    <h1>HelioGuard Orbit</h1>
+    <div class="sub">Simulador cenital de parque solar. Muestra detección de anomalías, clasificación del evento, despacho de dron y técnico, y verificación posterior a la limpieza o reparación. <b>Todos los datos son simulados</b>. La vista es un dibujo cenital, no una imagen térmica satelital.</div>
+
+    <div class="group">
+      <h2>Escenarios</h2>
+      <div class="scenario-grid" id="scenarioList"></div>
+    </div>
+
+    <div class="group">
+      <h2>Integridad de telemetría (escenario didáctico)</h2>
+      <div class="scenario-grid">
+        <button class="secondary" id="securityOriginalBtn">1 · Aceptar lectura original</button>
+        <button class="warn" id="securityReplayBtn">2 · Ataque replay (misma secuencia)</button>
+        <button class="danger" id="securityInjectBtn">3 · Inyección inconsistente</button>
+        <button class="secondary" id="securityResetBtn">↺ Limpiar eventos de integridad</button>
+      </div>
+      <div id="securityResult" style="margin-top:10px;background:#0c1822;border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:14px;color:#c8e1f1;font-size:.83rem;line-height:1.5" aria-live="polite">Listo: el ejemplo utiliza bootId y contador por dispositivo. Una inconsistencia no demuestra un ataque.</div>
+      <div id="securityLog" style="margin-top:8px;color:#9cb3c3;font-size:.78rem;line-height:1.5"></div>
+    </div>
+
+    <div class="group">
+      <h2>Controles</h2>
+      <div class="buttons">
+        <button id="playBtn">▶ Reproducir circuito</button>
+        <button class="secondary" id="pauseBtn">⏸ Pausar</button>
+        <button class="secondary" id="stepBtn">⏭ Avanzar etapa</button>
+        <button class="secondary" id="resetBtn">↺ Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Intensidad y operación</h2>
+      <div class="range-lbl"><span>Suciedad / severidad</span><span id="sevLbl">58%</span></div>
+      <input type="range" id="severity" min="10" max="100" step="1" value="58" />
+      <div style="height:10px"></div>
+      <div class="range-lbl"><span>Velocidad de simulación</span><span id="speedLbl">1.0×</span></div>
+      <input type="range" id="speed" min="5" max="25" step="1" value="10" />
+    </div>
+
+    <div class="group">
+      <h2>Indicadores</h2>
+      <div class="kpis">
+        <div class="kpi"><small>Generación esperada</small><strong id="expKpi">12.4 MW</strong></div>
+        <div class="kpi"><small>Generación real</small><strong id="realKpi">9.8 MW</strong></div>
+        <div class="kpi"><small>Pérdida estimada</small><strong id="lossKpi">2.6 MW</strong></div>
+        <div class="kpi"><small>Impacto económico</small><strong id="moneyKpi">ARS 324.500</strong></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Flujo operativo</h2>
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <div class="group">
+      <h2>Leyenda</h2>
+      <div class="legend">
+        <div class="lg"><span class="sw" style="background:#37d889"></span> Strings normales</div>
+        <div class="lg"><span class="sw" style="background:#ffc73a"></span> Bajo rendimiento / suciedad</div>
+        <div class="lg"><span class="sw" style="background:#ff6262"></span> Falla severa</div>
+        <div class="lg"><span class="sw" style="background:#74bfff"></span> Ruta o actividad del dron</div>
+        <div class="lg"><span class="sw" style="background:#c282ff"></span> Técnico / móvil de mantenimiento</div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Exportar</h2>
+      <div class="file-actions">
+        <button class="secondary" id="exportBtn">⬇ Exportar resumen JSON</button>
+        <button class="secondary" id="snapshotBtn">🖼 Descargar SVG</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="panel viewer-wrap">
+    <div class="viewer-header">
+      <div>
+        <div class="viewer-title">Parque solar — vista cenital ilustrativa</div>
+        <div class="mini" id="sceneMeta">Escenario: suciedad sectorizada · Estado: detección y análisis</div>
+      </div>
+      <div class="mini mono">Raspberry Pi • ESP32 • Inversores • Dron • Técnico • VPS</div>
+    </div>
+    <div class="hud">
+      <div class="chip" id="chipWeather">Clima: despejado con polvo</div>
+      <div class="chip" id="chipComm">Telemetría: online</div>
+      <div class="chip" id="chipAction">Intervención: en espera</div>
+    </div>
+    <div class="top-info">
+      <div class="alert-card" id="alertBox"><b>Detección automática:</b> Pérdida consistente en 3 bloques del parque. Se sospecha suciedad o falla localizada. Se inicia validación con telemetría y un modelo meteorológico simulado.</div>
+      <div class="alert-card" id="deviceBox"><b>Edge local:</b> Raspberry Pi operativa, 6 inversores visibles, enlace VPS estable, 2 drones disponibles, 1 cuadrilla técnica asignable.</div>
+    </div>
+    <div class="canvas-wrap">
+      <svg id="simSvg" viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg" aria-label="Simulación cenital de parque solar">
+        <defs>
+          <linearGradient id="ground" x1="0" x2="1">
+            <stop offset="0%" stop-color="#45634a" />
+            <stop offset="100%" stop-color="#2b4634" />
+          </linearGradient>
+          <linearGradient id="roadGrad" x1="0" x2="1">
+            <stop offset="0%" stop-color="#8c826d" />
+            <stop offset="100%" stop-color="#706651" />
+          </linearGradient>
+          <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity=".35"/>
+          </filter>
+          <filter id="glowCyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#6bdfff" flood-opacity=".8"/>
+          </filter>
+          <filter id="glowRed" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#ff6868" flood-opacity=".85"/>
+          </filter>
+          <pattern id="grassNoise" width="26" height="26" patternUnits="userSpaceOnUse">
+            <circle cx="4" cy="5" r="1.2" fill="#ffffff18"/>
+            <circle cx="16" cy="10" r="1.1" fill="#00000018"/>
+            <circle cx="10" cy="19" r="1.2" fill="#ffffff12"/>
+            <circle cx="23" cy="20" r="1.4" fill="#00000018"/>
+          </pattern>
+        </defs>
+        <rect x="0" y="0" width="1200" height="760" fill="url(#ground)"/>
+        <rect x="0" y="0" width="1200" height="760" fill="url(#grassNoise)" opacity=".45"/>
+        <rect x="30" y="48" width="1140" height="664" rx="28" fill="#0b1820" opacity=".2" stroke="#d5ffe61a"/>
+
+        <g id="roads">
+          <rect x="564" y="60" width="74" height="624" rx="20" fill="url(#roadGrad)" opacity=".95"/>
+          <rect x="80" y="332" width="1030" height="68" rx="20" fill="url(#roadGrad)" opacity=".95"/>
+          <rect x="100" y="650" width="1000" height="32" rx="12" fill="#6b624e" opacity=".88"/>
+        </g>
+
+        <g id="solarBlocks"></g>
+        <g id="serviceBuildings">
+          <g transform="translate(100 92)">
+            <rect width="132" height="70" rx="12" fill="#d8d9db" filter="url(#shadow)"/>
+            <rect x="16" y="12" width="46" height="20" rx="5" fill="#98a5b4"/>
+            <rect x="70" y="12" width="46" height="20" rx="5" fill="#98a5b4"/>
+            <rect x="16" y="40" width="100" height="16" rx="5" fill="#aeb7c1"/>
+            <text x="66" y="90" text-anchor="middle" fill="#f4fdff" font-size="12">Centro de control</text>
+          </g>
+          <g transform="translate(948 94)">
+            <rect width="118" height="62" rx="12" fill="#c7c7cc" filter="url(#shadow)"/>
+            <rect x="10" y="10" width="98" height="18" rx="4" fill="#a7b1bf"/>
+            <rect x="10" y="36" width="70" height="14" rx="4" fill="#9ea9b7"/>
+            <text x="58" y="82" text-anchor="middle" fill="#f4fdff" font-size="12">Hangar dron</text>
+          </g>
+          <g transform="translate(924 604)">
+            <rect width="160" height="52" rx="12" fill="#cfcfcf" filter="url(#shadow)"/>
+            <rect x="12" y="10" width="64" height="14" rx="4" fill="#aab2ba"/>
+            <rect x="85" y="10" width="50" height="14" rx="4" fill="#aab2ba"/>
+            <rect x="12" y="30" width="118" height="10" rx="4" fill="#9da7b3"/>
+            <text x="80" y="72" text-anchor="middle" fill="#f4fdff" font-size="12">Base técnica</text>
+          </g>
+        </g>
+
+        <g id="droneLayer"></g>
+        <g id="techLayer"></g>
+        <g id="overlayLayer"></g>
+        <g id="signalLayer"></g>
+      </svg>
+    </div>
+    <div class="footer-msg" id="footerMsg"><b>Objetivo del simulador:</b> visualizar desde arriba cómo el sistema detecta anomalías en un parque solar, selecciona una intervención adecuada y verifica la recuperación después de limpiar o reparar. Los flujos, pérdidas y costos son demostrativos.</div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const scenarios = {
+    dust: {
+      name: 'Suciedad sectorizada',
+      weather: 'Despejado con polvo',
+      issue: 'Tres bloques del parque presentan pérdida gradual por acumulación de polvo.',
+      action: 'Dron de limpieza para cobertura rápida por sectores.',
+      intervention: 'drone',
+      severityBase: 0.58,
+      expectedMW: 12.4,
+      moneyBase: 324500,
+      blocks: ['B1','B2','C2'],
+      style: 'warning',
+      overlay: 'dust'
+    },
+    inverter: {
+      name: 'Inversor fuera de servicio',
+      weather: 'Despejado',
+      issue: 'Un inversor deja fuera de línea un bloque completo.',
+      action: 'Envío de técnico con revisión eléctrica.',
+      intervention: 'technician',
+      severityBase: 0.76,
+      expectedMW: 12.4,
+      moneyBase: 468700,
+      blocks: ['A3'],
+      style: 'danger',
+      overlay: 'thermal'
+    },
+    cloud: {
+      name: 'Sombra de nube / falso positivo',
+      weather: 'Nubosidad pasajera',
+      issue: 'Se observa caída temporal pero el sistema valida que corresponde a sombra móvil y no a suciedad.',
+      action: 'Sin intervención física. Solo observación.',
+      intervention: 'none',
+      severityBase: 0.32,
+      expectedMW: 11.8,
+      moneyBase: 96500,
+      blocks: ['A1','A2','B1','B2','C1'],
+      style: 'warning',
+      overlay: 'cloud'
+    },
+    frost: {
+      name: 'Escarcha matinal',
+      weather: 'Frío extremo / helada',
+      issue: 'La producción cae en la mañana por escarcha en módulos periféricos.',
+      action: 'No se limpia con agua. Se monitorea recuperación y se evalúa técnico si persiste.',
+      intervention: 'observe',
+      severityBase: 0.46,
+      expectedMW: 10.2,
+      moneyBase: 185300,
+      blocks: ['C1','C2','C3'],
+      style: 'warning',
+      overlay: 'frost'
+    },
+    fire: {
+      name: 'Humo / ceniza cercana',
+      weather: 'Humo y visibilidad reducida',
+      issue: 'Disminuye la radiación y aparecen depósitos de ceniza en sectores del borde.',
+      action: 'Dron de reconocimiento y técnico para evaluación del sitio.',
+      intervention: 'mixed',
+      severityBase: 0.64,
+      expectedMW: 12.0,
+      moneyBase: 389000,
+      blocks: ['A1','B1','C1'],
+      style: 'danger',
+      overlay: 'smoke'
+    },
+    damage: {
+      name: 'Daño localizado por granizo',
+      weather: 'Post tormenta',
+      issue: 'Dos strings presentan pérdida persistente compatible con daño físico.',
+      action: 'Técnico con inspección precisa y reemplazo/aislamiento.',
+      intervention: 'technician',
+      severityBase: 0.69,
+      expectedMW: 12.2,
+      moneyBase: 441200,
+      blocks: ['B3','C3'],
+      style: 'danger',
+      overlay: 'thermal'
+    }
+  };
+
+  const scenarioOrder = ['dust','inverter','cloud','frost','fire','damage'];
+  const blockLayout = [
+    {id:'A1', x:104, y:176},{id:'A2', x:316, y:176},{id:'A3', x:756, y:176},
+    {id:'B1', x:104, y:426},{id:'B2', x:316, y:426},{id:'B3', x:756, y:426},
+    {id:'C1', x:104, y:534},{id:'C2', x:316, y:534},{id:'C3', x:756, y:534}
+  ];
+
+  const timelineDefs = [
+    '1. Detección por telemetría y modelo meteorológico externo',
+    '2. Clasificación del evento y estimación de pérdida',
+    '3. Confirmación con edge local: Raspberry Pi + inversores + sensores',
+    '4. Decisión operativa: dron, técnico, observación o combinación',
+    '5. Despacho y llegada a la zona afectada',
+    '6. Limpieza / reparación / descarte de falso positivo',
+    '7. Validación posterior de recuperación energética',
+    '8. Cierre del incidente y registro histórico'
+  ];
+
+  const svg = document.getElementById('simSvg');
+  const solarBlocks = document.getElementById('solarBlocks');
+  const droneLayer = document.getElementById('droneLayer');
+  const techLayer = document.getElementById('techLayer');
+  const overlayLayer = document.getElementById('overlayLayer');
+  const signalLayer = document.getElementById('signalLayer');
+  const scenarioList = document.getElementById('scenarioList');
+  const timelineEl = document.getElementById('timeline');
+
+  const expKpi = document.getElementById('expKpi');
+  const realKpi = document.getElementById('realKpi');
+  const lossKpi = document.getElementById('lossKpi');
+  const moneyKpi = document.getElementById('moneyKpi');
+  const sceneMeta = document.getElementById('sceneMeta');
+  const chipWeather = document.getElementById('chipWeather');
+  const chipComm = document.getElementById('chipComm');
+  const chipAction = document.getElementById('chipAction');
+  const alertBox = document.getElementById('alertBox');
+  const deviceBox = document.getElementById('deviceBox');
+  const footerMsg = document.getElementById('footerMsg');
+  const severitySlider = document.getElementById('severity');
+  const sevLbl = document.getElementById('sevLbl');
+  const speedSlider = document.getElementById('speed');
+  const speedLbl = document.getElementById('speedLbl');
+
+  const stageDurations = [2.6,2.8,2.8,3.2,4.2,4.6,3.1,2.5];
+  let blockNodes = [];
+  let stageNodes = [];
+  let rafId = null;
+  let playing = false;
+  let currentScenario = 'dust';
+  let stage = 0;
+  let stageStart = 0;
+  let severity = Number(severitySlider.value)/100;
+  let speedFactor = Number(speedSlider.value)/10;
+
+  function moneyFormat(v){ return 'ARS ' + Math.round(v).toLocaleString('es-AR'); }
+  function num(v, d=1){ return v.toFixed(d).replace('.',','); }
+
+  function buildTimeline(){
+    timelineEl.innerHTML = '';
+    stageNodes = timelineDefs.map((text, idx)=>{
+      const div = document.createElement('div');
+      div.className = 'step' + (idx===0 ? ' active' : '');
+      div.innerHTML = `<div class="dot"></div><div class="txt">${text}</div>`;
+      timelineEl.appendChild(div);
+      return div;
+    });
+  }
+
+  function buildScenarioButtons(){
+    scenarioList.innerHTML='';
+    scenarioOrder.forEach(key=>{
+      const sc = scenarios[key];
+      const btn = document.createElement('button');
+      btn.className = 'scenario-btn' + (key===currentScenario ? ' active' : '');
+      btn.innerHTML = `<b>${sc.name}</b><br><span style="font-size:.8rem; color:#b8d3e4">${sc.issue}</span>`;
+      btn.addEventListener('click', ()=> {
+        currentScenario = key;
+        document.querySelectorAll('.scenario-btn').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        resetSimulation(true);
+      });
+      scenarioList.appendChild(btn);
+    })
+  }
+
+  function buildSolarPark(){
+    solarBlocks.innerHTML='';
+    blockNodes=[];
+    blockLayout.forEach((block)=>{
+      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('transform', `translate(${block.x} ${block.y})`);
+      const frame = rect(0,0,156,92,14,'#132534','#28485a',1.5);
+      frame.setAttribute('filter','url(#shadow)');
+      g.appendChild(frame);
+      for(let r=0;r<3;r++){
+        for(let c=0;c<6;c++){
+          const x = 10 + c*23.2;
+          const y = 10 + r*24.5;
+          const p = rect(x,y,19,17,3,'#37d889','#9ef5c6',0.6);
+          p.setAttribute('class','panel-cell');
+          g.appendChild(p);
+        }
+      }
+      const lbl = textNode(78,108,block.id,12,'#e8f5fb','middle');
+      g.appendChild(lbl);
+      solarBlocks.appendChild(g);
+      blockNodes.push({id:block.id, g, frame, cells:[...g.querySelectorAll('.panel-cell')], x:block.x, y:block.y, cx:block.x+78, cy:block.y+46});
+    });
+  }
+
+  function rect(x,y,w,h,rx,fill,stroke,sw=1){
+    const el = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    el.setAttribute('x',x); el.setAttribute('y',y); el.setAttribute('width',w); el.setAttribute('height',h); el.setAttribute('rx',rx);
+    el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',sw);
+    return el;
+  }
+  function circle(x,y,r,fill,stroke='none',sw=0){
+    const el = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('cx',x); el.setAttribute('cy',y); el.setAttribute('r',r); el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',sw);
+    return el;
+  }
+  function line(x1,y1,x2,y2,stroke,sw=1,dash=''){ const el=document.createElementNS('http://www.w3.org/2000/svg','line'); el.setAttribute('x1',x1); el.setAttribute('y1',y1); el.setAttribute('x2',x2); el.setAttribute('y2',y2); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',sw); if(dash) el.setAttribute('stroke-dasharray',dash); return el; }
+  function textNode(x,y,str,size,fill='#fff',anchor='start'){
+    const el=document.createElementNS('http://www.w3.org/2000/svg','text'); el.setAttribute('x',x); el.setAttribute('y',y); el.setAttribute('font-size',size); el.setAttribute('fill',fill); el.setAttribute('text-anchor',anchor); el.setAttribute('font-family','Inter, Arial, sans-serif'); el.textContent=str; return el;
+  }
+  function polygon(points, fill, stroke='none', sw=0){ const el=document.createElementNS('http://www.w3.org/2000/svg','polygon'); el.setAttribute('points',points); el.setAttribute('fill',fill); el.setAttribute('stroke',stroke); el.setAttribute('stroke-width',sw); return el; }
+
+  function updateTimeline(){
+    stageNodes.forEach((n,idx)=>{
+      n.className='step' + (idx<stage ? ' done':'') + (idx===stage ? ' active':'');
+    });
+  }
+
+  function scenarioData(){ return scenarios[currentScenario]; }
+
+  function recomputeKPIs(){
+    const sc = scenarioData();
+    const sev = severity;
+    const expected = sc.expectedMW;
+    const severityImpact = 0.08 + sev * 0.36;
+    let loss = expected * severityImpact;
+    if(sc.intervention==='none') loss *= .45;
+    if(sc.intervention==='observe') loss *= .62;
+    const recovery = stage>=6 ? (sc.intervention==='none' ? .85 : (sc.intervention==='observe' ? .55 : .93)) : stage>=5 ? .28 : 0;
+    const real = expected - loss + loss*recovery;
+    const money = sc.moneyBase * (0.55 + sev);
+    expKpi.textContent = `${num(expected)} MW`;
+    realKpi.textContent = `${num(real)} MW`;
+    lossKpi.textContent = `${num(expected-real)} MW`;
+    moneyKpi.textContent = moneyFormat(stage>=6 ? money*(1-recovery*.78) : money);
+  }
+
+  function updateText(){
+    const sc = scenarioData();
+    sceneMeta.textContent = `Escenario: ${sc.name.toLowerCase()} · Estado: ${timelineDefs[stage].replace(/^\d+\.\s*/,'')}`;
+    chipWeather.textContent = `Clima: ${sc.weather}`;
+    chipComm.textContent = stage===3 || stage===4 ? 'Telemetría: validando edge/VPS' : 'Telemetría: online';
+    const actionLabel = sc.intervention==='drone' ? 'Dron de limpieza' : sc.intervention==='technician' ? 'Técnico de campo' : sc.intervention==='mixed' ? 'Dron + técnico' : sc.intervention==='observe' ? 'Observación controlada' : 'Sin intervención';
+    chipAction.textContent = `Intervención: ${stage<3 ? 'pendiente de decisión' : actionLabel}`;
+
+    const dynamic = [
+      `\u003cb\u003eDetección automática:\u003c/b\u003e ${sc.issue}`,
+      `\u003cb\u003eClasificación:\u003c/b\u003e Se analiza la pérdida esperada vs. real, se estima criticidad y se revisan strings comprometidos.`,
+      `\u003cb\u003eConfirmación técnica:\u003c/b\u003e Raspberry Pi, inversores y sensores consolidan el evento. El sistema decide la vía de respuesta más segura.`,
+      `\u003cb\u003eDespacho:\u003c/b\u003e ${sc.action}`,
+      `\u003cb\u003eLlegada al área:\u003c/b\u003e El recurso asignado accede a los bloques afectados desde vista cenital para intervenir.`,
+      `\u003cb\u003eIntervención:\u003c/b\u003e ${interventionMessage(sc)}`,
+      `\u003cb\u003eValidación:\u003c/b\u003e Se compara la recuperación de energía y se verifica si el incidente quedó resuelto.`,
+      `\u003cb\u003eCierre:\u003c/b\u003e El evento se registra con antes/después, costos, energía recuperada y trazabilidad.`
+    ];
+    alertBox.innerHTML = dynamic[stage];
+    deviceBox.innerHTML = `<b>Infraestructura operativa:</b> Raspberry Pi operativa, ${stage>=2 ? 'enlace con VPS y dashboard actualizado' : 'monitoreo local estable'}, ${stage>=4 ? 'dron desplegable y cuadrilla lista' : 'drones en hangar'}, 6 inversores visibles y telemetría agregada por sectores.`;
+
+    const foot = {
+      none: 'Los datos meteorológicos ayudan a evitar falsos positivos: si la caída se explica por una nube pasajera, el sistema no envía personal innecesariamente.',
+      observe: 'La escarcha no debe disparar una limpieza con agua. El sistema observa la recuperación natural y solo escala si persiste la pérdida.',
+      drone: 'El dron permite cubrir sectores extensos y repetir pasadas sobre bloques con suciedad o ceniza cuando el escenario operativo es seguro.',
+      technician: 'El técnico se utiliza cuando se sospecha una falla eléctrica, un daño físico o una intervención que requiere inspección humana detallada.',
+      mixed: 'La combinación dron + técnico es útil cuando se necesita primero reconocimiento o limpieza rápida y luego validación física en sitio.'
+    };
+    footerMsg.innerHTML = `<b>Lectura operativa:</b> ${foot[sc.intervention] || foot.none} <b>Nota:</b> todos los tiempos, pérdidas y recuperaciones son simulados para presentar el circuito completo.`;
+  }
+
+  function interventionMessage(sc){
+    switch(sc.intervention){
+      case 'drone': return 'El dron despega, sigue una ruta automática, limpia los bloques afectados y transmite confirmación visual.';
+      case 'technician': return 'El móvil técnico llega por la vía interna, se realiza revisión y limpieza/reparación según el hallazgo.';
+      case 'mixed': return 'El dron reconoce o limpia superficialmente; luego la cuadrilla técnica completa la verificación y la acción correctiva.';
+      case 'observe': return 'Se monitorea la elevación de temperatura y la recuperación del rendimiento antes de decidir una acción física.';
+      default: return 'No se envía recurso: el sistema identifica el evento como transitorio o no accionable.';
+    }
+  }
+
+  function updateOverlay(){
+    overlayLayer.innerHTML='';
+    signalLayer.innerHTML='';
+    const sc = scenarioData();
+    const affected = new Set(sc.blocks);
+    // sector highlighting
+    blockNodes.forEach(b=>{
+      const isAffected = affected.has(b.id);
+      const stageSeverity = severity * (stage<6 ? 1 : 0.28);
+      b.frame.setAttribute('stroke', isAffected ? (sc.style==='danger' ? '#ff7575' : '#ffc73a') : '#28485a');
+      b.frame.setAttribute('stroke-width', isAffected ? 2.3 : 1.4);
+      b.cells.forEach((cell,idx)=>{
+        let fill='#37d889', stroke='#9ef5c6';
+        if(isAffected){
+          if(sc.style==='danger'){ fill = stage>=6 ? '#6ce4aa' : '#ff6e6e'; stroke = stage>=6 ? '#b9ffd8' : '#ffd5d5'; }
+          else { fill = stage>=6 ? '#57e69f' : '#ffc73a'; stroke = stage>=6 ? '#c6ffe0' : '#ffe7a8'; }
+          if(sc.overlay==='frost' && stage<6) { fill = '#9ed4ff'; stroke = '#eef9ff'; }
+          if(sc.overlay==='cloud' && stage<5) { fill = '#aac7d8'; stroke = '#dceaf5'; }
+        }
+        if(stage===5 && sc.intervention==='drone' && isAffected && idx%3===0) fill='#6ccfff';
+        cell.setAttribute('fill', fill);
+        cell.setAttribute('stroke', stroke);
+        cell.setAttribute('opacity', isAffected ? (0.75 + 0.25*(1-stageSeverity)) : 0.92);
+      });
+    });
+
+    // scene overlays
+    if(sc.overlay==='dust') drawDustOverlay(affected);
+    if(sc.overlay==='thermal') drawThermalOverlay(affected);
+    if(sc.overlay==='cloud') drawCloudOverlay();
+    if(sc.overlay==='frost') drawFrostOverlay(affected);
+    if(sc.overlay==='smoke') drawSmokeOverlay(affected);
+
+    drawSignals();
+  }
+
+  function drawDustOverlay(affected){
+    blockNodes.forEach(b=>{
+      if(!affected.has(b.id)) return;
+      for(let i=0;i<14;i++){
+        const c = circle(b.x+18+(i*9)%132, b.y+14+((i*17)%56), 5+(i%3), 'rgba(171,136,83,.22)');
+        overlayLayer.appendChild(c);
+      }
+    });
+  }
+  function drawThermalOverlay(affected){
+    blockNodes.forEach(b=>{
+      if(!affected.has(b.id)) return;
+      const halo = circle(b.cx,b.cy,62, 'rgba(255,98,98,.18)','rgba(255,115,115,.65)',1.5);
+      halo.setAttribute('filter','url(#glowRed)');
+      overlayLayer.appendChild(halo);
+    });
+  }
+  function drawCloudOverlay(){
+    const cloud = document.createElementNS('http://www.w3.org/2000/svg','g');
+    cloud.setAttribute('opacity', stage<5 ? '.55' : '.2');
+    cloud.appendChild(circle(270,245,78,'rgba(210,228,242,.33)'));
+    cloud.appendChild(circle(334,255,84,'rgba(210,228,242,.33)'));
+    cloud.appendChild(circle(412,264,92,'rgba(210,228,242,.33)'));
+    cloud.appendChild(circle(482,254,82,'rgba(210,228,242,.30)'));
+    overlayLayer.appendChild(cloud);
+  }
+  function drawFrostOverlay(affected){
+    blockNodes.forEach(b=>{
+      if(!affected.has(b.id)) return;
+      const fro = rect(b.x+5,b.y+5,146,82,12,'rgba(180,226,255,.16)','rgba(222,244,255,.58)',1.2);
+      overlayLayer.appendChild(fro);
+      for(let i=0;i<6;i++){
+        overlayLayer.appendChild(line(b.x+16+i*20,b.y+8,b.x+8+i*22,b.y+84,'rgba(255,255,255,.34)',1));
+      }
+    });
+  }
+  function drawSmokeOverlay(affected){
+    blockNodes.forEach(b=>{
+      if(!affected.has(b.id)) return;
+      for(let i=0;i<8;i++){
+        const s = circle(b.x+36+i*14,b.y+18+(i%4)*10, 16+(i%3)*6, 'rgba(110,110,110,.22)');
+        overlayLayer.appendChild(s);
+      }
+    });
+  }
+
+  function drawSignals(){
+    const points = [
+      {x:166,y:126,label:'Raspberry'},
+      {x:1008,y:124,label:'Drones'},
+      {x:1004,y:632,label:'Técnicos'},
+      {x:600,y:54,label:'VPS'}
+    ];
+    points.forEach(p=>{
+      const c = circle(p.x,p.y,7,'#45d7ff');
+      c.setAttribute('filter','url(#glowCyan)');
+      signalLayer.appendChild(c);
+      signalLayer.appendChild(textNode(p.x,p.y-14,p.label,11,'#cdefff','middle'));
+    });
+    // telemetry lines to center control
+    ['A2','B2','B3'].forEach(id=>{
+      const b = blockNodes.find(x=>x.id===id); if(!b) return;
+      const l = line(b.cx,b.cy,166,126,'rgba(69,215,255,.42)',2,'6 6');
+      signalLayer.appendChild(l);
+    });
+    if(stage>=2){
+      signalLayer.appendChild(line(166,126,600,54,'rgba(69,215,255,.55)',2,'5 5'));
+    }
+  }
+
+  function drawDrone(progress, mode='drone'){
+    droneLayer.innerHTML='';
+    if(mode==='none' || mode==='observe') return;
+    const sc = scenarioData();
+    const affected = sc.blocks.map(id=>blockNodes.find(x=>x.id===id)).filter(Boolean);
+    if(!affected.length) return;
+    const start = {x:1008, y:124};
+    const target = averagePoint(affected.map(a=>({x:a.cx, y:a.cy})));
+    const t = Math.min(1, progress);
+    const pos = lerpPoint(start,target,t<.7 ? t/.7 : 1);
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('transform',`translate(${pos.x} ${pos.y})`);
+    g.appendChild(line(-24,0,24,0,'#74bfff',4));
+    g.appendChild(line(0,-24,0,24,'#74bfff',4));
+    g.appendChild(circle(0,0,11,'#1e2a35','#b8e6ff',2));
+    [-18,18].forEach(x=>[-18,18].forEach(y=>g.appendChild(circle(x,y,4,'#d8f4ff'))));
+    if(mode==='mixed' || mode==='drone'){
+      if(t>.76){
+        affected.forEach((b,idx)=>{
+          const spray = line(pos.x+(idx-1)*8,pos.y+14,b.cx,b.cy-8,'rgba(117,203,255,.42)',3,'4 8');
+          droneLayer.appendChild(spray);
+        });
+      }
+    }
+    droneLayer.appendChild(g);
+    const trail = line(1008,124,pos.x,pos.y,'rgba(116,191,255,.48)',2,'6 6');
+    droneLayer.insertBefore(trail,g);
+  }
+
+  function drawTechnician(progress){
+    techLayer.innerHTML='';
+    const sc = scenarioData();
+    if(sc.intervention!=='technician' && sc.intervention!=='mixed') return;
+    const affected = sc.blocks.map(id=>blockNodes.find(x=>x.id===id)).filter(Boolean);
+    const target = averagePoint(affected.map(a=>({x:a.cx, y:a.cy}))); if(!target) return;
+    const start = {x:1000, y:666};
+    const route1 = {x:1000,y:360};
+    const route2 = {x:620,y:360};
+    const t = Math.min(1, progress);
+    let pos;
+    if(t<.45) pos = lerpPoint(start, route1, t/.45);
+    else if(t<.75) pos = lerpPoint(route1, route2, (t-.45)/.3);
+    else pos = lerpPoint(route2, {x:target.x, y:target.y+72}, (t-.75)/.25);
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('transform',`translate(${pos.x} ${pos.y})`);
+    g.appendChild(rect(-24,-12,48,24,7,'#b38fff','#f0dcff',1.5));
+    g.appendChild(rect(-16,-9,16,9,2,'#e7f6ff','#fff',1));
+    g.appendChild(circle(15,0,5,'#292a34')); g.appendChild(circle(-14,0,5,'#292a34'));
+    techLayer.appendChild(line(1000,666,1000,360,'rgba(194,130,255,.35)',2,'7 7'));
+    techLayer.appendChild(line(1000,360,620,360,'rgba(194,130,255,.35)',2,'7 7'));
+    techLayer.appendChild(line(620,360,target.x,target.y+72,'rgba(194,130,255,.35)',2,'7 7'));
+    if(t>.84){
+      const person = document.createElementNS('http://www.w3.org/2000/svg','g');
+      person.setAttribute('transform', `translate(${target.x+18} ${target.y+66})`);
+      person.appendChild(circle(0,-11,6,'#ffd6b8'));
+      person.appendChild(rect(-5,-4,10,16,3,'#6ec6ff','#dff7ff',1));
+      techLayer.appendChild(person);
+    }
+    techLayer.appendChild(g);
+  }
+
+  function averagePoint(list){ if(!list.length) return null; return {x:list.reduce((a,b)=>a+b.x,0)/list.length, y:list.reduce((a,b)=>a+b.y,0)/list.length}; }
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function lerpPoint(a,b,t){ return {x:lerp(a.x,b.x,t), y:lerp(a.y,b.y,t)}; }
+
+  function setStage(newStage){
+    stage = Math.max(0, Math.min(timelineDefs.length-1,newStage));
+    updateTimeline();
+    updateText();
+    recomputeKPIs();
+    updateOverlay();
+    renderStageActors(1);
+  }
+
+  function renderStageActors(progress){
+    const sc = scenarioData();
+    droneLayer.innerHTML='';
+    techLayer.innerHTML='';
+    // drone can appear stage 4-6
+    if(stage===4 || stage===5 || stage===6){
+      if(sc.intervention==='drone') drawDrone(progress,'drone');
+      if(sc.intervention==='mixed') { drawDrone(progress,'mixed'); drawTechnician(Math.max(0,(progress-.18)*1.25)); }
+      if(sc.intervention==='technician') drawTechnician(progress);
+    } else if(stage>6) {
+      if(sc.intervention==='drone') drawDrone(1,'drone');
+      if(sc.intervention==='mixed') { drawDrone(1,'mixed'); drawTechnician(1); }
+      if(sc.intervention==='technician') drawTechnician(1);
+    }
+  }
+
+  function tick(ts){
+    if(!playing) return;
+    if(!stageStart) stageStart = ts;
+    const duration = stageDurations[stage] / speedFactor * 1000;
+    const elapsed = ts - stageStart;
+    const progress = Math.min(1, elapsed / duration);
+    updateTimeline();
+    updateText();
+    recomputeKPIs();
+    updateOverlay();
+    renderStageActors(progress);
+
+    if(progress >= 1){
+      if(stage < timelineDefs.length - 1){
+        stage += 1;
+        stageStart = ts;
+      } else {
+        playing = false;
+        stageStart = 0;
+      }
+    }
+    if(playing) rafId = requestAnimationFrame(tick);
+  }
+
+  function startPlayback(){
+    if(playing) return;
+    playing = true;
+    stageStart = 0;
+    rafId = requestAnimationFrame(tick);
+  }
+  function pausePlayback(){ playing = false; if(rafId) cancelAnimationFrame(rafId); rafId=null; }
+  function advanceStage(){ pausePlayback(); setStage(stage+1); }
+
+  function resetSimulation(keepScenario=false){
+    pausePlayback();
+    if(!keepScenario){ currentScenario='dust'; }
+    stage=0;
+    stageStart=0;
+    buildScenarioButtons();
+    buildTimeline();
+    updateText();
+    recomputeKPIs();
+    updateOverlay();
+    renderStageActors(0);
+  }
+
+  function exportJSON(){
+    const sc = scenarioData();
+    const payload = {
+      simulator: 'HelioGuard Orbit',
+      generatedAt: new Date().toISOString(),
+      scenario: sc.name,
+      weather: sc.weather,
+      stage: timelineDefs[stage],
+      severity: Number((severity*100).toFixed(0)),
+      intervention: sc.intervention,
+      expectedMW: expKpi.textContent,
+      realMW: realKpi.textContent,
+      lossMW: lossKpi.textContent,
+      economicImpact: moneyKpi.textContent,
+      affectedBlocks: sc.blocks,
+      note: 'Datos simulados para demostración.'
+    };
+    downloadBlob(JSON.stringify(payload,null,2),'helioguard_orbit_resumen.json','application/json');
+  }
+  function snapshotSVG(){
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(svg);
+    downloadBlob(source,'helioguard_orbit_snapshot.svg','image/svg+xml;charset=utf-8');
+  }
+  function downloadBlob(content, name, type){
+    const blob = new Blob([content], {type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
+
+  document.getElementById('playBtn').addEventListener('click', startPlayback);
+  document.getElementById('pauseBtn').addEventListener('click', pausePlayback);
+  document.getElementById('stepBtn').addEventListener('click', advanceStage);
+  document.getElementById('resetBtn').addEventListener('click', ()=>resetSimulation(true));
+  document.getElementById('exportBtn').addEventListener('click', exportJSON);
+  document.getElementById('snapshotBtn').addEventListener('click', snapshotSVG);
+  severitySlider.addEventListener('input', e=>{ severity = Number(e.target.value)/100; sevLbl.textContent = `${Math.round(severity*100)}%`; recomputeKPIs(); updateOverlay(); });
+  speedSlider.addEventListener('input', e=>{ speedFactor = Number(e.target.value)/10; speedLbl.textContent = `${speedFactor.toFixed(1)}×`; });
+
+  buildScenarioButtons();
+  buildTimeline();
+  buildSolarPark();
+  resetSimulation(true);
+})();
+</script>
+<script>
+// HelioGuard Orbit demo v4 — comprobaciones locales deterministas, NO autenticación criptográfica.
+(() => {
+  const result = document.getElementById('securityResult');
+  const log = document.getElementById('securityLog');
+  const seenEvents = new Set();
+  const seenSeqs = new Set();
+  const events = [];
+  const base = {gatewayId:'gw-demo-01', deviceId:'inverter-03', bootId:'boot-2026-001', eventId:'telem-original-1542', sequenceNumber:1542, reportedW:4800000, modelUpperBoundW:5200000};
+  function ingest(e) {
+    const eventKey = e.gatewayId + ':' + e.eventId;
+    const seqKey = e.deviceId + ':' + e.bootId + ':' + e.sequenceNumber;
+    if(seenEvents.has(eventKey) || seenSeqs.has(seqKey)) return {accepted:false,kind:'REPLAY',message:'Lectura repetida: mismo eventId o bootId+sequenceNumber. Excluida de nueva medición.'};
+    seenEvents.add(eventKey); seenSeqs.add(seqKey);
+    if(e.reportedW > e.modelUpperBoundW) return {accepted:false,kind:'PHYSICAL_INCONSISTENCY',message:'Lectura físicamente inconsistente con un límite modelado. Se retiene para investigar; no prueba ataque.'};
+    return {accepted:true,kind:'ACCEPTED',message:'Medición única aceptada dentro de límites de este escenario simulado.'};
+  }
+  function show(label,e) {
+    const r=ingest(e);
+    events.unshift({label,kind:r.kind,accepted:r.accepted,eventId:e.eventId,seq:e.sequenceNumber});
+    result.textContent = label + ': ' + r.message;
+    result.style.borderColor = r.accepted ? '#2fe48d' : r.kind==='REPLAY' ? '#ff6262' : '#ffca3a';
+    log.textContent = events.slice(0,4).map(x=>x.kind+' | '+x.eventId+' | seq='+x.seq).join(' · ');
+    // Inform the demo operator explicitly that this is a client-side simulation.
+    const chip=document.getElementById('chipComm');
+    if(chip) chip.textContent = 'Integridad DEMO: ' + (r.accepted ? 'evento aceptado' : r.kind);
+    const info=document.getElementById('deviceBox');
+    if(info) info.textContent='Integridad DEMO · '+r.kind+': '+r.message;
+  }
+  document.getElementById('securityOriginalBtn').addEventListener('click',()=>show('Lectura original',{...base}));
+  document.getElementById('securityReplayBtn').addEventListener('click',()=>show('Replay',{...base}));
+  document.getElementById('securityInjectBtn').addEventListener('click',()=>show('Inyección inconsistente',{...base,eventId:'telem-inject-1543',sequenceNumber:1543,reportedW:8000000}));
+  document.getElementById('securityResetBtn').addEventListener('click',()=>{
+    seenEvents.clear();seenSeqs.clear();events.length=0;
+    result.textContent='Eventos de integridad reiniciados. Iniciá por lectura original.';
+    result.style.borderColor='rgba(255,255,255,.08)';log.textContent='';
+  });
+})();
+</script>
+</body>
+</html>

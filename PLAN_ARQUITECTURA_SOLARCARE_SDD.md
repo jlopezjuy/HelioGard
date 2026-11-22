@@ -1,6 +1,6 @@
 # SOLARCARE — Plan maestro de arquitectura y desarrollo guiado por especificaciones
 
-**Versión:** 1.0  
+**Versión:** 3.0 — actualización frontend-first  
 **Fecha:** 22 de noviembre de 2026  
 **Estado:** propuesta técnica, por validar con la telemetría y el dashboard existentes  
 **Ámbito:** Jujuy, Salta; expansión multiempresa y multirregión  
@@ -30,7 +30,7 @@
 |---|---|---|
 | Backend SaaS | JHipster 9.4.0, Java 21 LTS, Spring Boot 4, Maven | generación sólida, seguridad, Liquibase, testing |
 | API | REST JSON/OpenAPI; SSE o WebSocket para live | contratos claros; móviles y web |
-| Frontend | Angular 22, standalone, TypeScript estricto, Angular Material | panel operativo separado |
+| Frontend | Angular standalone, TypeScript estricto, Tailwind CSS v4 | panel operativo separado; demo frontend-first sin backend |
 | Móvil | Flutter 3.50.x, Dart, FVM, Riverpod, go_router, Drift/SQLite | offline-first y Android/iOS |
 | Edge | Raspberry Pi 4/5 64-bit (o mini-PC) + servicio ligero Python | soporte local, almacenamiento, modelado sencillo |
 | Firmware | ESP-IDF para ESP32, solo si falta adquisición | telemetría y sensores opcionales |
@@ -141,7 +141,14 @@ Arquitectura clean por features, repositorio dual local/remoto, cola durable de 
 
 ## 6. Modelo de datos inicial
 
-**Entidades de negocio (JDL cuando corresponda):** Organization, OrganizationMembership, Installation, SiteLocation, Equipment, Inverter, Sensor, Battery, Gateway, AlertRule, Incident, Audit, AuditFinding, AuditEvidence, WorkOrder, WorkOrderTask, MaintenancePlan, Subscription, Proposal, TariffSchedule, EnergyEstimate, LossEstimate, MaintenanceIntervention, RecoveryAssessment.
+### Revisión del dominio v2 — bloqueante antes de Sprint 1
+
+El `specs/domain.initial.jdl` solo tenía cuatro entidades y sirve como esquema introductorio. **No es el ERD completo, no está verificada su normalización y no implementa multitenencia por sí solo.** Se añade `specs/domain.v2.draft.jdl` con 37 entidades y 83 relaciones declaradas, y `docs/MODELO_ER_MULTITENANT_V2.md` con cardinalidades, normalización, RLS, relaciones entre empresas, telemetría de series temporales, pruebas y una fase S0.5 obligatoria. El JDL nuevo es un borrador: falta validarlo mediante JHipster CLI y migraciones Liquibase reales.
+
+
+**Entidades transaccionales:** exactamente las **37 entidades declaradas** en `specs/domain.v2.draft.jdl`. Ver `docs/JDL_FRONTEND_ENTITY_MATRIX_V3.md` (lista exhaustiva, módulo, rutas y tratamiento UI). **No utilizar nombres históricos** como `SiteLocation`, `TariffSchedule` o `EnergyEstimate` como si fueran clases JDL existentes: el modelo actual utiliza `Site`, `TariffPlan`/`TariffRate` y `EnergyModelRun`.
+
+**Uso:** JDL v2 es contrato provisional; hasta que S0.5 no valide importación y migraciones, el frontend usa modelos TS/mocks derivados de esta propuesta. No generar CRUD backend de manera automática durante la hackatón.
 
 **Tablas de serie temporal (migraciones manuales):** `telemetry_measurement` (eventId, installationId, gatewayId, deviceId, ts UTC, powerW, energyWhCounter, irradianceWm2, moduleTemperatureC, status, qualityFlags, rawRef); `telemetry_daily` para agregación; `weather_observation`; `gateway_sync_checkpoint`.
 
@@ -236,6 +243,7 @@ No aprobar sprints solo por screenshots; deben existir pruebas repetibles. Cada 
 | Sprint | Objetivo funcional | Backend / Edge | Angular | Flutter | Definition of Done principal |
 |---|---|---|---|---|---|
 | 0 | Descubrimiento y SDD | Auditoría sistema actual, protocolo, specs, ADR, OpenAPI, fixtures | inventario dashboard | flujo principal / maqueta | alcance MVP, 1 fixture real anonimizado o simulador identificado |
+| 0.5 | Modelo ER y multi-tenant | JDL v2, revisión 3FN, FKs compuestas, política RLS, fixtures de dos empresas | diagrama de datos y permisos | flujos de usuarios multiempresa | parseo JDL, migración PostgreSQL y pruebas tenant negativas |
 | 1 | Base multiempresa | JHipster backend-only, PostgreSQL, roles/tenant, Docker dev, API health | shell y login | shell, flujos y estado local | login y tenant isolation test |
 | 2 | Primera telemetría real | Adaptador read-only inversor o simulador, MQTT, SQLite edge | vista live | vista live LAN | mediciones con tiempo/unidades + desconexión |
 | 3 | Local-first y sincronización | outbox durable, API edge, batch cloud idempotente | estado de gateway | pairing QR, caché | desconectar WAN y no perder registros |
@@ -350,7 +358,7 @@ jhipster --skip-client
 # Opciones sugeridas en asistente: monolith; PostgreSQL; JWT para MVP (o OIDC si IdP existente); Maven; Java 21.
 # Guardar configuración generada; validar salida y crear modelos JDL antes de importarlos.
 # Desde apps/solarcare-api una vez creada una JDL válida:
-# jhipster jdl ../../specs/domain.initial.jdl
+# jhipster jdl ../../specs/domain.v2.draft.jdl --json-only # SOLO en entorno de prueba y tras revisión; NO producción
 ./mvnw test
 cd ../..
 ```
@@ -360,16 +368,18 @@ No forzar un generador para tablas de alto volumen; crear migraciones explícita
 ### 13.3 Angular separado (CLI)
 
 ```bash
-npx -p @angular/cli@22 ng new solarcare-web --directory=apps/solarcare-web \
-  --routing --style=scss --standalone --strict --skip-git
+npx @angular/cli@latest new solarcare-web --directory=apps/solarcare-web \
+  --routing --style=css --standalone --strict --skip-git
 cd apps/solarcare-web
+npx ng add tailwindcss
 npx ng generate component features/installations/pages/installation-list --standalone
-npx ng generate service core/api/installation
-npx ng test --watch=false
+npx ng generate service core/demo/demo-store
+npm run build
+npm test -- --watch=false
 cd ../..
 ```
 
-Material opcional tras confirmar compatibilidad: `npx ng add @angular/material`. Usar cliente OpenAPI generado para evitar DTO duplicados.
+Tailwind es la base visual del demo. Angular Material es opcional y solo para controles específicos si se justifican (sin importar su estética global). En frontend-first no llamar a OpenAPI ni backend: usar puertos con adapters mock, e incorporar el cliente OpenAPI al integrar JHipster.
 
 ### 13.4 Flutter usando FVM (CLI)
 
@@ -501,3 +511,13 @@ Una historia se considera terminada si:
 ## 20. Primera reunión de ejecución
 
 Antes de generar código: acceder al dashboard actual, inventariar repositorio/BD/API, obtener marca y modelo del inversor, muestra anonimizada de telemetría, permisos de acceso, sensores instalados, tipo de instalación (red/híbrida/aislada) y alcance comercial de planes. Si no hay equipo real, acordar un simulador explícito con los mismos contratos. **No usar datos fingidos como evidencia de eficacia.**
+
+
+## Actualización frontend-first v3 — hackatón
+
+- El frontend Angular no necesita backend durante la hackatón: usar adapters mock + fixtures persistentes.
+- Referencia normativa de pantallas: `solarcare-sdd/docs/JDL_FRONTEND_ENTITY_MATRIX_V3.md` para las 37 entidades del JDL v2.
+- Plan F0–F7: `solarcare-sdd/docs/FRONTEND_FIRST_SPRINTS_V3.md`.
+- Dirección de arte Quebrada: `solarcare-sdd/docs/DESIGN_SYSTEM_QUEBRADA_V3.md`.
+- Prompt ejecutable para cualquier IA: `solarcare-sdd/prompts/PROMPT_MAESTRO_ANGULAR_FRONTEND_MOCK_V3.md`.
+- La integración JHipster, RLS y Liquibase sigue bloqueada por S0.5 de validación real; el demo no equivale a backend validado.

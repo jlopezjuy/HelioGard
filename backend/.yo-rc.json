@@ -1,0 +1,39 @@
+{
+  "generator-jhipster": {
+    "applicationType": "monolith",
+    "authenticationType": "jwt",
+    "baseName": "helioguard",
+    "buildTool": "maven",
+    "cacheProvider": null,
+    "clientFramework": "no",
+    "clientTestFrameworks": null,
+    "clientTheme": null,
+    "creationTimestamp": 1795370143700,
+    "databaseType": "sql",
+    "defaultCommand": "app",
+    "devDatabaseType": "postgresql",
+    "enableHibernateCache": null,
+    "enableTranslation": false,
+    "entities": [],
+    "feignClient": null,
+    "jhipsterVersion": "9.4.0",
+    "jwtSecretKey": "MGUzMzYxNjU4YmZhODgwZWFmZWJiNmE5M2RkZmY4NTVlNzJkMjlhOWJjNjEyNWMzY2RjMTg2ZDFjY2YyMzY0YjVmNzYzYjQ5OGQxZjUzODZmMTk4ZDlhNjg3NmYwZGJiYmMxNzIyYWIxZDkyY2FmNWMxZWY2MTY0ZjBjNGVjYTQ=",
+    "microfrontend": null,
+    "microfrontends": [],
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "ar.com.heliguard.app",
+    "prodDatabaseType": "postgresql",
+    "promptValues": {
+      "nativeLanguage": "es"
+    },
+    "reactive": true,
+    "serverPort": null,
+    "serviceDiscoveryType": null,
+    "skipClient": true,
+    "skipCommitHook": true,
+    "syncUserWithIdp": null,
+    "testFrameworks": [],
+    "withAdminUi": null
+  }
+}

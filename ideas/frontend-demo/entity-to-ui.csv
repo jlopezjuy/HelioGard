@@ -1,0 +1,48 @@
+entity,module,feature,route,treatment
+Organization,Organizaciones y permisos,organizations,/organizaciones,main
+OrganizationMembership,Organizaciones y permisos,organizations,/organizaciones,main
+InstallationAccessGrant,Organizaciones y permisos,organizations,/organizaciones,main
+Site,Instalaciones y equipamiento,installations,/instalaciones,main
+Installation,Instalaciones y equipamiento,installations,/instalaciones,main
+EquipmentModel,Instalaciones y equipamiento,installations,/instalaciones,contextual
+SolarArray,Instalaciones y equipamiento,installations,/instalaciones,contextual
+SolarString,Instalaciones y equipamiento,installations,/instalaciones,contextual
+Equipment,Instalaciones y equipamiento,installations,/instalaciones,main
+Gateway,Instalaciones y equipamiento,installations,/instalaciones,main
+MetricDefinition,Instalaciones y equipamiento,installations,/instalaciones,contextual
+TelemetryChannel,Instalaciones y equipamiento,installations,/instalaciones,contextual
+AlertRule,Monitoreo y diagnóstico,monitoring,/monitoreo,contextual
+Incident,Monitoreo y diagnóstico,monitoring,/monitoreo,main
+IncidentEvent,Monitoreo y diagnóstico,monitoring,/monitoreo,contextual
+EnergyModelRun,Monitoreo y diagnóstico,monitoring,/monitoreo,main
+LossAssessment,Monitoreo y diagnóstico,monitoring,/monitoreo,main
+LossCauseEstimate,Monitoreo y diagnóstico,monitoring,/monitoreo,contextual
+TariffPlan,Economía energética,economics,/economia,main
+TariffRate,Economía energética,economics,/economia,contextual
+EconomicAssessment,Economía energética,economics,/economia,main
+AuditTemplate,Auditorías,audits,/auditorias,contextual
+AuditQuestion,Auditorías,audits,/auditorias,contextual
+AuditReport,Auditorías,audits,/auditorias,main
+AuditAnswer,Auditorías,audits,/auditorias,contextual
+AuditFinding,Auditorías,audits,/auditorias,main
+AuditEvidence,Auditorías,audits,/auditorias,contextual
+MaintenancePlan,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+MaintenancePlanVersion,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+ServiceAgreement,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+PlanSubscription,Cobertura y mantenimiento,maintenance,/mantenimiento,main
+ServiceProposal,Cobertura y mantenimiento,maintenance,/mantenimiento,main
+WorkOrder,Cobertura y mantenimiento,maintenance,/mantenimiento,main
+WorkOrderTask,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+MaintenanceIntervention,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+InterventionEvidence,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+RecoveryAssessment,Cobertura y mantenimiento,maintenance,/mantenimiento,contextual
+DeviceIdentity,Integridad y confianza,integrity,/integridad,contextual
+TelemetryIntegrityEvent,Integridad y confianza,integrity,/integridad,main
+IntegrityAssessment,Integridad y confianza,integrity,/integridad,contextual
+EvidenceSource,Fuentes y procedencia,provenance,/fuentes,contextual
+DataProvenance,Fuentes y procedencia,provenance,/fuentes,contextual
+SecurityIncident,Integridad y confianza,integrity,/integridad,main
+DroneAsset,Misiones de drones,missions,/misiones,contextual
+DroneMission,Misiones de drones,missions,/misiones,main
+MissionAuthorization,Misiones de drones,missions,/misiones,contextual
+VerificationResult,Misiones de drones,missions,/misiones,contextual

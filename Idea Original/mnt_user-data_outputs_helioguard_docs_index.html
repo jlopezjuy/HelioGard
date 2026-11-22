@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HelioGuard · Telemetría solar confiable</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+:root{--cielo:#E9F0F4;--panel:#F8FBFC;--tinta:#10243A;--suave:#5B7186;--sol:#F0A202;--verde:#2F8F5B;--amarillo:#B97D00;--rojo:#C2362B;--linea:#C9D8E2;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--cielo:#0F1C2A;--panel:#162637;--tinta:#E6EEF5;--suave:#93A8BA;--linea:#27405A;--verde:#4CC88A;--amarillo:#F0B73A;--rojo:#F0675B;color-scheme:dark}}
+:root[data-theme="dark"]{--cielo:#0F1C2A;--panel:#162637;--tinta:#E6EEF5;--suave:#93A8BA;--linea:#27405A;--verde:#4CC88A;--amarillo:#F0B73A;--rojo:#F0675B;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--cielo);color:var(--tinta);font:16px/1.5 "IBM Plex Sans",system-ui,sans-serif;min-height:100vh}
+h1,h2,.num{font-family:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif}
+header{display:flex;justify-content:space-between;align-items:baseline;padding:20px 28px 8px;gap:12px;flex-wrap:wrap}
+h1{font-size:1.6rem;font-weight:700}header p{color:var(--suave)}
+#banda{margin:8px 28px 0;padding:14px 18px;border-radius:6px;color:#fff;font-weight:500;background:var(--verde);transition:background .3s}
+#banda.amarillo{background:var(--amarillo)}#banda.rojo{background:var(--rojo)}
+main{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:20px;padding:20px 28px}
+@media(max-width:820px){main{grid-template-columns:1fr;padding:16px}header{padding-inline:16px}#banda{margin-inline:16px}}
+.caja{background:var(--panel);border:1px solid var(--linea);border-radius:6px;padding:16px}
+h2{font-size:1rem;font-weight:700;margin-bottom:10px}
+canvas{width:100%;height:320px;display:block}
+.leyenda{display:flex;gap:18px;flex-wrap:wrap;color:var(--suave);font-size:.875rem;margin-top:8px}
+.leyenda i{display:inline-block;width:22px;border-top:3px solid var(--tinta);vertical-align:middle;margin-right:6px}
+.leyenda i.e{border-top:3px dashed var(--sol)}
+.datos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.num{font-size:1.5rem;font-weight:700}.num small{font-size:.8rem;color:var(--suave);font-weight:500}
+.dato span{display:block;color:var(--suave);font-size:.8125rem}
+.perdida{margin-top:14px;padding-top:14px;border-top:1px solid var(--linea)}
+.alerta{border-left:4px solid var(--rojo);padding:6px 10px;margin-bottom:8px;background:var(--cielo);border-radius:0 4px 4px 0}
+.alerta.amarillo{border-color:var(--amarillo)}.alerta b{display:block}
+.alerta span,.vacio{color:var(--suave);font-size:.875rem}
+.controles{display:flex;flex-wrap:wrap;gap:10px;padding:0 28px 28px}
+@media(max-width:820px){.controles{padding:0 16px 24px}}
+button{font:inherit;font-weight:500;padding:10px 16px;border-radius:6px;border:1.5px solid var(--tinta);background:transparent;color:var(--tinta);cursor:pointer}
+button:hover,button.activo{background:var(--tinta);color:var(--cielo)}
+button:focus-visible{outline:3px solid var(--sol);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>HelioGuard</h1>
+  <p>Hora simulada <b id="reloj">--:--</b> · Instalación de 5 kW · Datos simulados</p>
+</header>
+<div id="banda" role="status">Iniciando…</div>
+<main>
+  <section class="caja">
+    <h2>Potencia: real vs esperada (kW)</h2>
+    <canvas id="grafico" aria-label="Gráfico de potencia real contra esperada durante el día"></canvas>
+    <div class="leyenda"><span><i></i>Real medida</span><span><i class="e"></i>Esperada por irradiación</span></div>
+  </section>
+  <aside>
+    <section class="caja">
+      <h2>Alertas</h2>
+      <div id="alertas"><p class="vacio">Sin alertas.</p></div>
+      <div class="perdida">
+        <span class="vacio">Pérdida estimada del día</span>
+        <div class="num"><span id="kwh">0</span> <small>kWh</small> · $<span id="pesos">0</span></div>
+      </div>
+    </section>
+    <section class="caja" style="margin-top:20px">
+      <h2>Última lectura</h2>
+      <div class="datos" id="datos"></div>
+    </section>
+  </aside>
+</main>
+<div class="controles">
+  <button data-modo="normal" class="activo">Día normal</button>
+  <button data-modo="suciedad">Ensuciar panel</button>
+  <button data-modo="replay">Ataque replay</button>
+  <button data-modo="inyeccion">Inyección falsa</button>
+  <button id="reiniciar">Reiniciar día</button>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const PICO = 5, TARIFA = 120, PASO = 5/60;   // kW, $ por kWh, horas por lectura
+const MENSAJES = {
+  verde: "Todo en orden: los datos coinciden con lo esperado.",
+  amarillo: "Atención: el rendimiento es menor al esperado.",
+  rojo: "Alerta de integridad: no confíes en estos datos."
+};
+const CAMPOS = [["potencia","Potencia","kW"],["tension","Tensión","V"],["corriente","Corriente","A"],
+  ["irradiancia","Irradiancia","W/m²"],["temperatura","Temperatura","°C"]];
+const rnd = (a,b) => a + Math.random()*(b-a);
+let E, pts = [];
+
+function reiniciar(){ E = {hora:7, modo:"normal", suc:1, cong:null, perd:0, hist:[]}; pts = []; }
+const irradiancia = h => Math.max(0, Math.sin(Math.PI*(h-6.5)/12))*1000;
+
+/* ---- Simulador de sensores ---- */
+function lectura(){
+  const irr = irradiancia(E.hora), temp = 20 + irr*0.025 + rnd(-.4,.4);
+  const esperada = PICO*irr/1000*(1 - 0.004*(temp-25));
+  if(E.modo === "suciedad") E.suc = Math.max(0.55, E.suc - 0.012);
+  else if(E.modo === "normal") E.suc = Math.min(1, E.suc + 0.05);
+  const pot = esperada*E.suc*rnd(.985,1.015), v = 380 + rnd(-3,3);
+  let r = {potencia:pot, tension:v, corriente:pot*1000/v, irradiancia:irr*rnd(.98,1.02), temperatura:temp};
+  if(E.modo === "replay"){ E.cong = E.cong || {...r}; r = {...E.cong}; }
+  else { E.cong = null; if(E.modo === "inyeccion") r.potencia = esperada*1.7 + 0.8; }
+  r.esperada = esperada;
+  return r;
+}
+
+/* ---- Detectores ---- */
+function analizar(r){
+  E.hist.push(r); if(E.hist.length > 12) E.hist.shift();
+  const al = [], pvi = r.tension*r.corriente/1000;
+  if(Math.abs(r.potencia - pvi) > 0.08*Math.max(pvi,.1) || r.potencia > 1.25*r.esperada + 0.3)
+    al.push({nivel:"rojo", titulo:"Dato imposible",
+      texto:"La potencia informada no coincide con tensión × corriente o supera lo físicamente posible. Sensor roto o dato inyectado."});
+  const ult = E.hist.slice(-5);
+  if(ult.length === 5 && new Set(ult.map(x => x.potencia + "|" + x.tension)).size === 1)
+    al.push({nivel:"rojo", titulo:"Posible replay",
+      texto:"Las últimas 5 lecturas son idénticas: los datos están congelados o repetidos."});
+  const util = E.hist.filter(x => x.esperada > .5);
+  if(util.length >= 6 && r.esperada > .5){
+    const ratio = util.reduce((s,x) => s + x.potencia, 0) / util.reduce((s,x) => s + x.esperada, 0);
+    if(ratio < .93) al.push({nivel:"amarillo", titulo:"Rendimiento bajo",
+      texto:`Produce ${Math.round(ratio*100)}% de lo esperado. Probable suciedad: programar limpieza.`});
+  }
+  return al;
+}
+
+function paso(){
+  const r = lectura(), alertas = analizar(r), niv = alertas.map(a => a.nivel);
+  const estado = niv.includes("rojo") ? "rojo" : niv.length ? "amarillo" : "verde";
+  if(estado !== "rojo" && r.potencia < .97*r.esperada) E.perd += (r.esperada - r.potencia)*PASO;
+  const hora = E.hora;
+  E.hora += PASO; if(E.hora >= 19) E.hora = 7;
+  return {hora, estado, alertas, lectura:r, kwh:E.perd, pesos:Math.round(E.perd*TARIFA)};
+}
+
+/* ---- Interfaz ---- */
+const reloj = h => `${String(Math.floor(h)).padStart(2,"0")}:${String(Math.round((h%1)*60)%60).padStart(2,"0")}`;
+const color = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function render(d){
+  $("#banda").className = d.estado; $("#banda").textContent = MENSAJES[d.estado];
+  $("#reloj").textContent = reloj(d.hora);
+  $("#kwh").textContent = d.kwh.toFixed(2); $("#pesos").textContent = d.pesos.toLocaleString("es-AR");
+  $("#alertas").innerHTML = d.alertas.length
+    ? d.alertas.map(a => `<div class="alerta ${a.nivel}"><b>${a.titulo}</b><span>${a.texto}</span></div>`).join("")
+    : '<p class="vacio">Sin alertas.</p>';
+  $("#datos").innerHTML = CAMPOS.map(([k,n,u]) =>
+    `<div class="dato"><span>${n}</span><div class="num">${d.lectura[k].toFixed(1)} <small>${u}</small></div></div>`).join("");
+}
+
+function dibujar(){
+  const c = $("#grafico"), dpr = window.devicePixelRatio || 1;
+  c.width = c.clientWidth*dpr; c.height = c.clientHeight*dpr;
+  const g = c.getContext("2d"); g.scale(dpr, dpr);
+  const W = c.clientWidth, H = c.clientHeight, m = {l:40,r:10,t:10,b:28};
+  const X = h => m.l + (h-7)/12*(W-m.l-m.r), Y = p => H-m.b - p/6*(H-m.t-m.b);
+  g.font = "12px 'IBM Plex Sans',sans-serif"; g.fillStyle = color("--suave"); g.strokeStyle = color("--linea");
+  for(let p=0;p<=6;p+=2){ g.beginPath(); g.moveTo(m.l,Y(p)); g.lineTo(W-m.r,Y(p)); g.stroke(); g.fillText(p,8,Y(p)+4); }
+  for(let h=7;h<=19;h+=2) g.fillText(h+":00", X(h)-14, H-8);
+  const linea = (k, col, dash) => {
+    g.beginPath(); g.setLineDash(dash); g.strokeStyle = col; g.lineWidth = 2.5;
+    pts.forEach((q,i) => i ? g.lineTo(X(q.h),Y(q[k])) : g.moveTo(X(q.h),Y(q[k])));
+    g.stroke(); g.setLineDash([]);
+  };
+  linea("e", color("--sol"), [6,5]); linea("p", color("--tinta"), []);
+}
+
+function tick(){
+  const d = paso();
+  if(pts.length && d.hora < pts[pts.length-1].h) pts = [];
+  pts.push({h:d.hora, p:d.lectura.potencia, e:d.lectura.esperada});
+  render(d); dibujar();
+}
+
+const activar = m => document.querySelectorAll("[data-modo]").forEach(x => x.classList.toggle("activo", x.dataset.modo === m));
+document.querySelectorAll("[data-modo]").forEach(b => b.onclick = () => { E.modo = b.dataset.modo; activar(E.modo); });
+$("#reiniciar").onclick = () => { reiniciar(); activar("normal"); };
+window.addEventListener("resize", dibujar);
+reiniciar(); tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helioguard.example/spec/drone-mission-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "missionCode",
+    "installationId",
+    "kind",
+    "status",
+    "isSimulation",
+    "safetyChecks"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "missionCode": {
+      "type": "string",
+      "minLength": 1
+    },
+    "installationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "VISUAL_INSPECTION",
+        "THERMAL_INSPECTION",
+        "CLEANING"
+      ]
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "SAFETY_REVIEW",
+        "AWAITING_AUTHORIZATION",
+        "AUTHORIZED",
+        "DISPATCHED",
+        "IN_FLIGHT",
+        "COMPLETED",
+        "ABORTED"
+      ]
+    },
+    "isSimulation": {
+      "type": "boolean"
+    },
+    "safetyChecks": {
+      "type": "object",
+      "required": [
+        "weather",
+        "moduleManufacturer",
+        "siteAccess",
+        "operator"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "weather": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PENDING"
+          ]
+        },
+        "moduleManufacturer": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PENDING"
+          ]
+        },
+        "siteAccess": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PENDING"
+          ]
+        },
+        "operator": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PENDING"
+          ]
+        }
+      }
+    },
+    "authorizationId": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

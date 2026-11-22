@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "integrityEventId": "integrity-demo-0001",
+  "organizationId": "org-jujuy",
+  "installationId": "plant-cauchari-demo",
+  "deviceId": "inverter-03",
+  "observedAt": "2026-11-22T15:07:00Z",
+  "eventType": "REPLAY",
+  "status": "QUARANTINED",
+  "evidence": {
+    "reason": "Duplicación de bootId y sequenceNumber previamente procesado",
+    "ruleVersion": "replay-v1",
+    "eventId": "telemetry-demo-original",
+    "bootId": "boot-demo-001",
+    "sequenceNumber": 1542
+  },
+  "classificationNote": "El evento fue rechazado como duplicado. La intención maliciosa no se infiere únicamente del replay."
+}

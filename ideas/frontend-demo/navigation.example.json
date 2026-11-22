@@ -1,0 +1,143 @@
+{
+  "version": 4,
+  "label": "HelioGuard Demo",
+  "routes": [
+    {
+      "path": "/inicio",
+      "feature": "home",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician",
+        "auditor"
+      ]
+    },
+    {
+      "path": "/instalaciones",
+      "feature": "installations",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician",
+        "auditor"
+      ]
+    },
+    {
+      "path": "/monitoreo",
+      "feature": "monitoring",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician"
+      ]
+    },
+    {
+      "path": "/alertas",
+      "feature": "incidents",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician"
+      ]
+    },
+    {
+      "path": "/economia",
+      "feature": "economics",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator"
+      ]
+    },
+    {
+      "path": "/auditorias",
+      "feature": "audits",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "auditor",
+        "technician"
+      ]
+    },
+    {
+      "path": "/mantenimiento",
+      "feature": "maintenance",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician"
+      ]
+    },
+    {
+      "path": "/planes",
+      "feature": "plans",
+      "roles": [
+        "platform_admin",
+        "owner"
+      ]
+    },
+    {
+      "path": "/organizaciones",
+      "feature": "organizations",
+      "roles": [
+        "platform_admin",
+        "owner"
+      ]
+    },
+    {
+      "path": "/configuracion",
+      "feature": "settings",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator"
+      ]
+    },
+    {
+      "path": "/demo",
+      "feature": "demo",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician",
+        "auditor"
+      ]
+    },
+    {
+      "path": "/integridad",
+      "feature": "integrity",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "auditor"
+      ]
+    },
+    {
+      "path": "/misiones",
+      "feature": "missions",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "operator",
+        "technician"
+      ]
+    },
+    {
+      "path": "/fuentes",
+      "feature": "provenance",
+      "roles": [
+        "platform_admin",
+        "owner",
+        "auditor",
+        "operator"
+      ]
+    }
+  ]
+}

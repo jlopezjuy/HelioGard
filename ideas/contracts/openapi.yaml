@@ -1,0 +1,193 @@
+openapi: 3.1.0
+info:
+  title: HelioGuard API — contrato objetivo
+  version: 4.0.0-draft
+  description: >-
+    Contrato de diseño, NO servicio desplegado. El frontend hackatón opera
+    solamente con repositorios mock; la API real llegará tras S0.5 y pruebas tenant.
+servers:
+  - url: https://api.helioguard.example
+    description: Dominio ficticio de documentación, no endpoint existente
+security:
+  - bearerAuth: []
+tags:
+  - name: installations
+  - name: telemetry
+  - name: integrity
+  - name: missions
+  - name: work-orders
+paths:
+  /api/v1/installations/{installationId}/overview:
+    get:
+      operationId: getInstallationOverview
+      tags: [installations]
+      description: Datos limitados a organización propietaria o acceso delegado explícito.
+      parameters:
+        - $ref: '#/components/parameters/installationId'
+      responses:
+        '200':
+          description: Estado de instalación con calidad y procedencia
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/InstallationOverview'}
+        '401': {description: No autenticado}
+        '403': {description: Sin permiso}
+        '404': {description: Instalación inexistente/no visible}
+  /api/v1/gateways/{gatewayId}/telemetry:batch:
+    post:
+      operationId: ingestTelemetryBatch
+      tags: [telemetry]
+      description: >-
+        Solo gateways autenticados con tenant e instalación resueltos en backend.
+        Idempotencia gatewayId+eventId; secuencia por device+bootId como control separado.
+        Quarantined no se utiliza en métricas hasta revisión.
+      parameters:
+        - name: gatewayId
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [events]
+              additionalProperties: false
+              properties:
+                events:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items: {$ref: '#/components/schemas/TelemetryEvent'}
+      responses:
+        '202':
+          description: ACK por evento; aceptar lote no implica confiar en todas sus lecturas
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accepted, duplicates, quarantined]
+                properties:
+                  accepted: {type: integer, minimum: 0}
+                  duplicates: {type: integer, minimum: 0}
+                  quarantined: {type: integer, minimum: 0}
+        '400': {description: Payload inválido}
+        '401': {description: Gateway no autorizado}
+        '403': {description: Instalación ajena o gateway revocado}
+        '413': {description: Lote demasiado grande}
+  /api/v1/installations/{installationId}/integrity-events:
+    get:
+      operationId: listIntegrityEvents
+      tags: [integrity]
+      parameters:
+        - $ref: '#/components/parameters/installationId'
+      responses:
+        '200':
+          description: Eventos permitidos con evidencia y estado de revisión
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/IntegrityEvent'}
+        '403': {description: Sin permiso}
+  /api/v1/installations/{installationId}/drone-missions:
+    post:
+      operationId: proposeDroneMission
+      tags: [missions]
+      description: Crear propuesta; NO inicia vuelo ni abre un canal de control de drones.
+      parameters:
+        - $ref: '#/components/parameters/installationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/DroneMission'}
+      responses:
+        '201': {description: Misión propuesta y pendiente de revisión}
+        '403': {description: Sin autorización tenant/prestador}
+        '422': {description: Datos o condiciones inválidas}
+  /api/v1/missions/{missionCode}/authorization:
+    post:
+      operationId: decideMissionAuthorization
+      tags: [missions]
+      description: Aprobación contractual/operativa externa; controlar rol y evidencias.
+      parameters:
+        - name: missionCode
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision, checklistHash]
+              properties:
+                decision: {type: string, enum: [APPROVED, REJECTED]}
+                checklistHash: {type: string, minLength: 16}
+                note: {type: string}
+      responses:
+        '200': {description: Decisión registrada; NO implica despegue real}
+        '403': {description: Operador no autorizado}
+        '409': {description: Estado inválido o autorización caducada}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    installationId:
+      name: installationId
+      in: path
+      required: true
+      schema: {type: string}
+  schemas:
+    InstallationOverview:
+      type: object
+      required: [installationId, connectivity, dataQuality, updatedAt]
+      properties:
+        installationId: {type: string}
+        connectivity: {type: string, enum: [ONLINE, STALE, OFFLINE]}
+        measuredEnergyKWh: {type: [number, 'null'], minimum: 0}
+        expectedCleanEnergyKWh: {type: [number, 'null'], minimum: 0}
+        observedGapKWh: {type: [number, 'null'], minimum: 0}
+        dataQuality: {type: string, enum: [VALID, PARTIAL, INSUFFICIENT_DATA]}
+        evidenceSourceIds: {type: array, items: {type: string}}
+        updatedAt: {type: string, format: date-time}
+    TelemetryEvent:
+      type: object
+      required: [schemaVersion, eventId, installationId, gatewayId, deviceId, timestamp, quality, readings]
+      properties:
+        schemaVersion: {type: integer, enum: [1]}
+        eventId: {type: string, format: uuid}
+        installationId: {type: string}
+        gatewayId: {type: string}
+        deviceId: {type: string}
+        bootId: {type: string}
+        sequenceNumber: {type: integer, minimum: 0}
+        timestamp: {type: string, format: date-time}
+        quality: {type: string, enum: [VALID, ESTIMATED, STALE, INVALID]}
+        flags: {type: array, items: {type: string}}
+        readings: {type: object, additionalProperties: true}
+    IntegrityEvent:
+      type: object
+      required: [integrityEventId, eventType, status, observedAt]
+      properties:
+        integrityEventId: {type: string}
+        eventType: {type: string, enum: [REPLAY, DUPLICATE_EVENT, SEQUENCE_GAP, SIGNATURE_INVALID, AUTH_FAILURE, CLOCK_SKEW, PHYSICAL_INCONSISTENCY, DEVICE_UNAVAILABLE]}
+        status: {type: string, enum: [OBSERVED, QUARANTINED, UNDER_REVIEW, EXPLAINED, CONFIRMED, CLOSED]}
+        observedAt: {type: string, format: date-time}
+        reason: {type: string}
+        deviceId: {type: string}
+    DroneMission:
+      type: object
+      required: [missionCode, kind, status, isSimulation]
+      properties:
+        missionCode: {type: string}
+        kind: {type: string, enum: [VISUAL_INSPECTION, THERMAL_INSPECTION, CLEANING]}
+        status: {type: string, enum: [DRAFT, SAFETY_REVIEW, AWAITING_AUTHORIZATION, AUTHORIZED, DISPATCHED, IN_FLIGHT, COMPLETED, ABORTED]}
+        isSimulation: {type: boolean}
+        safetyChecklistSummary: {type: string}

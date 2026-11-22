@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helioguard.example/spec/telemetry-event-v1.schema.json",
+  "title": "HelioGuard Telemetry Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "installationId",
+    "gatewayId",
+    "deviceId",
+    "timestamp",
+    "quality",
+    "readings"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "installationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gatewayId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deviceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "quality": {
+      "enum": [
+        "VALID",
+        "ESTIMATED",
+        "STALE",
+        "INVALID"
+      ]
+    },
+    "flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "readings": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "acPowerW": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dcPowerW": {
+          "type": "number",
+          "minimum": 0
+        },
+        "acEnergyWhCounter": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dcVoltageV": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dcCurrentA": {
+          "type": "number"
+        },
+        "moduleTemperatureC": {
+          "type": "number"
+        },
+        "airTemperatureC": {
+          "type": "number"
+        },
+        "irradianceWm2": {
+          "type": "number",
+          "minimum": 0
+        },
+        "batterySocPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "inverterStatus": {
+          "type": "string"
+        },
+        "inverterFaultCode": {
+          "type": "string"
+        }
+      }
+    },
+    "bootId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "sequenceNumber": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "keyId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "messageSignature": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Only for transport/application schemes with explicit canonicalization. Never replace TLS/device auth blindly."
+    }
+  }
+}

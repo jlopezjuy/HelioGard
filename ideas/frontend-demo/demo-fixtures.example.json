@@ -1,0 +1,332 @@
+{
+  "meta": {
+    "version": "v4",
+    "note": "Datos sintéticos; no representan observaciones de satélite, ataques o operaciones de drones reales.",
+    "currency": "ARS",
+    "timeZone": "America/Argentina/Jujuy",
+    "seed": "helioguard-hackaton-v4"
+  },
+  "organizations": [
+    {
+      "id": "org-jujuy",
+      "name": "Andes Solar Jujuy",
+      "kind": "SERVICE_PROVIDER",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "org-prop",
+      "name": "Familia Andina",
+      "kind": "HOUSEHOLD",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "org-salta",
+      "name": "Sol del Norte Salta",
+      "kind": "BUSINESS",
+      "status": "ACTIVE"
+    }
+  ],
+  "demoUsers": [
+    {
+      "id": "usr-owner",
+      "name": "Operadora Demo",
+      "memberships": [
+        {
+          "organizationId": "org-jujuy",
+          "role": "OWNER",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "usr-tech",
+      "name": "Técnico Demo",
+      "memberships": [
+        {
+          "organizationId": "org-jujuy",
+          "role": "TECHNICIAN",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "usr-home",
+      "name": "Propietaria Demo",
+      "memberships": [
+        {
+          "organizationId": "org-prop",
+          "role": "OWNER",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    {
+      "id": "usr-salta",
+      "name": "Administradora Salta",
+      "memberships": [
+        {
+          "organizationId": "org-salta",
+          "role": "OWNER",
+          "status": "ACTIVE"
+        }
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "id": "site-abra",
+      "organizationId": "org-jujuy",
+      "name": "Planta Puna Demo",
+      "city": "Abra Pampa",
+      "province": "Jujuy",
+      "altitudeM": 3450
+    },
+    {
+      "id": "site-casa",
+      "organizationId": "org-prop",
+      "name": "Casa Andina Demo",
+      "city": "San Salvador de Jujuy",
+      "province": "Jujuy"
+    },
+    {
+      "id": "site-oran",
+      "organizationId": "org-salta",
+      "name": "Parque Calchaquí Demo",
+      "city": "Cafayate",
+      "province": "Salta"
+    }
+  ],
+  "installations": [
+    {
+      "id": "ins-puna",
+      "organizationId": "org-jujuy",
+      "siteId": "site-abra",
+      "name": "Puna Norte",
+      "gridMode": "GRID_TIED",
+      "nominalDcKw": 12000,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ins-casa",
+      "organizationId": "org-prop",
+      "siteId": "site-casa",
+      "name": "Casa Andina",
+      "gridMode": "HYBRID",
+      "nominalDcKw": 3.3,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "ins-salta",
+      "organizationId": "org-salta",
+      "siteId": "site-oran",
+      "name": "Calchaquí Oeste",
+      "gridMode": "GRID_TIED",
+      "nominalDcKw": 750,
+      "status": "ACTIVE"
+    }
+  ],
+  "accessGrants": [
+    {
+      "id": "grant-001",
+      "organizationId": "org-prop",
+      "installationId": "ins-casa",
+      "granteeOrganizationId": "org-jujuy",
+      "scope": "MAINTENANCE",
+      "status": "ACTIVE",
+      "validFrom": "2026-11-01T00:00:00Z"
+    }
+  ],
+  "gateways": [
+    {
+      "id": "gw-1",
+      "installationId": "ins-puna",
+      "organizationId": "org-jujuy",
+      "status": "ONLINE",
+      "hardwareId": "raspi-demo-01"
+    },
+    {
+      "id": "gw-2",
+      "installationId": "ins-casa",
+      "organizationId": "org-prop",
+      "status": "ONLINE",
+      "hardwareId": "raspi-demo-02"
+    }
+  ],
+  "incidents": [
+    {
+      "id": "inc-001",
+      "installationId": "ins-puna",
+      "organizationId": "org-jujuy",
+      "title": "Pérdida sectorizada — polvo",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "firstSeenAt": "2026-11-22T12:00:00Z",
+      "causeHypothesis": "SOILING"
+    },
+    {
+      "id": "inc-002",
+      "installationId": "ins-casa",
+      "organizationId": "org-prop",
+      "title": "Carga BMS restringida por frío",
+      "severity": "HIGH",
+      "status": "ACKNOWLEDGED",
+      "firstSeenAt": "2026-11-22T09:20:00Z",
+      "causeHypothesis": "BATTERY_RESTRICTION"
+    },
+    {
+      "id": "inc-003",
+      "installationId": "ins-salta",
+      "organizationId": "org-salta",
+      "title": "Falla inversor A3",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "firstSeenAt": "2026-11-22T12:15:00Z",
+      "causeHypothesis": "HARDWARE"
+    }
+  ],
+  "performanceExamples": [
+    {
+      "installationId": "ins-puna",
+      "period": "2026-11-21",
+      "expectedKWh": 49000,
+      "actualKWh": 44700,
+      "estimatedDeficitKWh": 4300,
+      "attribution": "UNKNOWN",
+      "quality": "SIMULATED"
+    },
+    {
+      "installationId": "ins-casa",
+      "period": "2026-11-21",
+      "expectedKWh": 13.2,
+      "actualKWh": 10.9,
+      "estimatedDeficitKWh": 2.3,
+      "attribution": "UNKNOWN",
+      "quality": "SIMULATED"
+    },
+    {
+      "installationId": "ins-salta",
+      "period": "2026-11-21",
+      "expectedKWh": 2850,
+      "actualKWh": 2480,
+      "estimatedDeficitKWh": 370,
+      "attribution": "UNKNOWN",
+      "quality": "SIMULATED"
+    }
+  ],
+  "tariffExample": {
+    "currencyCode": "ARS",
+    "purchasePricePerKwh": 200,
+    "exportPricePerKwh": 80,
+    "selfConsumptionRatio": 0.7,
+    "note": "Supuestos de demo; no tarifas vigentes."
+  },
+  "workOrders": [
+    {
+      "id": "wo-001",
+      "organizationId": "org-jujuy",
+      "installationId": "ins-puna",
+      "incidentId": "inc-001",
+      "status": "CREATED",
+      "title": "Inspección de polvo y limpieza",
+      "priority": "MEDIUM"
+    }
+  ],
+  "demoScenarios": [
+    "normal",
+    "soiling",
+    "inverter-failure",
+    "transient-cloud",
+    "frost",
+    "hail",
+    "gateway-offline",
+    "vps-offline",
+    "drone-dispatch",
+    "technician-dispatch",
+    "owner-cleaning"
+  ],
+  "demoSecurity": {
+    "deviceIdentities": [
+      {
+        "id": "identity-01",
+        "organizationId": "org-jujuy",
+        "deviceUid": "inverter-03",
+        "trustStatus": "ACTIVE",
+        "keyFingerprint": "demo-only-not-a-cryptographic-key"
+      }
+    ],
+    "integrityEvents": [
+      {
+        "id": "ev-replay-01",
+        "organizationId": "org-jujuy",
+        "eventType": "REPLAY",
+        "status": "QUARANTINED",
+        "installationId": "ins-puna",
+        "source": "inverter-03",
+        "detail": "secuencia repetida en el mismo bootId"
+      },
+      {
+        "id": "ev-inject-01",
+        "organizationId": "org-jujuy",
+        "eventType": "PHYSICAL_INCONSISTENCY",
+        "status": "UNDER_REVIEW",
+        "installationId": "ins-puna",
+        "detail": "potencia fuera de límites físicos modelados, causa desconocida"
+      }
+    ],
+    "evidenceSources": [
+      {
+        "id": "source-model",
+        "code": "weather-sim",
+        "kind": "SATELLITE_WEATHER",
+        "providerName": "Simulación didáctica, no datos reales",
+        "spatialResolutionM": null
+      }
+    ],
+    "securityIncidents": [
+      {
+        "id": "sec-001",
+        "organizationId": "org-jujuy",
+        "title": "Intento de reutilización de secuencia",
+        "status": "TRIAGE",
+        "integrityEventId": "ev-replay-01"
+      }
+    ]
+  },
+  "droneOperations": {
+    "assets": [
+      {
+        "id": "drone-01",
+        "organizationId": "org-jujuy",
+        "assetCode": "DR-DEMO-1",
+        "status": "READY"
+      }
+    ],
+    "missions": [
+      {
+        "id": "mission-01",
+        "organizationId": "org-jujuy",
+        "installationId": "ins-puna",
+        "missionCode": "HG-DEMO-001",
+        "kind": "CLEANING",
+        "status": "AWAITING_AUTHORIZATION",
+        "isSimulation": true
+      }
+    ],
+    "missionAuthorizations": [
+      {
+        "id": "approval-01",
+        "organizationId": "org-jujuy",
+        "missionId": "mission-01",
+        "status": "PENDING"
+      }
+    ],
+    "verificationResults": [
+      {
+        "id": "check-01",
+        "organizationId": "org-jujuy",
+        "missionId": "mission-01",
+        "status": "PENDING"
+      }
+    ]
+  }
+}

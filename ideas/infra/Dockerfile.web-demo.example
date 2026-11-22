@@ -1,0 +1,14 @@
+# TEMPLATE — requiere apps/helioguard-web creado por Angular CLI antes de build.
+# Ejecutar desde raíz del proyecto: docker build -f infra/Dockerfile.web-demo.example .
+FROM node:24-alpine AS build
+WORKDIR /app
+COPY apps/helioguard-web/package*.json ./
+RUN npm ci
+COPY apps/helioguard-web/ ./
+RUN npm run build
+
+FROM nginx:stable-alpine
+COPY infra/nginx.web-demo.conf /etc/nginx/conf.d/default.conf
+# Angular CLI actual suele generar dist/helioguard-web/browser.
+COPY --from=build /app/dist/helioguard-web/browser/ /usr/share/nginx/html/
+EXPOSE 80

@@ -1,0 +1,41 @@
+# PLANTILLA EDGE — NO EJECUTABLE hasta generar services/edge-agent y configurar secretos.
+# Ejecutar en Raspberry Pi 64-bit (linux/arm64). Adaptar rutas de volúmenes.
+name: helioguard-edge
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    volumes:
+      - ./mosquitto.edge.conf:/mosquitto/config/mosquitto.conf:ro
+      - /etc/helioguard/mqtt.passwd:/mosquitto/config/passwd:ro
+      - broker-data:/mosquitto/data
+    networks: [iot]
+  edge-agent:
+    image: helioguard/edge-agent:${APP_VERSION:?Definir APP_VERSION}
+    restart: unless-stopped
+    depends_on: [broker]
+    environment:
+      HELIOGUARD_MODE: edge
+      MQTT_HOST: broker
+      SQLITE_PATH: /var/lib/helioguard/edge.db
+      CLOUD_API_URL: ${CLOUD_API_URL:?Definir CLOUD_API_URL}
+      GATEWAY_ID: ${GATEWAY_ID:?Definir GATEWAY_ID}
+      # El agente debe leer secrets montados; implementación pendiente.
+      MQTT_PASSWORD_FILE: /run/secrets/mqtt_password
+      CLOUD_TOKEN_FILE: /run/secrets/cloud_token
+    secrets: [mqtt_password, cloud_token]
+    volumes:
+      - edge-data:/var/lib/helioguard
+    networks: [iot]
+    # Endpoint LAN: habilitar solo HTTPS con autenticación.
+    # ports: ['192.168.x.y:8443:8443']
+networks:
+  iot: {}
+volumes:
+  broker-data: {}
+  edge-data: {}
+secrets:
+  mqtt_password:
+    file: /etc/helioguard/secrets/mqtt_password
+  cloud_token:
+    file: /etc/helioguard/secrets/cloud_token

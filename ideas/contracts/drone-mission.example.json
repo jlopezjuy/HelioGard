@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "missionCode": "MISSION-DEMO-001",
+  "installationId": "plant-cauchari-demo",
+  "kind": "CLEANING",
+  "status": "AWAITING_AUTHORIZATION",
+  "isSimulation": true,
+  "safetyChecks": {
+    "weather": "PASS",
+    "moduleManufacturer": "PENDING",
+    "siteAccess": "PASS",
+    "operator": "PENDING"
+  },
+  "notes": "No ordenar despegue real. Simulación de coordinación de misión."
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helioguard.example/spec/telemetry-integrity-event-v1.schema.json",
+  "title": "HelioGuard Integrity Detection Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "integrityEventId",
+    "organizationId",
+    "installationId",
+    "deviceId",
+    "observedAt",
+    "eventType",
+    "status",
+    "evidence"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "integrityEventId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "organizationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "installationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deviceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eventType": {
+      "enum": [
+        "REPLAY",
+        "DUPLICATE_EVENT",
+        "SEQUENCE_GAP",
+        "SIGNATURE_INVALID",
+        "AUTH_FAILURE",
+        "CLOCK_SKEW",
+        "PHYSICAL_INCONSISTENCY",
+        "DEVICE_UNAVAILABLE"
+      ]
+    },
+    "status": {
+      "enum": [
+        "OBSERVED",
+        "QUARANTINED",
+        "UNDER_REVIEW",
+        "EXPLAINED",
+        "CONFIRMED",
+        "CLOSED"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "ruleVersion"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ruleVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "eventId": {
+          "type": "string"
+        },
+        "bootId": {
+          "type": "string"
+        },
+        "sequenceNumber": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "modelExpectedW": {
+          "type": "number",
+          "minimum": 0
+        },
+        "reportedW": {
+          "type": "number",
+          "minimum": 0
+        },
+        "uncertaintyNote": {
+          "type": "string"
+        }
+      }
+    },
+    "classificationNote": {
+      "type": "string",
+      "description": "An inconsistency is not proof of malicious intent."
+    }
+  }
+}

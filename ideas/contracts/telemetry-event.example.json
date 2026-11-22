@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "eventId": "5db90c73-8d31-4e80-96b6-3b6d02fbd502",
+  "installationId": "installation-demo-001",
+  "gatewayId": "gateway-demo-001",
+  "deviceId": "inverter-demo-001",
+  "timestamp": "2026-11-22T14:00:00Z",
+  "quality": "VALID",
+  "flags": [],
+  "readings": {
+    "acPowerW": 2250.0,
+    "acEnergyWhCounter": 401234.0,
+    "dcVoltageV": 348.6,
+    "dcCurrentA": 7.2,
+    "moduleTemperatureC": 39.3,
+    "irradianceWm2": 780.0,
+    "inverterStatus": "RUNNING"
+  },
+  "bootId": "boot-demo-001",
+  "sequenceNumber": 1542
+}

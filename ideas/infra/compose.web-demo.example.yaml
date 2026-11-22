@@ -1,0 +1,9 @@
+# Ejemplo opcional. Requiere que Angular haya sido generado; sin backend.
+services:
+  helioguard-web-demo:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web-demo.example
+    ports:
+      - '127.0.0.1:8088:80'
+    restart: unless-stopped
