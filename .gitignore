@@ -1,0 +1,85 @@
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.*.sample
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Logs, temporary files, and test reports
+*.log
+*.tmp
+logs/
+coverage/
+.nyc_output/
+
+# Java, Maven, Gradle, and JHipster
+.gradle/
+**/build/
+**/target/
+*.class
+.mvn/timing.properties
+.factorypath
+.project
+.classpath
+.settings/
+.springBeans
+.jhipster/*.lock
+
+# Node.js and Angular
+node_modules/
+**/.angular/cache/
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+.pnpm-store/
+**/dist/
+**/out-tsc/
+**/tmp/
+
+# Dart and Flutter
+.dart_tool/
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+**/doc/api/
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/android/local.properties
+**/Pods/
+**/.symlinks/
+**/xcuserdata/
+*.xcuserstate
+*.dSYM/
+*.apk
+*.aab
+*.ipa
+
+# Local Docker Compose overrides (keep Dockerfiles and Compose manifests tracked)
+compose.override.yml
+compose.override.yaml
+docker-compose.override.yml
+docker-compose.override.yaml
