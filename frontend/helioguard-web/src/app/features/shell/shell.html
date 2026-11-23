@@ -1,0 +1,107 @@
+<a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3" href="#contenido">Saltar al contenido</a>
+<div class="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
+  <aside class="max-h-screen overflow-y-auto border-b border-q-line bg-q-cactus pb-28 text-q-bg lg:block lg:border-b-0 lg:border-r" [ngClass]="{ 'max-lg:hidden': !menuOpen() }">
+    <div class="flex items-start justify-between gap-3 px-4 py-4">
+      <div>
+        <p class="text-xs tracking-[0.16em] uppercase text-q-sand">HelioGuard</p>
+        <p class="mt-1 text-lg leading-tight">Sala de control</p>
+      </div>
+      <button type="button" class="grid h-11 w-11 place-items-center rounded-ui lg:hidden" (click)="menuOpen.set(false)" aria-label="Cerrar menú">
+        <svg lucideX [size]="18"></svg>
+      </button>
+    </div>
+    <nav class="flex flex-col px-2 pb-4" aria-label="Secciones">
+      @for (item of visibleNav(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-white/15"
+          class="flex min-h-11 items-center gap-2 rounded-ui px-3 text-sm"
+          (click)="close()"
+        >
+          @switch (item.path) {
+            @case ('/inicio') { <svg lucideSun [size]="18"></svg> }
+            @case ('/parque') { <svg lucideMap [size]="18"></svg> }
+            @case ('/instalaciones') { <svg lucideFactory [size]="18"></svg> }
+            @case ('/telemetria') { <svg lucideRadio [size]="18"></svg> }
+            @case ('/energia') { <svg lucideActivity [size]="18"></svg> }
+            @case ('/incidentes') { <svg lucideTriangleAlert [size]="18"></svg> }
+            @case ('/integridad') { <svg lucideShield [size]="18"></svg> }
+            @case ('/fuentes') { <svg lucideFileSearch [size]="18"></svg> }
+            @case ('/misiones') { <svg lucideDrone [size]="18"></svg> }
+            @case ('/auditorias') { <svg lucideClipboardCheck [size]="18"></svg> }
+            @case ('/mantenimiento') { <svg lucideWrench [size]="18"></svg> }
+            @case ('/economia') { <svg lucideWallet [size]="18"></svg> }
+            @case ('/planes') { <svg lucideLayers [size]="18"></svg> }
+            @case ('/organizaciones') { <svg lucideBuilding [size]="18"></svg> }
+            @case ('/configuracion') { <svg lucideSettings [size]="18"></svg> }
+          }
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+  </aside>
+  <div class="flex min-w-0 flex-col">
+    <header class="flex flex-wrap items-center gap-3 border-b border-q-line bg-q-surface px-4 py-3">
+      <div class="flex w-full min-w-0 items-center gap-3 md:w-auto md:flex-1">
+        <button type="button" class="grid h-11 w-11 shrink-0 place-items-center rounded-ui border border-q-line lg:hidden" (click)="menuOpen.set(true)" aria-label="Abrir menú">
+          <svg lucideMenu [size]="18"></svg>
+        </button>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-semibold">{{ orgName() }}</p>
+          <p class="text-xs text-q-muted">{{ userName() }} · {{ role() }} · <span class="mono">{{ clock() }}</span></p>
+        </div>
+      </div>
+      <label class="text-xs text-q-muted">
+        Usuario demo
+        <select class="mt-1 block min-h-11 w-full rounded-ui border border-q-line bg-q-bg px-2 text-sm text-q-ink md:mt-0 md:ml-2 md:inline-block md:w-auto" [value]="store.snapshot().session.userId" (change)="store.useUser($any($event.target).value)">
+          @for (user of users(); track user.id) {
+            <option [value]="user.id">{{ user.name }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" class="inline-flex min-h-11 items-center gap-2 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="reset()">
+        <svg lucideRotateCcw [size]="16"></svg>
+        Restablecer demo
+      </button>
+    </header>
+    @if (offline()) {
+      <p class="flex items-center gap-2 bg-q-wine px-4 py-2 text-sm text-white" role="status">
+        <svg lucideUnplug [size]="16"></svg>
+        Sin WAN simulada. El borde sigue encolando. La nube no recibe hasta restaurar.
+      </p>
+    }
+    <p class="border-b border-q-line bg-q-bg px-4 py-2 text-sm text-q-muted" role="status">{{ store.notice() }}</p>
+    <main id="contenido" class="flex-1 px-4 py-5 pb-40">
+      <router-outlet />
+    </main>
+    <section class="fixed inset-x-0 bottom-0 z-20 border-t border-q-line bg-q-surface px-3 py-3 lg:left-60" aria-label="Controles de la demostración">
+      <p class="mb-2 text-xs font-semibold tracking-wide text-q-muted uppercase">Demostración · datos simulados</p>
+      <div class="flex gap-2 overflow-x-auto">
+        <label class="flex shrink-0 items-center gap-2 text-xs text-q-muted">
+          Escenario
+          <select class="min-h-11 rounded-ui border border-q-line bg-q-bg px-2 text-sm text-q-ink" aria-label="Escenario de pérdida" [value]="store.snapshot().scenario.lossScenario" (change)="store.loss($any($event.target).value)">
+            <option value="NONE">Régimen</option>
+            <option value="SOILING">Polvo</option>
+            <option value="INVERTER">Inversor</option>
+            <option value="CLOUD">Nube</option>
+            <option value="FROST">Helada</option>
+            <option value="HAIL">Granizo</option>
+            <option value="SMOKE">Humo</option>
+          </select>
+        </label>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="store.soiling(!store.snapshot().scenario.soiling)">Sector sucio</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.chain()">Crear misión</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.safety()">Revisar seguridad</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.approve()">Aprobar</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.dispatch()">Despachar</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.tick()">Animar dron</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.verify()">Verificar</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.original()">Evento original</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.replay()">Replay exacto</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.implausible()">Inyección falsa</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.cut()">Cortar red</button>
+        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.restore()">Restaurar red</button>
+      </div>
+    </section>
+  </div>
+</div>

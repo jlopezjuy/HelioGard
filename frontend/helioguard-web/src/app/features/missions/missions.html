@@ -1,0 +1,55 @@
+@if (phase() === 'loading') {
+  <p role="status">Revisando la flota simulada…</p>
+} @else if (view(); as state) {
+  <h1 class="text-3xl">Misiones</h1>
+  <p class="mt-2 max-w-2xl border border-q-wine bg-white p-3 text-sm">Misión simulada — la aprobación no representa un permiso operativo real. Esta pantalla no controla un dron.</p>
+  <h2 class="mt-6 text-lg">Flota</h2>
+  @if (state.drones.length === 0) {
+    <p class="text-sm">No hay aeronaves de esta organización.</p>
+  } @else {
+    <ul class="mt-2 text-sm">
+      @for (drone of state.drones; track drone.id) {
+        <li>{{ drone.assetCode }} · {{ drone.modelName }} · {{ drone.status }} · viento máximo {{ drone.maximumWindMs }} m/s</li>
+      }
+    </ul>
+  }
+  <fieldset class="mt-6 grid gap-2 text-sm">
+    <legend class="text-lg">Checklist</legend>
+    <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.windBlocked" (change)="store.flag('windBlocked', $any($event.target).checked)" /> Viento fuera de límite</label>
+    <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.frostBlocked" (change)="store.flag('frostBlocked', $any($event.target).checked)" /> Helada</label>
+    <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.roofWorkBlocked" (change)="store.flag('roofWorkBlocked', $any($event.target).checked)" /> Trabajo en techo</label>
+    <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.manufacturerOk" (change)="store.flag('manufacturerOk', $any($event.target).checked)" /> Fabricante conforme</label>
+    <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.operatorOk" (change)="store.flag('operatorOk', $any($event.target).checked)" /> Operador identificado</label>
+    <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.siteOk" (change)="store.flag('siteOk', $any($event.target).checked)" /> Sitio habilitado</label>
+  </fieldset>
+  @if (state.blocks.length) {
+    <ul class="mt-3 text-sm" role="status">
+      @for (reason of state.blocks; track reason) {
+        <li>{{ reason }}</li>
+      }
+    </ul>
+  }
+  <div class="mt-4 flex flex-wrap gap-2">
+    <button type="button" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="store.safety()">Correr checklist</button>
+    <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.approve()">Registrar aprobación demo</button>
+    <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.dispatch()">Despachar</button>
+  </div>
+  <h2 class="mt-6 text-lg">Misiones</h2>
+  <ul class="mt-2 space-y-3">
+    @for (mission of state.missions; track mission.id) {
+      <li class="border border-q-line p-3 text-sm">
+        <span class="font-semibold">{{ mission.missionCode }}</span> · {{ mission.kind }} · {{ mission.status }}
+        <span class="mt-1 block">{{ mission.safetyChecklistSummary }}</span>
+      </li>
+    }
+  </ul>
+  <h2 class="mt-6 text-lg">Autorizaciones y verificación</h2>
+  <ul class="mt-2 space-y-2 text-sm">
+    @for (item of state.authorizations; track item.id) {
+      <li>{{ item.status }} · {{ item.decisionNote }}</li>
+    }
+    @for (item of state.verifications; track item.id) {
+      <li>{{ item.status }} · {{ item.evidenceSummary }}</li>
+    }
+  </ul>
+}

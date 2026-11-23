@@ -1,0 +1,21 @@
+@if (phase() === 'loading') {
+  <p role="status">Listando instalaciones visibles…</p>
+} @else {
+  <h1 class="text-3xl">Instalaciones</h1>
+  <p class="mt-2 max-w-2xl text-sm text-q-muted">Cada fila respeta el tenant y los grants. Salta no aparece en la sesión de Jujuy.</p>
+  @if (rows().length === 0) {
+    <p class="mt-6" role="status">No hay sitios para esta sesión.</p>
+  } @else {
+    <ul class="mt-6 divide-y divide-q-line border-y border-q-line">
+      @for (row of rows(); track row.installation.id) {
+        <li class="flex flex-wrap items-baseline justify-between gap-3 py-4">
+          <div>
+            <a class="text-lg font-semibold text-q-cactus" [routerLink]="['/instalaciones', row.installation.id]">{{ row.installation.name }}</a>
+            <p class="text-sm text-q-muted">{{ row.site?.address }} · {{ row.site?.climateZone }} · {{ row.installation.nominalDcKw }} kW DC · {{ row.installation.gridMode }}</p>
+          </div>
+          <p class="mono text-sm">{{ row.installation.code }} · {{ row.gateways[0]?.status }}</p>
+        </li>
+      }
+    </ul>
+  }
+}

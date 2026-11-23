@@ -1,0 +1,56 @@
+@if (phase() === 'loading') {
+  <p role="status">Calculando intervalos…</p>
+} @else if (view(); as state) {
+  <h1 class="text-3xl">Energía del bloque B2</h1>
+  <p class="mt-2 max-w-2xl text-sm text-q-muted">Wh = potencia en W × segundos / 3600. El gráfico usa posición, no una torta. Eje horizontal: hora local. Eje vertical: Wh del cuarto de hora.</p>
+  <svg viewBox="0 0 560 240" class="mt-4 w-full max-w-3xl border border-q-line bg-q-surface" role="img" aria-label="Esperado y real en Wh por intervalo">
+    <title>Esperado y real, 10:00 a 10:45</title>
+    <line x1="40" y1="20" x2="40" y2="190" stroke="#24302D" />
+    <line x1="40" y1="190" x2="530" y2="190" stroke="#24302D" />
+    <text x="8" y="24" font-size="11" fill="#4B5A57">Wh</text>
+    <text x="470" y="214" font-size="11" fill="#4B5A57">hora local</text>
+    @for (point of state.points; track point.interval.id) {
+      <text [attr.x]="point.x" y="208" font-size="12" fill="#24302D">{{ point.interval.label }}</text>
+      <rect [attr.x]="point.x" [attr.y]="190 - point.expected / 80" width="18" [attr.height]="point.expected / 80" fill="#315D57" />
+      @if (point.actual !== null) {
+        <rect [attr.x]="point.x + 22" [attr.y]="190 - point.actual / 80" width="18" [attr.height]="point.actual / 80" fill="#8F432E" />
+      }
+    }
+  </svg>
+  <p class="mt-2 text-sm"><span class="inline-block h-3 w-3 bg-q-cactus align-middle"></span> Esperado <span class="ml-3 inline-block h-3 w-3 bg-q-terracotta align-middle"></span> Real</p>
+  <table class="mt-4 w-full max-w-3xl text-left text-sm">
+    <thead>
+      <tr class="border-b border-q-line text-q-muted"><th class="py-2">Intervalo</th><th>Esperado</th><th>Real</th><th>Déficit</th></tr>
+    </thead>
+    <tbody>
+      @for (point of state.points; track point.interval.id) {
+        <tr class="border-b border-q-line">
+          <td class="py-2">{{ point.interval.label }}</td>
+          <td class="mono">{{ formatWh(point.expected) }}</td>
+          <td class="mono">{{ point.actual === null ? 'sin dato' : formatWh(point.actual) }}</td>
+          <td>{{ point.deficit.kind === 'value' ? formatWh(point.deficit.deficitWh) : point.deficit.label }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <button type="button" class="mt-3 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="toggleComparable()">Marcar 10:15 como no comparable</button>
+  <h2 class="mt-6 text-lg">Causas del intervalo 10:30</h2>
+  @if (state.loss?.validationStatus === 'sin estimación confiable') {
+    <p>sin estimación confiable</p>
+  } @else {
+    <ul class="mt-2 space-y-1 text-sm">
+      @for (cause of state.causes; track cause.id) {
+        <li>{{ cause.cause }} · {{ formatWh(cause.estimatedWh) }} · {{ cause.evidenceNote }}</li>
+      }
+    </ul>
+    @if (state.showMoney && state.economy) {
+      <p class="mt-3 text-sm">Monto demostrativo {{ formatArs(state.economy.estimatedLossAmount) }}. {{ state.economy.tariffSnapshotNote }}</p>
+    }
+  }
+  <h2 class="mt-6 text-lg">Clima usado por el modelo</h2>
+  <ul class="mt-2 text-sm">
+    @for (zone of zones; track zone) {
+      <li>{{ zone }}{{ state.present.includes(zone) ? '' : ' — sin instalación en esta demo' }}</li>
+    }
+  </ul>
+}

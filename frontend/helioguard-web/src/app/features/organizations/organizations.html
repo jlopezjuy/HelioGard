@@ -1,0 +1,28 @@
+@if (phase() === 'loading') {
+  <p role="status">Separando organizaciones…</p>
+} @else if (view(); as state) {
+  <h1 class="text-3xl">Organizaciones</h1>
+  <p class="mt-2 max-w-2xl text-sm text-q-muted">Tres tenants. El cambio de usuario está en la barra. Esto simula permisos y no reemplaza un backend.</p>
+  <ul class="mt-4 space-y-2">
+    @for (org of state.organizations; track org.id) {
+      <li class="border border-q-line px-3 py-2" [class.bg-q-sand]="org.id === state.current">
+        {{ org.name }} · {{ org.kind }} · {{ org.status }}
+        @if (org.id === state.current) { <span> · tenant activo</span> }
+      </li>
+    }
+  </ul>
+  <h2 class="mt-6 text-lg">Miembros de la organización activa</h2>
+  <ul class="mt-2 text-sm">
+    @for (member of state.memberships; track member.id) {
+      <li>{{ nameOf(member.userId) }} · {{ member.role }} · {{ member.status }}</li>
+    }
+  </ul>
+  <h2 class="mt-6 text-lg">Grants</h2>
+  @for (grant of state.grants; track grant.id) {
+    <p class="mt-2 text-sm">{{ grant.scope }} sobre {{ grant.installationId }}. {{ grant.reason }}</p>
+  }
+  <button type="button" class="mt-4 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="probe()">Probar lectura de Salta</button>
+  @if (denied()) {
+    <p class="mt-2 text-sm">El resultado esperado para Jujuy o la familia es denegado.</p>
+  }
+}

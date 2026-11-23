@@ -1,0 +1,50 @@
+@if (phase() === 'loading') {
+  <p role="status">Reuniendo evidencias…</p>
+} @else if (view(); as state) {
+  <h1 class="text-3xl">Integridad</h1>
+  <p class="mt-2 max-w-2xl text-sm text-q-muted">Una repetición se retiene. Un valor imposible abre investigación. Ninguna de las dos cosas demuestra un ataque.</p>
+  <h2 class="mt-6 text-lg">Identidad</h2>
+  <ul class="mt-2 text-sm">
+    @for (device of state.devices; track device.id) {
+      <li class="mono">{{ device.deviceUid }} · {{ device.protocolName }} · {{ device.trustStatus }} · huella {{ device.keyFingerprint }}</li>
+    }
+  </ul>
+  <h2 class="mt-6 text-lg">Eventos</h2>
+  @if (state.events.length === 0) {
+    <p class="text-sm">Todavía no hay eventos de integridad en el alcance.</p>
+  } @else {
+    <table class="mt-2 w-full text-left text-sm">
+      <thead><tr class="border-b border-q-line text-q-muted"><th class="py-2">Tipo</th><th>Estado</th><th>Secuencia</th><th>Detalle</th></tr></thead>
+      <tbody>
+        @for (event of state.events; track event.id) {
+          <tr class="border-b border-q-line align-top">
+            <td class="py-2">{{ event.eventType }}</td>
+            <td>{{ event.status }}</td>
+            <td class="mono">{{ event.deviceId }} / {{ event.bootId }} / {{ event.sequenceNumber }}</td>
+            <td>{{ event.detail }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  <h2 class="mt-6 text-lg">Valoraciones</h2>
+  <ul class="mt-2 space-y-2 text-sm">
+    @for (item of state.assessments; track item.id) {
+      <li>{{ item.trustLevel }} · regla {{ item.ruleVersion }} · {{ item.reason }}</li>
+    }
+  </ul>
+  <h2 class="mt-6 text-lg">Casos de seguridad</h2>
+  @if (state.security.length === 0) {
+    <p class="text-sm">Sin casos en este alcance.</p>
+  } @else {
+    <ul class="mt-2 space-y-2 text-sm">
+      @for (item of state.security; track item.id) {
+        <li><span class="font-semibold">{{ item.title }}</span> · {{ item.status }} · {{ item.resolutionNote }}</li>
+      }
+    </ul>
+  }
+  @if (state.proof) {
+    <p class="mt-4 text-sm">Última prueba de sesión: {{ state.proof.reason }} Criptográficamente verificada: no.</p>
+  }
+  <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" routerLink="/fuentes">Ver procedencia</a>
+}

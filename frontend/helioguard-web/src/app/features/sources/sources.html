@@ -1,0 +1,32 @@
+@if (phase() === 'loading') {
+  <p role="status">Abriendo el catálogo de fuentes…</p>
+} @else if (view(); as state) {
+  <h1 class="text-3xl">Fuentes</h1>
+  <p class="mt-2 max-w-2xl text-sm text-q-muted">La fuente meteorológica estima recurso solar. No ve un panel ni certifica un ataque. Ninguna fila está criptográficamente verificada.</p>
+  <ul class="mt-4 space-y-3">
+    @for (source of state.sources; track source.id) {
+      <li class="border border-q-line bg-q-surface p-3 text-sm">
+        <span class="font-semibold">{{ source.providerName }}</span> · {{ source.kind }} · {{ source.code }}
+        <span class="mt-1 block text-q-muted">{{ source.licenseReference }}</span>
+      </li>
+    }
+  </ul>
+  <h2 class="mt-6 text-lg">Procedencia del intervalo</h2>
+  @if (state.rows.length === 0) {
+    <p class="text-sm">Sin filas de procedencia en este alcance.</p>
+  } @else {
+    <table class="mt-2 w-full text-left text-sm">
+      <thead><tr class="border-b border-q-line text-q-muted"><th class="py-2">Clave</th><th>Confianza</th><th>Marcas</th><th>Algoritmo</th></tr></thead>
+      <tbody>
+        @for (row of state.rows; track row.id) {
+          <tr class="border-b border-q-line align-top">
+            <td class="mono py-2">{{ row.sourceRecordKey }}</td>
+            <td>{{ row.trustLevel }}</td>
+            <td>{{ row.qualityFlags }}</td>
+            <td class="mono">{{ row.algorithmVersion }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}

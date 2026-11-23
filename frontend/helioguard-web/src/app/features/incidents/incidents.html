@@ -1,0 +1,48 @@
+@if (phase() === 'loading') {
+  <p role="status">Armando la bandeja…</p>
+} @else if (view(); as state) {
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <h1 class="text-3xl">Incidentes</h1>
+    <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="onlyOpen.set(!onlyOpen())">{{ onlyOpen() ? 'Ver también cerrados' : 'Solo abiertos' }}</button>
+  </div>
+  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <section>
+      <h2 class="text-lg">Energía</h2>
+      @if (state.energy.length === 0) {
+        <p class="mt-2 text-sm text-q-muted">No hay incidentes energéticos con este filtro. Creá la misión desde el parque para abrir el de B2.</p>
+      } @else {
+        <ul class="mt-2 space-y-3">
+          @for (item of state.energy; track item.id) {
+            <li class="border border-q-line bg-q-surface p-3">
+              <p class="font-semibold">{{ item.title }}</p>
+              <p class="text-sm text-q-muted">{{ item.severity }} · {{ item.status }} · clave {{ item.dedupKey }}</p>
+              @if (item.status === 'OPEN') {
+                <button type="button" class="mt-2 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="acknowledge(item.id)">Reconocer</button>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+    <section>
+      <h2 class="text-lg">Seguridad</h2>
+      <p class="mt-1 text-sm text-q-muted">Separados de la pérdida energética. Investigar no es confirmar intrusión.</p>
+      @if (state.security.length === 0) {
+        <p class="mt-2 text-sm">Sin casos de seguridad en el alcance.</p>
+      } @else {
+        <ul class="mt-2 space-y-3">
+          @for (item of state.security; track item.id) {
+            <li class="border border-q-line p-3 text-sm">
+              <span class="font-semibold">{{ item.title }}</span> · {{ item.status }}
+              <span class="mt-1 block">{{ item.resolutionNote }}</span>
+            </li>
+          }
+        </ul>
+      }
+      <h3 class="mt-4 text-sm font-semibold">Regla asociada</h3>
+      @for (rule of state.rules; track rule.id) {
+        <p class="text-sm">{{ rule.name }} · umbral {{ rule.thresholdValue }} · {{ rule.enabled ? 'activa' : 'apagada' }}</p>
+      }
+    </section>
+  </div>
+}

@@ -1,0 +1,28 @@
+@if (phase() === 'loading') {
+  <p role="status">Abriendo la cobertura…</p>
+} @else if (view(); as state) {
+  <h1 class="text-3xl">Planes</h1>
+  @for (plan of state.plans; track plan.id) {
+    <p class="mt-3">{{ plan.name }} · {{ plan.status }}</p>
+  }
+  @for (version of state.versions; track version.id) {
+    <article class="mt-4 border border-q-line bg-q-surface p-4 text-sm">
+      <h2 class="text-lg">Versión {{ version.versionCode }}</h2>
+      <p class="mt-2">{{ formatArs(version.recurringAmount) }} por período, demostrativo.</p>
+      <p class="mt-2"><span class="font-semibold">SLA.</span> {{ version.sla }}</p>
+      <p class="mt-2"><span class="font-semibold">Exclusiones.</span> {{ version.exclusions }}</p>
+    </article>
+  }
+  <h2 class="mt-6 text-lg">Propuesta</h2>
+  @for (proposal of state.proposals; track proposal.id) {
+    <p class="mt-2 text-sm">{{ proposal.referenceCode }} · {{ formatArs(proposal.amount) }} · {{ proposal.acceptedAt ? 'aceptada' : 'sin aceptar' }}</p>
+  }
+  <button type="button" class="mt-3 min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="store.acceptProposal()">Aceptar propuesta</button>
+  <h2 class="mt-6 text-lg">Suscripción y acuerdo</h2>
+  @for (item of state.subscriptions; track item.id) {
+    <p class="text-sm">Suscripción {{ item.status }} · {{ formatArs(item.agreedAmount) }}</p>
+  }
+  @for (item of state.agreements; track item.id) {
+    <p class="text-sm">Acuerdo {{ item.status }} desde {{ item.startsAt }}</p>
+  }
+}

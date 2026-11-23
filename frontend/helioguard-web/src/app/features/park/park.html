@@ -1,0 +1,70 @@
+@if (phase() === 'loading') {
+  <p role="status">Trazando la vista cenital…</p>
+} @else if (view(); as state) {
+  @if (!state.focus) {
+    <p>Esta sesión no tiene un parque visible.</p>
+  } @else {
+    <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="text-xs tracking-[0.14em] text-q-slate uppercase">Vista cenital simulada</p>
+        <h1 class="text-3xl">{{ state.focus.name }}</h1>
+      </div>
+      <p class="max-w-sm text-sm text-q-muted">No es una ortofoto ni una termografía. El color va acompañado de texto.</p>
+    </div>
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div class="relative border border-dashed border-q-slate bg-[#efe7d8] p-4">
+        <p class="mb-3 text-sm text-q-slate">Norte</p>
+        <div class="grid grid-cols-2 gap-3">
+          @for (block of state.blocks; track block.id) {
+            <button
+              type="button"
+              class="min-h-24 border border-q-ink/20 bg-q-surface p-3 text-left"
+              [class.hatch]="stateOf(block.id) !== 'Operativo'"
+              [attr.aria-pressed]="isSelected(block.id)"
+              (click)="select(block.id)"
+            >
+              <span class="block text-lg">Bloque {{ block.name }}</span>
+              <span class="mt-1 block text-sm">{{ stateOf(block.id) }}</span>
+              @if (block.id === 'arr-b2' && state.actualWh !== null) {
+                <span class="mono mt-2 block text-xs">{{ formatWh(state.actualWh) }} / {{ formatWh(state.expectedWh) }} esperados</span>
+              }
+            </button>
+          }
+        </div>
+        @if (state.mission?.status === 'IN_FLIGHT') {
+          <p
+            class="absolute z-10 border border-q-ink bg-q-sand px-2 py-1 text-xs"
+            [style.left.%]="droneLeft()"
+            [style.top.%]="droneTop()"
+          >
+            Dron simulado {{ (state.progress * 100) | number:'1.0-0' }} %. No es una aeronave real.
+          </p>
+        }
+      </div>
+      <aside class="border border-q-line bg-q-surface p-4">
+        @if (state.selected; as selected) {
+        <h2 class="text-lg">{{ selected.name }}</h2>
+        <p class="mt-1 text-sm text-q-muted">Azimut {{ selected.azimuthDegrees }}° · inclinación {{ selected.tiltDegrees }}°</p>
+        }
+        <ul class="mt-4 space-y-2 text-sm">
+          @for (row of state.strings; track row.id) {
+            <li class="mono">{{ row.stringCode }} · {{ row.modulesInSeries }} módulos · {{ row.active ? 'activo' : 'fuera de servicio' }}</li>
+          }
+          @for (item of state.equipment; track item.id) {
+            <li>{{ item.tag }} · {{ item.kind }} · {{ item.status }}</li>
+          }
+        </ul>
+        <h3 class="mt-5 text-sm font-semibold">Leyenda</h3>
+        <ul class="mt-2 space-y-1 text-sm">
+          <li>Trazo continuo: operativo</li>
+          <li>Trama diagonal: suciedad sospechada o falla, siempre con rótulo</li>
+          <li>Dron: solo si la misión simulada está en vuelo</li>
+        </ul>
+        @if (state.mission) {
+          <p class="mt-4 text-sm">Misión {{ state.mission.missionCode }}: {{ state.mission.status }}</p>
+        }
+        <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" [routerLink]="['/instalaciones', state.focus.id]">Ficha de la instalación</a>
+      </aside>
+    </div>
+  }
+}

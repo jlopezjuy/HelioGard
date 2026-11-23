@@ -1,0 +1,23 @@
+@if (phase() === 'loading') {
+  <p role="status">Valorizando el intervalo…</p>
+} @else if (view(); as state) {
+  @if (!state.installation || !state.plan || !state.rate || !state.economy) {
+    <h1 class="text-3xl">Economía</h1>
+    <p class="mt-2">Solo lectura de esta sesión: la economía queda en la organización dueña. Un grant de mantenimiento no abre estos montos.</p>
+  } @else {
+    <h1 class="text-3xl">{{ state.plan.name }}</h1>
+    <p class="mt-2 max-w-2xl text-sm text-q-muted">{{ state.plan.distributor }}. Compra evitada e inyección se monetizan por separado. Cifras en ARS de demostración.</p>
+    <p class="mt-4 text-2xl">{{ formatArs(state.economy.estimatedLossAmount) }}</p>
+    <p class="text-sm text-q-muted">Autoconsumo no entregado {{ formatWh(state.economy.selfConsumptionLostWh) }} · inyección no realizada {{ formatWh(state.economy.exportedLostWh) }}</p>
+    <form class="mt-4 flex flex-wrap items-end gap-3" [formGroup]="form" (ngSubmit)="save()">
+      <label class="text-sm">Compra evitada ARS/kWh
+        <input class="mt-1 block min-h-11 w-32 border border-q-line bg-q-bg px-2" type="number" min="0" formControlName="purchase" />
+      </label>
+      <label class="text-sm">Inyección ARS/kWh
+        <input class="mt-1 block min-h-11 w-32 border border-q-line bg-q-bg px-2" type="number" min="0" formControlName="exported" />
+      </label>
+      <button type="submit" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white">Guardar tarifa demo</button>
+    </form>
+    <p class="mt-3 text-sm">{{ state.economy.tariffSnapshotNote }}</p>
+  }
+}

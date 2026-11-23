@@ -1,0 +1,65 @@
+@if (phase() === 'loading') {
+  <p role="status">Abriendo la ficha…</p>
+} @else if (view(); as state) {
+  @if (state.missing) {
+    <p role="alert">Esta instalación no está en el alcance de la sesión. Otro tenant no se muestra.</p>
+    <a class="mt-3 inline-flex min-h-11 items-center text-q-cactus" routerLink="/instalaciones">Volver al listado</a>
+  } @else {
+    <p class="text-xs text-q-muted">{{ state.installation.code }} · acceso simulado {{ state.level }}</p>
+    <h1 class="text-3xl">{{ state.installation.name }}</h1>
+    <p class="mt-2 text-sm text-q-muted">{{ state.site?.address }} · {{ state.site?.climateZone }} · huso {{ state.site?.timeZone }} · {{ state.site?.altitudeM }} m</p>
+    @if (state.level === 'MAINTENANCE') {
+      <p class="mt-3 text-sm">El grant permite mantenimiento. La economía de este hogar queda fuera de alcance.</p>
+    }
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <section>
+        <h2 class="text-lg">Bloques y strings</h2>
+        <ul class="mt-2 space-y-2 text-sm">
+          @for (row of state.strings; track row.id) {
+            <li class="flex items-center justify-between gap-3 border-b border-q-line py-2">
+              <span class="mono">{{ row.stringCode }} · {{ row.active ? 'activo' : 'fuera de servicio' }}</span>
+              <button type="button" class="min-h-11 rounded-ui border border-q-line px-3" (click)="toggle(row.id)">Cambiar estado</button>
+            </li>
+          }
+        </ul>
+      </section>
+      <section>
+        <h2 class="text-lg">Equipos y gateways</h2>
+        <ul class="mt-2 space-y-1 text-sm">
+          @for (item of state.equipment; track item.id) {
+            <li>{{ item.tag }} · {{ item.kind }} · {{ item.status }} · serie {{ item.serialNumber }}</li>
+          }
+          @for (gateway of state.gateways; track gateway.id) {
+            <li class="mono">{{ gateway.hardwareId }} · {{ gateway.status }} · {{ gateway.firmwareVersion }}</li>
+          }
+        </ul>
+      </section>
+      <section>
+        <h2 class="text-lg">Canales y catálogo</h2>
+        <ul class="mt-2 space-y-1 text-sm">
+          @for (channel of state.channels; track channel.id) {
+            <li class="mono">{{ channel.externalChannelCode }} · cada {{ channel.samplePeriodSeconds }} s</li>
+          }
+          @for (metric of state.metrics; track metric.id) {
+            <li>Solo lectura: {{ metric.code }} ({{ metric.unitCode }}) {{ metric.counter ? 'contador' : 'instantánea' }}</li>
+          }
+          @for (model of state.models; track model.id) {
+            <li>Catálogo: {{ model.manufacturer }} {{ model.modelCode }} · {{ model.nominalPowerW }} W</li>
+          }
+        </ul>
+      </section>
+      <section>
+        <h2 class="text-lg">Accesos externos</h2>
+        @if (state.grants.length === 0) {
+          <p class="mt-2 text-sm text-q-muted">Sin grants sobre esta instalación.</p>
+        } @else {
+          <ul class="mt-2 space-y-2 text-sm">
+            @for (grant of state.grants; track grant.id) {
+              <li>{{ grant.scope }} para {{ grant.granteeOrganizationId }}. {{ grant.reason }}</li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+}

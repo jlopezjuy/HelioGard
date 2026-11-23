@@ -1,0 +1,40 @@
+@if (phase() === 'loading') {
+  <p role="status">Abriendo el checklist…</p>
+} @else if (view(); as state) {
+  @if (!state.report || !state.template) {
+    <h1 class="text-3xl">Auditorías</h1>
+    <p class="mt-2 text-sm">No hay un informe en el alcance de esta sesión.</p>
+  } @else {
+    <p class="text-xs text-q-muted">Plantilla {{ state.template.title }} · versión {{ state.template.templateVersion }} · publicada, no editable</p>
+    <h1 class="text-3xl">Informe {{ state.report.status }}</h1>
+    <form class="mt-4 max-w-2xl space-y-4" [formGroup]="form()" (ngSubmit)="save('IN_PROGRESS')">
+      @for (section of ['Eléctrica', 'Señalización', 'Acceso']; track section) {
+        <fieldset class="border border-q-line p-3">
+          <legend class="px-1 text-sm font-semibold">{{ section }}</legend>
+          @for (question of state.questions; track question.id) {
+            @if (question.section === section) {
+              <label class="mt-3 block text-sm">
+                {{ question.label }}
+                <textarea class="mt-1 min-h-20 w-full border border-q-line bg-q-bg p-2" rows="3" [formControlName]="answerId(state.answers, question.id)"></textarea>
+              </label>
+            }
+          }
+        </fieldset>
+      }
+      <div class="flex flex-wrap gap-2">
+        <button type="submit" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white">Guardar</button>
+        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="save('SUBMITTED')">Cerrar</button>
+        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="reopen()">Reabrir</button>
+      </div>
+    </form>
+    <h2 class="mt-6 text-lg">Hallazgos</h2>
+    @for (finding of state.findings; track finding.id) {
+      <article class="mt-2 border border-q-line p-3 text-sm">
+        <p class="font-semibold">{{ finding.title }} · {{ finding.severity }}</p>
+        <p>{{ finding.description }}</p>
+        <p class="text-q-muted">{{ finding.recommendation }}</p>
+      </article>
+    }
+    <p class="mt-3 text-xs text-q-muted">Evidencia local {{ state.evidence[0]?.storageKey }} · {{ state.evidence[0]?.sha256 }}</p>
+  }
+}
