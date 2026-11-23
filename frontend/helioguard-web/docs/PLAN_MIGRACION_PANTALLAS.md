@@ -8,7 +8,7 @@ Prioridad P0: lo que el jurado ve en dos minutos. P1: el resto operativo. P2: cu
 
 ## Sprint 0 — Hecho
 
-Tokens, componentes y catálogo. Criterio cumplido: `ng test` (20) y `ng build` en verde. El cuerpo de `/inicio` sigue en la paleta `q-*`.
+Tokens, componentes y catálogo. Criterio cumplido: `ng test` (20) y `ng build` en verde.
 
 ## Sprint 1 — Shell, inicio, parque
 
@@ -18,7 +18,11 @@ Chrome Stitch en `src/app/features/shell/`. Escritorio: marca y herramientas en 
 
 Se conserva el guion, los nombres accesibles, el aviso `role="status"`, la alerta WAN `role="alert"`, persona, organización, rol y reloj. No hay buscador inerte. Capturas: `docs/screenshots/shell-1440.png` y `docs/screenshots/shell-390.png`.
 
-Pendiente en este sprint: `/inicio` y `/parque`.
+Pendiente en este sprint: `/parque`.
+
+### `/inicio` — Hecho
+
+Lienzo oscuro dentro del shell. La frase de régimen o de B2 sigue siendo el título. Al lado, en escritorio, una sola acción: el incidente abierto o «Abrir el parque». En 768 y 390 esa acción queda encima del texto de irradiancia y ocupa el ancho. El déficit real va en `hg-kpi` (450 Wh en la semilla) y esperado/real en `hg-progress`. No hay batería, AUD ni «Welcome in». El aviso de permiso denegado usa `hg-alert`. Capturas: `docs/screenshots/inicio-1440.png`, `inicio-768.png`, `inicio-390.png`.
 
 | | `/inicio` | `/parque` |
 |---|---|---|

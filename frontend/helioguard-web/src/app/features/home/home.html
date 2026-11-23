@@ -1,56 +1,77 @@
 @if (phase() === 'loading') {
-  <p role="status">Abriendo la sala…</p>
+  <div class="hg-home">
+    <p class="hg-note" role="status">Abriendo la sala…</p>
+    <hg-skeleton />
+  </div>
 } @else {
-  @if (denied(); as route) {
-    <p class="mb-4 border border-q-danger bg-white px-3 py-3 text-sm" role="alert">
-      Permiso denegado para /{{ route }}. Este rol de la demo no entra a esa sección. No es un control de seguridad real.
-    </p>
-  }
-  @if (view(); as state) {
-    @if (!state.focus) {
-      <p>No hay instalaciones visibles para esta sesión.</p>
-    } @else {
-      <p class="kicker">¿Hay algo que atender?</p>
-      <h1 class="mt-2 max-w-3xl text-3xl leading-tight">
-        @if (state.scenario !== 'NONE' && state.focus.id === 'ins-puna') {
-          {{ state.focus.name }} sigue en línea, pero el bloque B2 rinde por debajo del modelo ({{ state.scenarioLabel }}).
-        } @else {
-          {{ state.focus.name }} está en régimen. El modelo y la telemetría se pueden comparar.
-        }
-      </h1>
-      <p class="lede">
-        Intervalo 10:30, 15 minutos, inversor INV-03.
-        @if (state.deficit.kind === 'value') {
-          Faltan {{ formatWh(state.deficit.deficitWh) }} respecto del modelo.
-          @if (state.showMoney && state.economy) {
-            El impacto demostrativo es {{ formatArs(state.economy.estimatedLossAmount) }}.
-          }
-        } @else {
-          {{ state.deficit.label }}.
-        }
-      </p>
-      @if (state.actualWh !== null) {
-        <div class="mt-6 max-w-xl" aria-label="Esperado contra real">
-          <p class="text-sm">Esperado {{ formatWh(state.expectedWh) }}</p>
-          <div class="mt-1 h-3 w-full bg-q-cactus"></div>
-          <p class="mt-3 text-sm">Real {{ formatWh(state.actualWh) }}</p>
-          <div class="mt-1 h-3 bg-q-terracotta" [style.width.%]="state.ratio"></div>
-        </div>
-      }
-      <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <p class="text-sm text-q-muted">La irradiancia viene de un modelo meteorológico, no de una imagen térmica satelital. El siguiente paso es mirar el bloque, no cerrar la causa.</p>
-        <aside class="sheet">
-          <h2 class="text-sm font-semibold">Siguiente paso</h2>
-          @if (state.urgent) {
-            <p class="mt-3 text-lg">{{ state.urgent.title }}</p>
-            <p class="mt-1 text-sm text-q-muted">{{ state.urgent.severity }} · {{ state.urgent.status }} · {{ state.urgent.domain === 'ENERGY' ? 'Energía' : 'Seguridad' }}</p>
-            <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" routerLink="/incidentes">Abrir el incidente</a>
-          } @else {
-            <p class="mt-3 text-sm">No hay un incidente abierto. Si el bloque queda corto, se localiza en el parque.</p>
-            <a class="mt-4 inline-flex min-h-11 items-center rounded-ui bg-q-terracotta px-4 text-sm font-semibold text-white" routerLink="/parque">Abrir el parque</a>
-          }
-        </aside>
-      </div>
+  <div class="hg-home">
+    @if (denied(); as route) {
+      <hg-alert tone="danger" title="Permiso denegado">
+        Permiso denegado para /{{ route }}. Este rol de la demo no entra a esa sección. No es un control de seguridad real.
+      </hg-alert>
     }
-  }
+    @if (view(); as state) {
+      @if (!state.focus) {
+        <hg-empty title="Sin instalaciones" detail="No hay instalaciones visibles para esta sesión." />
+      } @else {
+        <section class="hg-home-grid" aria-label="Sala de {{ state.focus.name }}">
+          <article class="hg-card hg-home-hero">
+            <p class="hg-kicker">¿Hay algo que atender?</p>
+            <h1>
+              @if (state.scenario !== 'NONE' && state.focus.id === 'ins-puna') {
+                {{ state.focus.name }} sigue en línea, pero el bloque B2 rinde por debajo del modelo ({{ state.scenarioLabel }}).
+              } @else {
+                {{ state.focus.name }} está en régimen. El modelo y la telemetría se pueden comparar.
+              }
+            </h1>
+            <p class="hg-note">
+              Intervalo 10:30, 15 minutos, inversor INV-03.
+              @if (state.deficit.kind === 'value') {
+                Faltan {{ formatWh(state.deficit.deficitWh) }} respecto del modelo.
+                @if (state.showMoney && state.economy) {
+                  El impacto demostrativo es {{ formatArs(state.economy.estimatedLossAmount) }}.
+                }
+              } @else {
+                {{ state.deficit.label }}.
+              }
+            </p>
+            <hg-sensor [tone]="state.scenario === 'NONE' ? 'ok' : 'watch'" [label]="state.scenarioLabel" />
+          </article>
+
+          <hg-card class="hg-home-step" title="Siguiente paso">
+            @if (state.urgent) {
+              <p class="hg-metric hg-home-incident">{{ state.urgent.title }}</p>
+              <p class="hg-note">{{ state.urgent.severity }} · {{ state.urgent.status }} · {{ state.urgent.domain === 'ENERGY' ? 'Energía' : 'Seguridad' }}</p>
+              <a class="hg-btn hg-btn-primary" routerLink="/incidentes">Abrir el incidente</a>
+            } @else {
+              <p class="hg-note">No hay un incidente abierto. Si el bloque queda corto, se localiza en el parque.</p>
+              <a class="hg-btn hg-btn-primary" routerLink="/parque">Abrir el parque</a>
+            }
+          </hg-card>
+
+          @if (state.deficit.kind === 'value') {
+            <hg-kpi
+              class="hg-home-kpi"
+              label="Déficit del intervalo"
+              [value]="formatWh(state.deficit.deficitWh)"
+              note="Respecto del modelo. No cierra la causa."
+            />
+          } @else {
+            <hg-card class="hg-home-kpi" title="Déficit del intervalo">
+              <p class="hg-note">{{ state.deficit.label }}</p>
+            </hg-card>
+          }
+
+          @if (state.actualWh !== null) {
+            <hg-card class="hg-home-bars" title="Esperado contra real">
+              <hg-progress [label]="'Esperado ' + formatWh(state.expectedWh)" [value]="100" />
+              <hg-progress [label]="'Real ' + formatWh(state.actualWh)" [value]="state.ratio" />
+            </hg-card>
+          }
+
+          <p class="hg-note hg-home-limit">La irradiancia viene de un modelo meteorológico, no de una imagen térmica satelital. El siguiente paso es mirar el bloque, no cerrar la causa.</p>
+        </section>
+      }
+    }
+  </div>
 }

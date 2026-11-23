@@ -5,11 +5,14 @@ import { canSeeEconomics, installationAccess, visibleInstallations } from '../..
 import { SECTOR } from '../../core/domain/model';
 import { deficitWh, formatArs, formatWh, wattHoursFromPower } from '../../core/domain/rules';
 import { readyPhase } from '../../shared/load';
+import { HgCard, HgKpi } from '../../shared/ui/card';
+import { HgAlert, HgEmpty, HgSensor, HgSkeleton } from '../../shared/ui/feedback';
+import { HgProgress } from '../../shared/ui/viz';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [RouterLink, HgAlert, HgCard, HgEmpty, HgKpi, HgProgress, HgSensor, HgSkeleton],
   templateUrl: './home.html',
 })
 export class HomePage {

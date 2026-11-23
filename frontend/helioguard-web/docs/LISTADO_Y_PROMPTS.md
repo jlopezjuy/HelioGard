@@ -31,7 +31,7 @@ Contraste: `tokens.ts` y `tokens.spec.ts`.
 |---|---|---|---|---|
 | `/sistema` | `CatalogPage` | `features/catalog/` | `helioguard_ui_component_storybook`, `helioguard_storybook_showcase_49_componentes` | Hecho. Es el catálogo, no una pantalla operativa |
 | shell | `Shell` | `features/shell/` | `helioguard_dashboard_principal` (navbar) y `helioguard_mobile_dashboard` (cabecera) | Hecho |
-| `/inicio` | `HomePage` | `features/home/` | `helioguard_dashboard_principal`, `helioguard_mobile_dashboard` | Pendiente |
+| `/inicio` | `HomePage` | `features/home/` | `helioguard_dashboard_principal`, `helioguard_mobile_dashboard` | Hecho |
 | `/parque` | `ParkPage` | `features/park/` | `helioguard_monitoreo_satelital_telemetr_a_cenital` | Pendiente |
 | `/telemetria` | `TelemetryPage` | `features/telemetry/` | Misma maqueta cenital, panel de estado. Sin shader ni Sentinel | Pendiente |
 | `/energia` | `EnergyPage` | `features/energy/` | `helioguard_dashboard_principal` (generación y flujo) | Pendiente |
