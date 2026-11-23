@@ -1,86 +1,58 @@
 <a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3" href="#contenido">Saltar al contenido</a>
-<div class="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
-  <aside class="max-h-screen overflow-y-auto border-b border-q-line bg-q-cactus pb-28 text-q-bg lg:block lg:border-b-0 lg:border-r" [ngClass]="{ 'max-lg:hidden': !menuOpen() }">
-    <div class="flex items-start justify-between gap-3 px-4 py-4">
-      <div>
-        <p class="text-xs tracking-[0.16em] uppercase text-q-sand">HelioGuard</p>
-        <p class="mt-1 text-lg leading-tight">Sala de control</p>
-      </div>
-      <button type="button" class="grid h-11 w-11 place-items-center rounded-ui lg:hidden" (click)="menuOpen.set(false)" aria-label="Cerrar menú">
-        <svg lucideX [size]="18"></svg>
-      </button>
-    </div>
-    <nav class="flex flex-col px-2 pb-4" aria-label="Secciones">
-      @for (group of visibleNav(); track group.label) {
-        <p class="px-3 pt-4 pb-1 text-[0.7rem] tracking-[0.14em] text-q-sand uppercase">{{ group.label }}</p>
-        @for (item of group.items; track item.path) {
-          <a
-            [routerLink]="item.path"
-            routerLinkActive="bg-white/15"
-            class="flex min-h-11 items-center gap-2 rounded-ui px-3 text-sm"
-            (click)="close()"
-          >
-            @switch (item.path) {
-              @case ('/inicio') { <svg lucideSun [size]="18"></svg> }
-              @case ('/parque') { <svg lucideMap [size]="18"></svg> }
-              @case ('/instalaciones') { <svg lucideFactory [size]="18"></svg> }
-              @case ('/telemetria') { <svg lucideRadio [size]="18"></svg> }
-              @case ('/energia') { <svg lucideActivity [size]="18"></svg> }
-              @case ('/incidentes') { <svg lucideTriangleAlert [size]="18"></svg> }
-              @case ('/integridad') { <svg lucideShield [size]="18"></svg> }
-              @case ('/fuentes') { <svg lucideFileSearch [size]="18"></svg> }
-              @case ('/misiones') { <svg lucideDrone [size]="18"></svg> }
-              @case ('/auditorias') { <svg lucideClipboardCheck [size]="18"></svg> }
-              @case ('/mantenimiento') { <svg lucideWrench [size]="18"></svg> }
-              @case ('/economia') { <svg lucideWallet [size]="18"></svg> }
-              @case ('/planes') { <svg lucideLayers [size]="18"></svg> }
-              @case ('/organizaciones') { <svg lucideBuilding [size]="18"></svg> }
-              @case ('/configuracion') { <svg lucideSettings [size]="18"></svg> }
-            }
-            {{ item.label }}
+<div class="hg hg-app min-h-screen">
+  <div class="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-3 py-3 pb-28 lg:px-6 lg:py-6 lg:pb-6">
+    <header class="hg-shell-bar">
+      <div class="flex w-full flex-wrap items-center gap-3">
+        <hg-brand />
+        <div class="hg-shell-tools">
+        <a class="hg-icon-btn" href="#aviso" aria-label="Avisos">
+          <svg lucideBell [size]="18"></svg>
+          @if (offline()) {
+            <span class="hg-dot" aria-hidden="true"></span>
+          }
+        </a>
+        @if (canConfigure()) {
+          <a class="hg-icon-btn" routerLink="/configuracion" aria-label="Configuración">
+            <svg lucideSettings [size]="18"></svg>
           </a>
         }
-      }
-    </nav>
-  </aside>
-  <div class="flex min-w-0 flex-col">
-    <header class="flex flex-wrap items-center gap-3 border-b border-q-line bg-q-surface px-4 py-3">
-      <div class="flex w-full min-w-0 items-center gap-3 md:w-auto md:flex-1">
-        <button type="button" class="grid h-11 w-11 shrink-0 place-items-center rounded-ui border border-q-line lg:hidden" (click)="menuOpen.set(true)" aria-label="Abrir menú">
-          <svg lucideMenu [size]="18"></svg>
-        </button>
-        <div class="min-w-0">
-          <p class="truncate text-sm font-semibold">{{ orgName() }}</p>
-          <p class="text-xs text-q-muted">{{ userName() }} · {{ role() }} · <span class="mono">{{ clock() }}</span></p>
-        </div>
+        <label class="hg-user">
+          <span class="hg-avatar" aria-hidden="true">{{ initials() }}<i></i></span>
+          <span>
+            Usuario demo
+            <select class="hg-control mt-1" [value]="store.snapshot().session.userId" (change)="store.useUser($any($event.target).value)">
+              @for (user of users(); track user.id) {
+                <option [value]="user.id">{{ user.name }}</option>
+              }
+            </select>
+            <span class="hg-user-meta">{{ orgName() }} · {{ userName() }} · {{ role() }} · {{ clock() }}</span>
+          </span>
+        </label>
+        <hg-button variant="secondary" (click)="reset()">Restablecer demo</hg-button>
+        <span class="lg:hidden">
+          <button type="button" class="hg-icon-btn" (click)="menuOpen.set(true)" aria-label="Abrir menú">
+            <svg lucideMenu [size]="18"></svg>
+          </button>
+        </span>
       </div>
-      <label class="text-xs text-q-muted">
-        Usuario demo
-        <select class="mt-1 block min-h-11 w-full rounded-ui border border-q-line bg-q-bg px-2 text-sm text-q-ink md:mt-0 md:ml-2 md:inline-block md:w-auto" [value]="store.snapshot().session.userId" (change)="store.useUser($any($event.target).value)">
-          @for (user of users(); track user.id) {
-            <option [value]="user.id">{{ user.name }}</option>
-          }
-        </select>
-      </label>
-      <button type="button" class="inline-flex min-h-11 items-center gap-2 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="reset()">
-        <svg lucideRotateCcw [size]="16"></svg>
-        Restablecer demo
-      </button>
+      </div>
+      <div class="hidden w-full min-w-0 lg:block">
+        <hg-nav-pill label="Secciones" [items]="pillItems()" [scroll]="true" />
+      </div>
     </header>
+
     @if (offline()) {
-      <p class="flex items-center gap-2 bg-q-wine px-4 py-2 text-sm text-white" role="status">
-        <svg lucideUnplug [size]="16"></svg>
-        Sin WAN simulada. El borde sigue encolando. La nube no recibe hasta restaurar.
-      </p>
+      <hg-alert tone="warning" title="Sin WAN simulada">El borde sigue encolando. La nube no recibe hasta restaurar.</hg-alert>
     }
-    <p class="border-b border-q-line bg-q-bg px-4 py-2 text-sm text-q-muted" role="status">{{ store.notice() }}</p>
-    <details class="border-b border-q-line bg-q-surface px-4 py-2">
-      <summary class="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Guion de la demo</summary>
-      <p class="max-w-3xl pb-2 text-sm text-q-muted">Estos controles arman el relato. La pantalla de abajo responde una sola pregunta y conserva la misma función.</p>
-      <div class="flex gap-2 overflow-x-auto pb-2" aria-label="Controles de la demostración">
-        <label class="flex shrink-0 items-center gap-2 text-xs text-q-muted">
+    <p id="aviso" class="hg-note" role="status">{{ store.notice() }}</p>
+
+    <details class="hg-guion">
+      <summary>Guion de la demo</summary>
+      <p class="hg-note">Estos controles arman el relato. La pantalla de abajo responde una sola pregunta y conserva la misma función.</p>
+      <div class="mt-2 flex gap-2 overflow-x-auto pb-2" aria-label="Controles de la demostración">
+        <label class="hg-user shrink-0">
           Escenario
-          <select class="min-h-11 rounded-ui border border-q-line bg-q-bg px-2 text-sm text-q-ink" aria-label="Escenario de pérdida" [value]="store.snapshot().scenario.lossScenario" (change)="store.loss($any($event.target).value)">
+          <select class="hg-control" aria-label="Escenario de pérdida" [value]="store.snapshot().scenario.lossScenario" (change)="store.loss($any($event.target).value)">
             <option value="NONE">Régimen</option>
             <option value="SOILING">Polvo</option>
             <option value="INVERTER">Inversor</option>
@@ -90,22 +62,75 @@
             <option value="SMOKE">Humo</option>
           </select>
         </label>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="store.soiling(!store.snapshot().scenario.soiling)">Sector sucio</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.chain()">Crear misión</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.safety()">Revisar seguridad</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.approve()">Aprobar</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.dispatch()">Despachar</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.tick()">Animar dron</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.verify()">Verificar</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.original()">Evento original</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.replay()">Replay exacto</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.implausible()">Inyección falsa</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.cut()">Cortar red</button>
-        <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.restore()">Restaurar red</button>
+        <button type="button" class="hg-btn hg-btn-primary shrink-0" (click)="store.soiling(!store.snapshot().scenario.soiling)">Sector sucio</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.chain()">Crear misión</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.safety()">Revisar seguridad</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.approve()">Aprobar</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.dispatch()">Despachar</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.tick()">Animar dron</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.verify()">Verificar</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.original()">Evento original</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.replay()">Replay exacto</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.implausible()">Inyección falsa</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.cut()">Cortar red</button>
+        <button type="button" class="hg-btn hg-btn-secondary shrink-0" (click)="store.restore()">Restaurar red</button>
       </div>
     </details>
-    <main id="contenido" class="flex-1 px-4 py-6">
+
+    <main id="contenido" class="shell-stage flex-1">
       <router-outlet />
     </main>
   </div>
+
+  <nav class="hg-tabbar" aria-label="Secciones principales">
+    @for (item of mobileTabs(); track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="is-active" ariaCurrentWhenActive="page">
+        <ng-container *ngTemplateOutlet="navIcon; context: { $implicit: item.path }" />
+        {{ item.label }}
+      </a>
+    }
+    <button type="button" (click)="menuOpen.set(true)">
+      <svg lucideMenu [size]="18"></svg>
+      Más
+    </button>
+  </nav>
+
+  <hg-drawer title="Secciones" [(open)]="menuOpen">
+    <nav class="flex flex-col gap-3" aria-label="Secciones">
+      @for (group of visibleNav(); track group.label) {
+        <div>
+          <p class="hg-kicker">{{ group.label }}</p>
+          <div class="mt-1 flex flex-col">
+            @for (item of group.items; track item.path) {
+              <a class="flex min-h-11 items-center gap-2 text-sm" [routerLink]="item.path" (click)="close()">
+                <ng-container *ngTemplateOutlet="navIcon; context: { $implicit: item.path }" />
+                {{ item.label }}
+              </a>
+            }
+          </div>
+        </div>
+      }
+      <a class="hg-btn hg-btn-ghost" routerLink="/sistema" (click)="close()">Sistema visual</a>
+    </nav>
+  </hg-drawer>
 </div>
+
+<ng-template #navIcon let-path>
+  @switch (path) {
+    @case ('/inicio') { <svg lucideSun [size]="18"></svg> }
+    @case ('/parque') { <svg lucideMap [size]="18"></svg> }
+    @case ('/instalaciones') { <svg lucideFactory [size]="18"></svg> }
+    @case ('/telemetria') { <svg lucideRadio [size]="18"></svg> }
+    @case ('/energia') { <svg lucideActivity [size]="18"></svg> }
+    @case ('/incidentes') { <svg lucideTriangleAlert [size]="18"></svg> }
+    @case ('/integridad') { <svg lucideShield [size]="18"></svg> }
+    @case ('/fuentes') { <svg lucideFileSearch [size]="18"></svg> }
+    @case ('/misiones') { <svg lucideDrone [size]="18"></svg> }
+    @case ('/auditorias') { <svg lucideClipboardCheck [size]="18"></svg> }
+    @case ('/mantenimiento') { <svg lucideWrench [size]="18"></svg> }
+    @case ('/economia') { <svg lucideWallet [size]="18"></svg> }
+    @case ('/planes') { <svg lucideLayers [size]="18"></svg> }
+    @case ('/organizaciones') { <svg lucideBuilding [size]="18"></svg> }
+    @case ('/configuracion') { <svg lucideSettings [size]="18"></svg> }
+  }
+</ng-template>

@@ -1,8 +1,9 @@
-import { NgClass } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
   LucideActivity,
+  LucideBell,
   LucideBuilding,
   LucideClipboardCheck,
   LucideDrone,
@@ -12,16 +13,17 @@ import {
   LucideMap,
   LucideMenu,
   LucideRadio,
-  LucideRotateCcw,
   LucideSettings,
   LucideShield,
   LucideSun,
   LucideTriangleAlert,
-  LucideUnplug,
   LucideWallet,
   LucideWrench,
-  LucideX,
 } from '@lucide/angular';
+import { HgAlert } from '../../shared/ui/feedback';
+import { HgButton } from '../../shared/ui/button';
+import { HgDrawer } from '../../shared/ui/overlays';
+import { HgBrand, HgNavPill, type HgNavItem } from '../../shared/ui/navigation';
 import { currentRole } from '../../core/domain/access';
 import type { MembershipRole } from '../../core/domain/model';
 import { formatLocal } from '../../core/domain/rules';
@@ -41,10 +43,16 @@ interface NavGroup {
 @Component({
   selector: 'app-shell',
   imports: [
-    NgClass,
+    NgTemplateOutlet,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
+    HgAlert,
+    HgBrand,
+    HgButton,
+    HgDrawer,
+    HgNavPill,
+    LucideBell,
     LucideSun,
     LucideMap,
     LucideFactory,
@@ -61,9 +69,6 @@ interface NavGroup {
     LucideBuilding,
     LucideSettings,
     LucideMenu,
-    LucideX,
-    LucideRotateCcw,
-    LucideUnplug,
   ],
   templateUrl: './shell.html',
 })
@@ -119,6 +124,26 @@ export class Shell {
   protected readonly clock = computed(() => formatLocal(this.store.snapshot().clockIso, 'America/Argentina/Jujuy'));
   protected readonly offline = computed(() => this.store.snapshot().scenario.wanOffline);
   protected readonly users = computed(() => this.store.snapshot().users);
+  protected readonly pillItems = computed<HgNavItem[]>(() =>
+    this.visibleNav().flatMap((group) => group.items.map((item) => ({ id: item.path, label: item.label, href: item.path }))),
+  );
+  protected readonly mobileTabs = computed(() => {
+    const preferred = ['/inicio', '/parque', '/telemetria', '/incidentes'];
+    const items = this.visibleNav().flatMap((group) => group.items);
+    return preferred.flatMap((path) => {
+      const item = items.find((entry) => entry.path === path);
+      return item ? [item] : [];
+    });
+  });
+  protected readonly canConfigure = computed(() => this.pillItems().some((item) => item.href === '/configuracion'));
+  protected readonly initials = computed(() =>
+    this.userName()
+      .split(' ')
+      .slice(0, 2)
+      .map((part) => part[0] ?? '')
+      .join('')
+      .toUpperCase(),
+  );
 
   protected close(): void {
     this.menuOpen.set(false);

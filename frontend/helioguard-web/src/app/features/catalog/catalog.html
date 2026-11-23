@@ -1,0 +1,207 @@
+<a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3" href="#sistema">Saltar al catálogo</a>
+<div class="hg hg-layout">
+  <aside class="hg-side" aria-label="Secciones del sistema">
+    <div style="padding: 0.35rem 0.75rem 0.8rem">
+      <hg-brand />
+      <p class="hg-note" style="margin-top: 0.35rem">Catálogo · no es una pantalla operativa</p>
+    </div>
+    @for (section of sections; track section[0]) {
+      <a [href]="'#' + section[0]">{{ section[1] }}</a>
+    }
+  </aside>
+  <main id="sistema" class="hg-main">
+    <p class="hg-kicker">HelioGuard · referencias Stitch</p>
+    <h1 style="margin: 0.35rem 0 0; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.03em; line-height: 1.05">
+      Sistema visual
+    </h1>
+    <p class="hg-note" style="max-width: 42rem; margin-top: 0.75rem">
+      Componentes para migrar las pantallas actuales. Los números de esta página son muestra de catálogo, no lecturas de Puna Norte.
+      La sala de control sigue en la paleta de la Quebrada.
+    </p>
+
+    <section id="marca" class="hg-section">
+      <h2>Marca y navegación</h2>
+      <hg-nav-pill label="Atajos de la demo" [items]="pillItems" />
+      <p class="hg-note">En escritorio la maqueta usa una píldora centrada. La app operativa conserva el lateral hasta el sprint de shell.</p>
+    </section>
+
+    <section id="color" class="hg-section">
+      <h2>Color</h2>
+      <div class="hg-grid hg-grid-2" style="grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr))">
+        @for (swatch of swatches; track swatch[0]) {
+          <div class="hg-swatch">
+            <i [style.background]="swatch[1]" aria-hidden="true"></i>
+            <strong>{{ swatch[0] }}</strong>
+            <span class="mono">{{ swatch[1] }}</span>
+          </div>
+        }
+      </div>
+      <p class="hg-note">Neón, ámbar y coral marcan energía o alarma junto con texto. El ámbar de la muestra no se usa como párrafo.</p>
+    </section>
+
+    <section id="acciones" class="hg-section">
+      <h2>Acciones</h2>
+      <div class="hg-row">
+        <hg-button>Acción principal</hg-button>
+        <hg-button variant="secondary">Secundaria</hg-button>
+        <hg-button variant="ghost">Fantasma</hg-button>
+        <hg-button variant="danger">Crítica</hg-button>
+        <hg-button [disabled]="true">Inhabilitada</hg-button>
+        <hg-button [loading]="true">Guardando</hg-button>
+      </div>
+      <div class="hg-row">
+        <hg-icon-button label="Buscar">
+          <svg lucideSearch [size]="18"></svg>
+        </hg-icon-button>
+        <hg-icon-button label="Avisos" [badge]="true">
+          <svg lucideBell [size]="18"></svg>
+        </hg-icon-button>
+        <hg-icon-button label="Ajustes" [disabled]="true">
+          <svg lucideSettings [size]="18"></svg>
+        </hg-icon-button>
+        <hg-tooltip text="El valor va con unidad y hora. El arco no reemplaza el número.">
+          <hg-button variant="secondary">Ayuda del medidor</hg-button>
+        </hg-tooltip>
+      </div>
+      <div class="hg-row">
+        <hg-badge tone="solar">Activo</hg-badge>
+        <hg-badge tone="mint">En régimen</hg-badge>
+        <hg-badge tone="amber">Revisar</hg-badge>
+        <hg-badge tone="coral">Crítico</hg-badge>
+        <hg-badge>Neutro</hg-badge>
+      </div>
+    </section>
+
+    <section id="formularios" class="hg-section">
+      <h2>Formularios</h2>
+      <form class="hg-grid hg-grid-2" (submit)="$event.preventDefault()">
+        <hg-field label="Sitio" hint="Nombre visible en la demo" [error]="siteError()">
+          <input hgControl [value]="site()" (input)="setSite($event)" autocomplete="off" />
+        </hg-field>
+        <hg-field label="Rol de muestra" hint="No cambia la sesión">
+          <select hgControl>
+            <option>Operadora</option>
+            <option>Técnico</option>
+            <option>Auditor</option>
+          </select>
+        </hg-field>
+        <hg-button type="submit" variant="secondary">Validar sitio</hg-button>
+      </form>
+    </section>
+
+    <section id="datos" class="hg-section">
+      <h2>Datos</h2>
+      <div class="hg-grid hg-grid-2">
+        <hg-kpi label="Muestra de energía" value="1 248" unit="kWh" note="Cifra de la maqueta de escritorio. No es el ledger de la demo." />
+        <hg-card title="Panel">
+          <p class="hg-note">Una tarjeta agrupa un solo tema. La acción vive en el título, no en un botón decorativo.</p>
+          <a hgCardAction class="hg-note" href="#telemetria">Ver telemetría</a>
+        </hg-card>
+      </div>
+      <hg-search label="Filtrar bloques de muestra" placeholder="Bloque o estado" [value]="query()" (valueChange)="setQuery($event)" />
+      <hg-table>
+        <table>
+          <caption class="sr-only">Bloques de muestra del catálogo, dos por página</caption>
+          <thead>
+            <tr><th>Bloque</th><th>Estado</th><th>Wh de muestra</th></tr>
+          </thead>
+          <tbody>
+            @if (pageRows().length === 0) {
+              <tr><td colspan="3">Ningún bloque coincide con la búsqueda.</td></tr>
+            } @else {
+              @for (row of pageRows(); track row.block) {
+                <tr>
+                  <td>{{ row.block }}</td>
+                  <td>{{ row.state }}</td>
+                  <td class="mono">{{ row.wh }}</td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </hg-table>
+      <hg-pagination [page]="page()" [pages]="pageCount()" (pageChange)="page.set($event)" />
+      <hg-tabs label="Capas de energía" [tabs]="tabs" [(selected)]="tab" />
+      <div role="tabpanel" [id]="'hg-panel-' + tab()" [attr.aria-labelledby]="'hg-tab-' + tab()" style="padding-top: 0.75rem">
+        @switch (tab()) {
+          @case ('esperado') { <p class="hg-note">Capa esperada: el modelo del intervalo, con unidad Wh.</p> }
+          @case ('real') { <p class="hg-note">Capa real: la lectura que sí entró al cálculo.</p> }
+          @case ('causa') { <p class="hg-note">Capa causa: polvo, nube, inversor u otra hipótesis. No se cierra sola.</p> }
+        }
+      </div>
+    </section>
+
+    <section id="capas" class="hg-section">
+      <h2>Capas</h2>
+      <div class="hg-row">
+        <hg-button variant="secondary" (click)="modal.set(true)">Abrir diálogo</hg-button>
+        <hg-button variant="secondary" (click)="drawer.set(true)">Abrir panel</hg-button>
+      </div>
+      <hg-modal title="Confirmar en la demo" [(open)]="modal">
+        <p class="hg-note">Este diálogo no despacha una misión. Escape o el fondo lo cierran.</p>
+      </hg-modal>
+      <hg-drawer title="Detalle lateral" [(open)]="drawer">
+        <p class="hg-note">El panel sirve para ficha, evidencia o filtros sin salir de la ruta.</p>
+      </hg-drawer>
+    </section>
+
+    <section id="estado" class="hg-section">
+      <h2>Estados</h2>
+      <hg-alert tone="info" title="Dato simulado">La lectura vive en este navegador.</hg-alert>
+      <hg-alert tone="success" title="En régimen">El bloque coincide con el modelo de la muestra.</hg-alert>
+      <hg-alert tone="warning" title="Revisar">Hay desvío. Falta la causa.</hg-alert>
+      <hg-alert tone="danger" title="Sin lectura">El canal no respondió. El último ledger se conserva.</hg-alert>
+      <div class="hg-row">
+        <hg-sensor tone="ok" label="Inversor en línea" />
+        <hg-sensor tone="watch" label="Desvío de potencia" />
+        <hg-sensor tone="alert" label="Canal caído" />
+        <hg-sensor tone="offline" label="WAN cortada" />
+        <hg-sensor tone="unknown" label="Sin clasificación" />
+      </div>
+      <div class="hg-grid hg-grid-2">
+        <div>
+          <p class="hg-kicker">Cargando</p>
+          <hg-skeleton />
+        </div>
+        <hg-empty title="Sin eventos" detail="Todavía no hay eventos de integridad en este ejemplo." />
+        <hg-error title="No se pudo leer el canal" detail="Reintento de muestra. No borra datos." [retryLabel]="retried() ? 'Reintento pedido' : 'Reintentar'" (retry)="retried.set(true)" />
+      </div>
+    </section>
+
+    <section id="telemetria" class="hg-section">
+      <h2>Telemetría y vista cenital</h2>
+      <div class="hg-grid hg-grid-2">
+        <hg-chart-frame title="Carga de muestra" unit="kW" rangeLabel="intervalo ilustrativo" note="Las barras activas son neón. El resto es capacidad no usada.">
+          <hg-equalizer [bars]="bars" [activeUntil]="6" label="Doce barras de carga de muestra" />
+        </hg-chart-frame>
+        <hg-card title="Reserva">
+          <hg-gauge [percent]="78" status="Cargando" label="Reserva de muestra 78 por ciento" />
+          <p class="hg-note">El número es la lectura. El arco solo la acompaña.</p>
+        </hg-card>
+        <hg-card title="Avance del día">
+          <hg-progress label="Hoy, muestra" [value]="70" />
+        </hg-card>
+        <hg-card title="Reparto">
+          <hg-flow [parts]="flow" />
+        </hg-card>
+      </div>
+      <hg-map-frame title="Cuatro bloques de ejemplo">
+        <div class="hg-grid" style="grid-template-columns: 1fr 1fr; gap: 0.5rem">
+          @for (name of ['B1', 'B2', 'B3', 'B4']; track name) {
+            <button
+              type="button"
+              class="hg-btn"
+              [class.hg-btn-primary]="block() === name"
+              [class.hg-btn-secondary]="block() !== name"
+              [attr.aria-pressed]="block() === name"
+              (click)="block.set(name)"
+            >
+              Bloque {{ name }}
+            </button>
+          }
+        </div>
+        <p class="hg-note" style="margin-top: 0.75rem">Bloque elegido: {{ block() }}. Esta grilla no selecciona el parque real.</p>
+      </hg-map-frame>
+    </section>
+  </main>
+</div>

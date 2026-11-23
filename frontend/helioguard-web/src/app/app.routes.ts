@@ -24,6 +24,10 @@ function guarded(roles: MembershipRole[]) {
 
 export const routes: Routes = [
   {
+    path: 'sistema',
+    loadComponent: () => import('./features/catalog/catalog').then((m) => m.CatalogPage),
+  },
+  {
     path: '',
     component: Shell,
     children: [
