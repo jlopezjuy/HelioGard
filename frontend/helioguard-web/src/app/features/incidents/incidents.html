@@ -2,7 +2,10 @@
   <p role="status">Armando la bandeja…</p>
 } @else if (view(); as state) {
   <div class="flex flex-wrap items-end justify-between gap-3">
-    <h1 class="text-3xl">Incidentes</h1>
+    <div>
+      <p class="kicker">¿Qué hay que reconocer?</p>
+      <h1 class="mt-2 text-3xl">Incidentes</h1>
+    </div>
     <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="onlyOpen.set(!onlyOpen())">{{ onlyOpen() ? 'Ver también cerrados' : 'Solo abiertos' }}</button>
   </div>
   <div class="mt-6 grid gap-6 lg:grid-cols-2">

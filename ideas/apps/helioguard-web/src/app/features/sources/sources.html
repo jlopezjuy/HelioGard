@@ -1,0 +1,27 @@
+<h1 class="text-3xl font-semibold">Fuentes y procedencia</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">
+  Sentinel-2 y GOES no entran a esta demo. El recurso solar es un modelo etiquetado ESTIMATED. No hay mapa térmico de paneles.
+</p>
+<ul class="mt-6 divide-y divide-q-line border-y border-q-line">
+  @for (source of store.state().evidenceSources; track source.id) {
+    <li class="py-3 text-sm">
+      <span class="font-medium">{{ source.providerName }}</span>
+      · {{ source.kind }} · {{ source.code }}
+      · resolución {{ source.spatialResolutionM ?? 'no aplica' }} m
+      <span class="mt-1 block text-q-muted">{{ source.licenseReference }}</span>
+    </li>
+  }
+</ul>
+<h2 class="mt-8 text-lg font-semibold">Registros de esta organización</h2>
+@if (rows().length === 0) {
+  <p class="mt-2 text-sm">Sin procedencia cargada.</p>
+} @else {
+  <ul class="mt-3 space-y-3 text-sm">
+    @for (row of rows(); track row.id) {
+      <li>
+        <span class="mono">{{ row.sourceRecordKey }}</span>
+        · {{ source(row.evidenceSourceId)?.code }} · {{ row.trustLevel }} · {{ row.qualityFlags }}
+      </li>
+    }
+  </ul>
+}

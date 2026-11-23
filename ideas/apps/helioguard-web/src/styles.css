@@ -1,0 +1,185 @@
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import 'tailwindcss';
+
+@theme {
+  --color-q-bg: #f7f4ee;
+  --color-q-surface: #ffffff;
+  --color-q-ink: #24302d;
+  --color-q-muted: #4b5a57;
+  --color-q-line: #ddd5c8;
+  --color-q-terracotta: #8f432e;
+  --color-q-clay: #984b33;
+  --color-q-wine: #6b443d;
+  --color-q-cactus: #315d57;
+  --color-q-slate: #365d65;
+  --color-q-sand: #d2bd98;
+  --color-q-amber: #9a6e2c;
+  --color-q-danger: #a53232;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius-ui: 2px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-family: var(--font-sans);
+  background: var(--color-q-bg);
+  color: var(--color-q-ink);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-q-slate);
+  outline-offset: 3px;
+}
+
+.strata {
+  display: grid;
+  gap: 3px;
+  width: 28px;
+}
+
+.strata i {
+  display: block;
+  height: 4px;
+}
+
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--color-q-line);
+    background: var(--color-q-surface);
+    color: var(--color-q-ink);
+    font: 600 14px/1 var(--font-sans);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--color-q-terracotta);
+    border-color: var(--color-q-terracotta);
+    color: #f7f4ee;
+  }
+
+  .btn-quiet {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .plot {
+    background-color: #f4efe4;
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(54, 93, 101, 0.18) 10px,
+      rgba(54, 93, 101, 0.18) 11px
+    );
+  }
+
+  .plot-alert {
+    background-color: #f3e4dc;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(143, 67, 46, 0.28) 6px,
+      rgba(143, 67, 46, 0.28) 7px
+    );
+  }
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  min-height: 44px;
+  border: 1px solid var(--color-q-line);
+  background: #fff;
+  color: var(--color-q-ink);
+  padding: 8px 10px;
+  font: 400 14px/1.4 var(--font-sans);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.kicker {
+  color: var(--color-q-cactus);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hatch {
+  background-image: repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(165, 50, 50, 0.35) 4px, rgba(165, 50, 50, 0.35) 5px);
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 50;
+  background: #f7f4ee;
+  color: #24302d;
+  padding: 8px 12px;
+  transform: translateY(-150%);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+.drone-flight {
+  animation: drone-run 8s linear infinite;
+}
+
+@keyframes drone-run {
+  50% {
+    transform: translate(-36px, 48px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .drone-flight {
+    animation-name: none !important;
+  }
+}

@@ -1,0 +1,62 @@
+@if (!visible()) {
+  <section>
+    <h1 class="text-3xl font-semibold">Este ámbito no incluye el parque de utilidad</h1>
+    <p class="mt-3 max-w-xl text-q-muted">La vista cenital de Puna Norte queda fuera de la organización activa. No se muestran bloques ajenos.</p>
+  </section>
+} @else {
+  <section class="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_300px]">
+    <div>
+      <p class="kicker">Vista cenital simulada · Abra Pampa</p>
+      <h1 class="mt-2 text-3xl font-semibold">Puna Norte, cuatro bloques</h1>
+      <p class="mt-2 max-w-2xl text-sm text-q-muted">
+        Geometría de demostración, no una ortofoto. La irradiancia externa no localiza un panel. El sello de estado va junto al color.
+      </p>
+      <div class="relative mt-5 grid grid-cols-2 gap-3 bg-[#ebe4d6] p-3" role="group" aria-label="Bloques del parque">
+        @for (block of blocks(); track block.code) {
+          <button
+            type="button"
+            class="plot min-h-40 border border-q-slate/30 p-3 text-left"
+            [class.plot-alert]="block.label === 'Atención'"
+            [class.bg-q-line]="block.label === 'Sin medición'"
+            [attr.aria-pressed]="selectedBlock() === block.code"
+            (click)="choose(block.code)"
+          >
+            <span class="mono text-xs">{{ block.code }}</span>
+            <span class="mt-2 block font-medium">{{ block.name }}</span>
+            <span class="mt-4 block text-sm">{{ block.label }}</span>
+            <span class="mono mt-1 block text-xs text-q-muted">{{ deficitText(block.rollup.deficit) }}</span>
+            @if (flying() && block.code === 'A2') {
+              <span data-testid="drone" class="drone-flight mt-3 inline-flex bg-q-ink px-2 py-1 text-xs font-medium text-q-bg">
+                DR-DEMO-1
+              </span>
+            }
+          </button>
+        }
+      </div>
+      <p class="mt-3 text-sm">En banda, atención o sin medición. Atención quiere decir un déficit mayor al 15 %.</p>
+      @if (flying()) {
+        <p class="mt-1 text-sm">Dron en recorrido simulado sobre A2. No hay una aeronave real.</p>
+      }
+    </div>
+    <aside>
+      @if (current(); as block) {
+        <h2 class="text-xl font-semibold">{{ block.name }}</h2>
+        <p class="mono mt-2 text-sm">Esperado {{ whLabel(block.rollup.expectedWh) }}</p>
+        <p class="mono text-sm">Real {{ whLabel(block.rollup.actualWh) }}</p>
+        <p class="mt-3 text-sm text-q-muted">Strings, inversor y canal se abren en la ficha. Esta ficha no afirma la causa.</p>
+        <a class="btn mt-4" routerLink="/instalaciones/ins-puna">Ficha de Puna Norte</a>
+      }
+      <h3 class="mt-8 text-sm font-semibold uppercase tracking-wide">Escenarios</h3>
+      <div class="mt-3 flex flex-col gap-2">
+        <button type="button" class="btn" (click)="store.activateScenario('normal')">Operación normal</button>
+        <button type="button" class="btn btn-primary" data-testid="scenario-soiling" (click)="store.activateScenario('soiling')">Sector sucio</button>
+        <button type="button" class="btn" (click)="store.activateScenario('cloud')">Nube</button>
+        <button type="button" class="btn" (click)="store.activateScenario('inverter')">Falla de inversor</button>
+        <button type="button" class="btn" (click)="store.activateScenario('frost')">Helada</button>
+        <button type="button" class="btn" (click)="store.activateScenario('hail')">Granizo</button>
+        <button type="button" class="btn" (click)="store.activateScenario('smoke')">Humo</button>
+        <button type="button" class="btn" (click)="store.activateScenario('offline-gateway')">Gateway sin enlace</button>
+      </div>
+    </aside>
+  </section>
+}

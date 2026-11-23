@@ -1,0 +1,115 @@
+    <a class="skip" href="#contenido" (click)="skip($event)">Saltar al contenido</a>
+<div class="min-h-screen bg-q-bg text-q-ink md:grid md:grid-cols-[232px_minmax(0,1fr)]">
+  <aside class="hidden border-r border-q-line bg-q-surface md:flex md:min-h-screen md:flex-col">
+    <ng-container *ngTemplateOutlet="brand" />
+    <nav class="flex flex-col gap-1 px-3 py-4" aria-label="Secciones">
+      @for (item of nav(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-q-bg text-q-ink"
+          class="flex min-h-11 items-center gap-3 px-3 text-sm text-q-muted"
+        >
+          <ng-container *ngTemplateOutlet="icon; context: { name: item.icon }" />
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+  </aside>
+
+  @if (menuOpen()) {
+    <div class="fixed inset-0 z-20 bg-[#24302D]/40 md:hidden" (click)="close()">
+      <aside class="h-full w-72 overflow-auto bg-q-surface p-3" (click)="$event.stopPropagation()">
+        <div class="mb-3 flex items-center justify-between">
+          <ng-container *ngTemplateOutlet="brand" />
+          <button type="button" class="btn btn-quiet" (click)="close()" aria-label="Cerrar menú">
+            <svg lucideX [size]="18"></svg>
+          </button>
+        </div>
+        <nav class="flex flex-col gap-1" aria-label="Secciones">
+          @for (item of nav(); track item.path) {
+            <a [routerLink]="item.path" class="flex min-h-11 items-center gap-3 px-3" (click)="close()">
+              <ng-container *ngTemplateOutlet="icon; context: { name: item.icon }" />
+              {{ item.label }}
+            </a>
+          }
+        </nav>
+      </aside>
+    </div>
+  }
+
+  <div class="min-w-0">
+    <header class="flex flex-wrap items-center gap-3 border-b border-q-line px-4 py-3 md:px-8">
+      <button type="button" class="btn btn-quiet md:hidden" (click)="menuOpen.set(true)" aria-label="Abrir menú">
+        <svg lucideMenu [size]="18"></svg>
+      </button>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs uppercase tracking-[0.14em] text-q-cactus">{{ organizationLabel() }}</p>
+        <p class="truncate text-sm">
+          {{ store.user()?.name }} · {{ store.role() }} · <span class="mono">{{ clock() }}</span>
+        </p>
+      </div>
+      <label class="field min-w-40">
+        <span class="sr-only">Persona demo</span>
+        <select [value]="store.state().activeUserId" (change)="store.setUser($any($event.target).value)">
+          @for (user of store.state().users; track user.id) {
+            <option [value]="user.id">{{ user.name }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" class="btn" (click)="store.setOffline(!store.state().offline)">
+        <svg lucideUnplug [size]="16"></svg>
+        {{ store.state().offline ? 'Restaurar WAN' : 'Cortar WAN' }}
+      </button>
+      <button type="button" class="btn" data-testid="reset-demo" (click)="reset()">
+        <svg lucideRotateCcw [size]="16"></svg>
+        Restablecer demo
+      </button>
+    </header>
+    @if (store.state().offline) {
+      <p class="border-b border-q-line bg-q-sand/50 px-4 py-2 text-sm md:px-8">
+        Sin enlace simulado. Los formularios siguen en este navegador y la cola se sincroniza una sola vez al restaurar.
+      </p>
+    }
+    @if (store.state().notice) {
+      <p class="border-b border-q-line px-4 py-2 text-sm text-q-wine md:px-8" role="status">{{ store.state().notice }}</p>
+    }
+    <main id="contenido" tabindex="-1" class="px-4 py-6 md:px-8 md:py-8">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<ng-template #brand>
+  <a routerLink="/inicio" class="flex items-center gap-3 px-4 py-5 text-q-ink no-underline">
+    <span class="strata" aria-hidden="true">
+      <i class="bg-q-terracotta"></i>
+      <i class="bg-q-wine"></i>
+      <i class="bg-q-cactus"></i>
+      <i class="bg-q-slate"></i>
+    </span>
+    <span>
+      <span class="block text-base font-semibold">HelioGuard</span>
+      <span class="block text-xs text-q-muted">Estratos · demo</span>
+    </span>
+  </a>
+</ng-template>
+
+<ng-template #icon let-name="name">
+  @switch (name) {
+    @case ('sun') { <svg lucideSun [size]="18"></svg> }
+    @case ('map') { <svg lucideMap [size]="18"></svg> }
+    @case ('factory') { <svg lucideFactory [size]="18"></svg> }
+    @case ('radio') { <svg lucideRadio [size]="18"></svg> }
+    @case ('activity') { <svg lucideActivity [size]="18"></svg> }
+    @case ('alert') { <svg lucideTriangleAlert [size]="18"></svg> }
+    @case ('shield') { <svg lucideShield [size]="18"></svg> }
+    @case ('search') { <svg lucideFileSearch [size]="18"></svg> }
+    @case ('drone') { <svg lucideDrone [size]="18"></svg> }
+    @case ('check') { <svg lucideClipboardCheck [size]="18"></svg> }
+    @case ('wrench') { <svg lucideWrench [size]="18"></svg> }
+    @case ('wallet') { <svg lucideWallet [size]="18"></svg> }
+    @case ('layers') { <svg lucideLayers [size]="18"></svg> }
+    @case ('building') { <svg lucideBuilding2 [size]="18"></svg> }
+    @case ('settings') { <svg lucideSettings [size]="18"></svg> }
+  }
+</ng-template>

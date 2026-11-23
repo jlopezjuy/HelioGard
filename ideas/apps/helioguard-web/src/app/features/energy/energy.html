@@ -1,0 +1,32 @@
+<h1 class="text-3xl font-semibold">Esperado, real y causa</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">
+  La energía sale de integrar potencia en cada intervalo, no de restar kilovatios. Si falta la medición, el resultado es «sin estimación confiable».
+</p>
+<div class="mt-5 flex flex-wrap gap-2">
+  <button type="button" class="btn" (click)="store.activateScenario('soiling')">Polvo sectorizado</button>
+  <button type="button" class="btn" (click)="store.activateScenario('cloud')">Nube</button>
+  <button type="button" class="btn" (click)="store.activateScenario('hail')">Granizo</button>
+  <button type="button" class="btn" (click)="store.activateScenario('smoke')">Humo</button>
+  <button type="button" class="btn" (click)="store.activateScenario('inverter')">Inversor</button>
+</div>
+@if (runs().length === 0) {
+  <p class="mt-8">No hay corridas en este ámbito.</p>
+} @else {
+  <ul class="mt-6 space-y-6">
+    @for (run of runs(); track run.id) {
+      <li class="border-t border-q-line pt-4">
+        <h2 class="font-medium">{{ run.modelName }} {{ run.modelVersion }} · {{ run.inputFingerprint }}</h2>
+        <p class="mono mt-1 text-sm">{{ whLabel(run.expectedWh) }} esperados · {{ whLabel(run.actualWh) }} reales · cobertura {{ run.coveragePct }}</p>
+        @if (lossOf(run.id); as loss) {
+          <p class="mt-2 text-sm">{{ loss.methodology }} · {{ loss.validationStatus }} · {{ whLabel(loss.totalLossWh) }}</p>
+          <ul class="mt-2 space-y-1 text-sm">
+            @for (cause of causeOf(loss.id); track cause.id) {
+              <li><span class="font-medium">{{ cause.cause }}</span> · {{ whLabel(cause.estimatedWh) }} · {{ cause.evidenceNote }}</li>
+            }
+          </ul>
+        }
+      </li>
+    }
+  </ul>
+}
+<p class="mt-6 text-xs text-q-muted">Climas de referencia en los sitios: Puna, Valles, Valles Calchaquíes. Yungas y Chaco no tienen parque en esta semilla.</p>

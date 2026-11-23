@@ -1,0 +1,19 @@
+<h1 class="text-3xl font-semibold">Configuración de la demo</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">El estado vive en localStorage. Exportar e importar no llama a una API. Restablecer vuelve a la semilla helioguard-hackaton-v4.</p>
+<div class="mt-5 flex flex-wrap gap-2">
+  <button type="button" class="btn btn-primary" (click)="download()">Exportar JSON</button>
+  <button type="button" class="btn" data-testid="reset-demo" (click)="store.reset()">Restablecer demo</button>
+</div>
+<label class="field mt-5 max-w-xl">
+  Importar archivo
+  <input type="file" accept="application/json" (change)="load($event)" />
+</label>
+<label class="field mt-4">
+  Pegar estado
+  <textarea rows="8" [value]="raw()" (input)="raw.set($any($event.target).value)"></textarea>
+</label>
+<button type="button" class="btn mt-3" (click)="apply()">Importar texto</button>
+@if (error()) {
+  <p class="mt-3 text-sm text-q-danger" role="alert">{{ error() }}</p>
+}
+<p class="mt-6 text-sm">Semilla {{ store.state().seed }} · guardado {{ store.state().savedAt }}</p>

@@ -33,6 +33,11 @@ interface NavItem {
   roles: MembershipRole[];
 }
 
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
 @Component({
   selector: 'app-shell',
   imports: [
@@ -65,26 +70,48 @@ interface NavItem {
 export class Shell {
   protected readonly store = inject(DEMO_REPOSITORY);
   protected readonly menuOpen = signal(false);
-  protected readonly nav: NavItem[] = [
-    { path: '/inicio', label: 'Inicio', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR', 'VIEWER'] },
-    { path: '/parque', label: 'Parque', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR', 'VIEWER'] },
-    { path: '/instalaciones', label: 'Instalaciones', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR', 'VIEWER'] },
-    { path: '/telemetria', label: 'Telemetría', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN'] },
-    { path: '/energia', label: 'Energía', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'AUDITOR'] },
-    { path: '/incidentes', label: 'Incidentes', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR'] },
-    { path: '/integridad', label: 'Integridad', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'AUDITOR'] },
-    { path: '/fuentes', label: 'Fuentes', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'AUDITOR'] },
-    { path: '/misiones', label: 'Misiones', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN'] },
-    { path: '/auditorias', label: 'Auditorías', roles: ['OWNER', 'ADMIN', 'AUDITOR', 'TECHNICIAN'] },
-    { path: '/mantenimiento', label: 'Mantenimiento', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN'] },
-    { path: '/economia', label: 'Economía', roles: ['OWNER', 'ADMIN', 'OPERATOR'] },
-    { path: '/planes', label: 'Planes', roles: ['OWNER', 'ADMIN'] },
-    { path: '/organizaciones', label: 'Organizaciones', roles: ['OWNER', 'ADMIN'] },
-    { path: '/configuracion', label: 'Configuración', roles: ['OWNER', 'ADMIN', 'OPERATOR'] },
+  private readonly nav: NavGroup[] = [
+    {
+      label: 'Operar',
+      items: [
+        { path: '/inicio', label: 'Inicio', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR', 'VIEWER'] },
+        { path: '/parque', label: 'Parque', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR', 'VIEWER'] },
+        { path: '/instalaciones', label: 'Instalaciones', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR', 'VIEWER'] },
+        { path: '/incidentes', label: 'Incidentes', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN', 'AUDITOR'] },
+        { path: '/misiones', label: 'Misiones', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN'] },
+        { path: '/mantenimiento', label: 'Mantenimiento', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN'] },
+      ],
+    },
+    {
+      label: 'Medir',
+      items: [
+        { path: '/telemetria', label: 'Telemetría', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'TECHNICIAN'] },
+        { path: '/energia', label: 'Energía', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'AUDITOR'] },
+        { path: '/economia', label: 'Economía', roles: ['OWNER', 'ADMIN', 'OPERATOR'] },
+      ],
+    },
+    {
+      label: 'Confiar',
+      items: [
+        { path: '/integridad', label: 'Integridad', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'AUDITOR'] },
+        { path: '/fuentes', label: 'Fuentes', roles: ['OWNER', 'ADMIN', 'OPERATOR', 'AUDITOR'] },
+        { path: '/auditorias', label: 'Auditorías', roles: ['OWNER', 'ADMIN', 'AUDITOR', 'TECHNICIAN'] },
+      ],
+    },
+    {
+      label: 'Cuenta',
+      items: [
+        { path: '/planes', label: 'Planes', roles: ['OWNER', 'ADMIN'] },
+        { path: '/organizaciones', label: 'Organizaciones', roles: ['OWNER', 'ADMIN'] },
+        { path: '/configuracion', label: 'Configuración', roles: ['OWNER', 'ADMIN', 'OPERATOR'] },
+      ],
+    },
   ];
   protected readonly visibleNav = computed(() => {
     const role = currentRole(this.store.snapshot());
-    return this.nav.filter((item) => role && item.roles.includes(role));
+    return this.nav
+      .map((group) => ({ label: group.label, items: group.items.filter((item) => role && item.roles.includes(role)) }))
+      .filter((group) => group.items.length > 0);
   });
   protected readonly userName = computed(() => this.store.snapshot().users.find((user) => user.id === this.store.snapshot().session.userId)?.name ?? '');
   protected readonly orgName = computed(() => this.store.snapshot().organizations.find((org) => org.id === this.store.snapshot().session.organizationId)?.name ?? '');

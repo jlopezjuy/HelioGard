@@ -1,9 +1,25 @@
 @if (phase() === 'loading') {
   <p role="status">Calculando intervalos…</p>
 } @else if (view(); as state) {
-  <h1 class="text-3xl">Energía del bloque B2</h1>
-  <p class="mt-2 max-w-2xl text-sm text-q-muted">Wh = potencia en W × segundos / 3600. El gráfico usa posición, no una torta. Eje horizontal: hora local. Eje vertical: Wh del cuarto de hora.</p>
-  <svg viewBox="0 0 560 240" class="mt-4 w-full max-w-3xl border border-q-line bg-q-surface" role="img" aria-label="Esperado y real en Wh por intervalo">
+  <p class="kicker">¿Cuánto falta y por qué?</p>
+  <h1 class="mt-2 text-3xl">Energía del bloque B2</h1>
+  <p class="lede">Wh = potencia en W × segundos / 3600. El largo de la barra es la cantidad. El color no indica magnitud.</p>
+  <section class="sheet mt-6 max-w-3xl">
+    <h2 class="text-lg">Intervalo 10:30</h2>
+    @if (state.loss?.validationStatus === 'sin estimación confiable') {
+      <p class="mt-2">sin estimación confiable</p>
+    } @else {
+      <ul class="mt-3 space-y-2 text-sm">
+        @for (cause of state.causes; track cause.id) {
+          <li>{{ cause.cause }} · {{ formatWh(cause.estimatedWh) }} · {{ cause.evidenceNote }}</li>
+        }
+      </ul>
+      @if (state.showMoney && state.economy) {
+        <p class="mt-3 text-sm">Monto demostrativo {{ formatArs(state.economy.estimatedLossAmount) }}. {{ state.economy.tariffSnapshotNote }}</p>
+      }
+    }
+  </section>
+  <svg viewBox="0 0 560 240" class="mt-6 w-full max-w-3xl border border-q-line bg-q-surface" role="img" aria-label="Esperado y real en Wh por intervalo">
     <title>Esperado y real, 10:00 a 10:45</title>
     <line x1="40" y1="20" x2="40" y2="190" stroke="#24302D" />
     <line x1="40" y1="190" x2="530" y2="190" stroke="#24302D" />
@@ -33,21 +49,8 @@
       }
     </tbody>
   </table>
-  <button type="button" class="mt-3 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="toggleComparable()">Marcar 10:15 como no comparable</button>
-  <h2 class="mt-6 text-lg">Causas del intervalo 10:30</h2>
-  @if (state.loss?.validationStatus === 'sin estimación confiable') {
-    <p>sin estimación confiable</p>
-  } @else {
-    <ul class="mt-2 space-y-1 text-sm">
-      @for (cause of state.causes; track cause.id) {
-        <li>{{ cause.cause }} · {{ formatWh(cause.estimatedWh) }} · {{ cause.evidenceNote }}</li>
-      }
-    </ul>
-    @if (state.showMoney && state.economy) {
-      <p class="mt-3 text-sm">Monto demostrativo {{ formatArs(state.economy.estimatedLossAmount) }}. {{ state.economy.tariffSnapshotNote }}</p>
-    }
-  }
-  <h2 class="mt-6 text-lg">Clima usado por el modelo</h2>
+  <button type="button" class="mt-4 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="toggleComparable()">Marcar 10:15 como no comparable</button>
+  <h2 class="mt-8 text-lg">Clima usado por el modelo</h2>
   <ul class="mt-2 text-sm">
     @for (zone of zones; track zone) {
       <li>{{ zone }}{{ state.present.includes(zone) ? '' : ' — sin instalación en esta demo' }}</li>

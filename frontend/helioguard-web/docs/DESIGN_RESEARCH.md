@@ -8,6 +8,10 @@ Se consultaron estas páginas el 22 de noviembre de 2026. No se atribuyen hilos 
 - Nielsen Norman Group, Page Laubheimer, «Dashboards: Making Charts and Graphs Easier to Understand» (18 jun 2017): https://www.nngroup.com/articles/dashboards-preattentive/
 - Angular, «Using Tailwind CSS with Angular»: https://angular.dev/guide/tailwind
 - Dirección local: `ideas/docs/04_DESIGN_SYSTEM_QUEBRADA.md` y `ideas/skills/helioguard-visual-design/SKILL.md`
+- r/UXDesign, «Dashboard Design: Focused on Operations?» (15 oct 2025): https://www.reddit.com/r/UXDesign/comments/1o6ye54/dashboard_design_focused_on_operations/ — ordenar atención, contexto y cola de trabajo.
+- r/UXDesign, «What important things should I consider in designing an analytics dashboard?» (18 dic 2023): https://www.reddit.com/r/UXDesign/comments/18liurr/what_important_things_should_i_consider_in/ — tres capas: ¿hay que preocuparse?, ¿por qué?, ¿qué se hace?
+- r/UXDesign, «live dashboard for executive level» (29 feb 2024): https://www.reddit.com/r/UXDesign/comments/1b2zoml/what_are_the_key_things_to_keep_in_mind_while/ — el número pide un «y ahora qué».
+- St. Germain / Hugo / Blanc, «Design Concepts for an Outage Control Center Information Dashboard» (OSTI, 2015): https://www.osti.gov/servlets/purl/1244646 — lo importante arriba, color solo para lo saliente, la pantalla no decide sola.
 - Iconos: `@lucide/angular` 1.77.0, licencia ISC, leída en el `README.md` del paquete instalado. https://lucide.dev/license
 
 ## Antipatrones que se evitaron

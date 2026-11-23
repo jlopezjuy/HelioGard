@@ -1,8 +1,9 @@
 @if (phase() === 'loading') {
   <p role="status">Separando organizaciones…</p>
 } @else if (view(); as state) {
-  <h1 class="text-3xl">Organizaciones</h1>
-  <p class="mt-2 max-w-2xl text-sm text-q-muted">Tres tenants. El cambio de usuario está en la barra. Esto simula permisos y no reemplaza un backend.</p>
+  <p class="kicker">¿Quién está mirando?</p>
+  <h1 class="mt-2 text-3xl">Organizaciones</h1>
+  <p class="lede">Tres tenants. El cambio de usuario está en la barra. Esto simula permisos y no reemplaza un backend.</p>
   <ul class="mt-4 space-y-2">
     @for (org of state.organizations; track org.id) {
       <li class="border border-q-line px-3 py-2" [class.bg-q-sand]="org.id === state.current">

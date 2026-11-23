@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HelioGuard - Solar &amp; Energy Dashboard</title>
+<!-- Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Custom Configuration -->
+<script data-purpose="tailwind-config" id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              black: '#070A0D',
+              dark: '#0B0F14',
+              card: 'rgba(16, 22, 29, 0.82)',
+              border: 'rgba(255, 255, 255, 0.08)',
+              borderHover: 'rgba(255, 255, 255, 0.16)',
+              neon: '#E6FF00',
+              neonHover: '#F4FF4D',
+              emerald: '#10B981',
+              accent: '#18222C'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'glow-neon': '0 0 24px -4px rgba(230, 255, 0, 0.35)',
+            'glow-emerald': '0 0 24px -4px rgba(16, 185, 129, 0.35)',
+            'card-inner': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.08)'
+          }
+        }
+      }
+    }
+  </script>
+<!-- Google Fonts Preconnect and Import -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Core Layout Styles -->
+<style data-purpose="custom-layout">
+    body {
+      background-color: #070A0D;
+      color: #E2E8F0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Subtle backdrop grid and ambient glow */
+    .bg-solar-grid {
+      background-image: 
+        radial-gradient(circle at 18% 25%, rgba(16, 185, 129, 0.14) 0%, transparent 48%),
+        radial-gradient(circle at 80% 15%, rgba(230, 255, 0, 0.09) 0%, transparent 42%),
+        radial-gradient(circle at 50% 90%, rgba(24, 34, 44, 0.8) 0%, transparent 65%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232E3A;
+      border-radius: 9999px;
+    }
+  </style>
+<!-- UI Pattern Styles -->
+<style data-purpose="dashboard-patterns">
+    /* Striped progress bar pattern */
+    .striped-pattern {
+      background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.22),
+        rgba(255, 255, 255, 0.22) 3px,
+        transparent 3px,
+        transparent 7px
+      );
+    }
+
+    /* Dashed circular gauge styling */
+    .radial-track {
+      stroke-dasharray: 4, 4;
+    }
+
+    /* Glass card backdrop helper */
+    .glass-panel {
+      background: rgba(14, 20, 27, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+  </style>
+<meta content="web_standard" name="shell-type"/></head>
+<body class="min-h-screen bg-solar-grid antialiased selection:bg-brand-neon selection:text-black p-3 sm:p-5 lg:p-7">
+<!-- BEGIN: MainContainer -->
+<div class="max-w-[1440px] mx-auto flex flex-col gap-6" data-purpose="app-shell">
+<!-- BEGIN: NavigationBar -->
+<header class="flex items-center justify-between px-6 py-4 rounded-2xl glass-panel relative z-20 shadow-2xl" data-purpose="main-header">
+<!-- Brand Logo -->
+<div class="flex items-center gap-3" data-purpose="brand-logo">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-emerald via-brand-neon to-brand-neonHover flex items-center justify-center shadow-glow-neon">
+<!-- Solar Shield Emblem -->
+<svg class="w-6 h-6 text-black" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2L4 5V11.5C4 16.5 7.5 21.1 12 22.5C16.5 21.1 20 16.5 20 11.5V5L12 2ZM13 14H15L11 20V15H9L13 9V14Z"></path>
+</svg>
+</div>
+<div class="flex flex-col">
+<span class="text-xl font-extrabold tracking-tight text-white flex items-center gap-1.5">
+            Helio<span class="text-brand-neon">Guard</span>
+</span>
+</div>
+</div>
+<!-- Center Navigation Pills -->
+<nav class="hidden md:flex items-center gap-1.5 p-1.5 rounded-full bg-brand-dark/90 border border-white/5" data-purpose="nav-links">
+<a class="px-5 py-2 rounded-full text-xs font-semibold bg-white/10 text-white border border-white/15 transition-all shadow-inner" href="#dashboard">
+          Dashboard
+        </a>
+<a class="px-5 py-2 rounded-full text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#solar-panels">
+          Solar Panels
+        </a>
+<a class="px-5 py-2 rounded-full text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#battery">
+          Battery
+        </a>
+<a class="px-5 py-2 rounded-full text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#analytics">
+          Analytics
+        </a>
+<a class="px-5 py-2 rounded-full text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#live-monitoring">
+          Live Monitoring
+        </a>
+</nav>
+<!-- Right Utility Actions -->
+<div class="flex items-center gap-3" data-purpose="header-utilities">
+<!-- Search Button -->
+<button aria-label="Search" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- Notification Bell with Dot Indicator -->
+<button aria-label="Notifications" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 relative transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-brand-neon animate-pulse shadow-glow-neon"></span>
+</button>
+<!-- Settings Icon -->
+<button aria-label="Settings" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- User Profile Avatar with Online Status Indicator -->
+<div class="relative cursor-pointer pl-1 group" data-purpose="user-profile">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-emerald/70 transition-transform duration-300 group-hover:scale-105">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhvMDtVIMtl3kYFdtgPvOSM1PILHZyt-j0mZpI_edxEWsp6orXnStrl38ktKEdlmbWi2Sss00SarFdL_klAkEE5D53v-LXyt7bG34ta9so_xgdkL93t5g5ZBQW5UWfq9uVKS6BdZVfbjdlnevIQ7QJH3kZ7IprwP58hR-tknRE9Odbk-bUI2liCfzq6-_1KM1z2jXqjR_urJNe795RgXYh9J--WXlcQn0S2bf5nR1_"/>
+</div>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-emerald border-2 border-brand-dark rounded-full"></span>
+</div>
+</div>
+</header>
+<!-- END: NavigationBar -->
+<!-- BEGIN: DashboardGrid -->
+<main class="grid grid-cols-12 gap-5" data-purpose="dashboard-grid"><div class="flex flex-col w-full col-span-12 gap-5" data-purpose="satellite-telemetry-root">
+<!-- TOP MISSION STATUS BAR -->
+<section class="w-full rounded-2xl bg-surface-container-high/90 backdrop-blur-xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-4">
+<!-- Left: Orbit Link & Telemetry Status -->
+<div class="flex items-center gap-4 flex-wrap">
+<div class="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-surface-container-lowest">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
+</span>
+<span class="font-label-code text-label-code text-secondary tracking-wider font-semibold">SAT-LINK: SENTINEL-4B [GEO-SYNC]</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant font-label-code text-label-code">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-primary-fixed">satellite_alt</span>
+<span>LAT 23°14'08"S</span>
+<span class="text-outline">/</span>
+<span>LON 133°21'44"E</span>
+</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-code text-label-code">ALICE SPRINGS HUB</span>
+<span class="text-secondary font-label-code text-label-code">RTT: 142ms</span>
+</div>
+</div>
+<!-- Center: Layer Switcher Pills -->
+<div class="flex items-center gap-1 p-1 bg-surface-container-lowest rounded-full" id="layerSwitcher">
+<button class="px-3.5 py-1.5 rounded-full font-label-tag text-label-tag bg-primary-container text-on-primary-fixed font-bold shadow-md transition-all layer-btn active" data-layer="thermal">
+        Térmica (FLIR)
+      </button>
+<button class="px-3.5 py-1.5 rounded-full font-label-tag text-label-tag text-on-surface-variant hover:text-on-surface transition-all layer-btn" data-layer="rgb">
+        Óptica (RGB)
+      </button>
+<button class="px-3.5 py-1.5 rounded-full font-label-tag text-label-tag text-on-surface-variant hover:text-on-surface transition-all layer-btn" data-layer="albedo">
+        Topografía &amp; Albedo
+      </button>
+<button class="px-3.5 py-1.5 rounded-full font-label-tag text-label-tag text-on-surface-variant hover:text-on-surface transition-all layer-btn" data-layer="lidar">
+        LIDAR 3D
+      </button>
+</div>
+<!-- Right: Countdown Window & Quick Scan -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container">
+<span class="material-symbols-outlined text-sm text-primary-fixed animate-spin" style="animation-duration: 9s;">timelapse</span>
+<span class="font-label-code text-label-code text-on-surface">Paso Cenital: <strong class="text-primary-fixed" id="countdownTimer">+00:14:32</strong></span>
+</div>
+<button class="px-4 py-2 rounded-full bg-primary-container hover:bg-secondary-fixed text-on-primary-fixed font-body-md text-body-md font-semibold flex items-center gap-2 transition-all shadow-md group">
+<span class="material-symbols-outlined text-base group-hover:rotate-45 transition-transform">radar</span>
+<span>Re-escaneo Orbital</span>
+</button>
+</div>
+</section>
+<!-- MAIN SATELLITE THEATER & TACTICAL SIDEBAR -->
+<div class="grid grid-cols-12 gap-5 w-full">
+<!-- VIEWPORT TÁCTICO CENITAL (8 cols) -->
+<div class="col-span-12 xl:col-span-8 flex flex-col gap-4">
+<div class="relative w-full h-[580px] rounded-2xl overflow-hidden bg-surface-container-lowest shadow-2xl flex flex-col justify-between p-5 select-none" id="viewportCard">
+<!-- WebGL Background Simulation -->
+<!-- STITCH_SHADER_START:ANIMATION_8 class="absolute inset-0 w-full h-full pointer-events-none opacity-60" -->
+<div class="absolute inset-0 w-full h-full pointer-events-none opacity-60" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_8" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_8');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+varying vec2 v_texCoord;
+
+// Procedural grid, radar scan line, and satellite orbital telemetry terrain
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+    vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+
+    // Deep OLED dark base color
+    vec3 baseColor = vec3(0.043, 0.055, 0.063); // #0b0e10
+    
+    // Subtle terrain topo contour lines (simulating satellite sensor radar elevation)
+    float n = noise(p * 3.5 + vec2(u_time * 0.02, u_time * 0.015));
+    float topo = abs(fract(n * 8.0) - 0.5);
+    float topoLine = smoothstep(0.08, 0.02, topo) * 0.12;
+
+    // Tactical Radar sweep circle
+    float dist = length(p);
+    float angle = atan(p.y, p.x);
+    float sweep = mod(angle - u_time * 0.8, 6.2831853);
+    float sweepBeam = exp(-sweep * 1.5) * smoothstep(0.9, 0.0, dist) * 0.25;
+
+    // Range rings
+    float rings = abs(fract(dist * 6.0) - 0.5);
+    float ringLines = smoothstep(0.05, 0.01, rings) * 0.15 * smoothstep(0.9, 0.2, dist);
+
+    // Solar panels array grid optical reflection shimmering
+    vec2 gridUv = fract(p * 24.0);
+    float grid = (step(0.94, gridUv.x) + step(0.94, gridUv.y)) * 0.08;
+
+    // Neon colors from HelioGuard theme
+    vec3 solarNeon = vec3(0.875, 1.0, 0.0);   // #DFFF00
+    vec3 mintTelem = vec3(0.0, 0.898, 0.6);   // #00E599
+    vec3 deepCyan  = vec3(0.05, 0.22, 0.25);
+
+    vec3 finalColor = baseColor;
+    finalColor += deepCyan * topoLine;
+    finalColor += mintTelem * sweepBeam * 0.7;
+    finalColor += solarNeon * (ringLines * 0.4);
+    finalColor += mintTelem * grid * 0.5;
+
+    // Soft peripheral vignette
+    float vignette = smoothstep(1.2, 0.35, dist);
+    finalColor *= vignette;
+
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_8 -->
+<!-- Dynamic Grid Reticle Overlay -->
+<div class="absolute inset-0 pointer-events-none bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] opacity-40"></div>
+<!-- Top Telemetry Heads-Up -->
+<div class="relative z-10 flex items-start justify-between">
+<div class="flex flex-col gap-1 p-3 rounded-xl bg-surface-container-high/85 backdrop-blur-md max-w-sm">
+<div class="flex items-center justify-between gap-4">
+<span class="font-label-tag text-label-tag uppercase tracking-wider text-outline">Modo Activo</span>
+<span class="font-label-code text-label-code text-secondary font-bold" id="currentLayerDisplay">FLIR IR-LWIR RADIOMÉTRICO</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface">Alice Springs</span>
+<span class="font-label-code text-label-code text-secondary">Sec 01-04</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Superficie censada: 18,700 paneles monocristalinos bifaciales sobre trackers horizontales de un eje.</p>
+</div>
+<!-- Compass & Solar Vector Widget -->
+<div class="flex items-center gap-3 p-2.5 rounded-xl bg-surface-container-high/85 backdrop-blur-md">
+<div class="relative w-12 h-12 rounded-full bg-surface-container-lowest flex items-center justify-center">
+<div class="absolute inset-1 rounded-full border-dashed border-outline-variant"></div>
+<div class="w-1 h-6 bg-gradient-to-t from-transparent via-primary-fixed to-primary-fixed rounded-full transform rotate-45 origin-bottom"></div>
+<span class="font-label-tag text-label-tag text-secondary font-bold">N</span>
+</div>
+<div class="flex flex-col text-on-surface font-label-code text-label-code">
+<span class="text-outline">ÁNGULO AZIMUTAL</span>
+<span class="font-bold text-primary-fixed">AZ: 48.2° · ELEV: 61.5°</span>
+<span class="text-on-surface-variant">Zenith Drift: ±0.04°</span>
+</div>
+</div>
+</div>
+<!-- INTERACTIVE PV SECTORS CANVAS MAP -->
+<div class="relative z-10 my-auto grid grid-cols-2 gap-4 w-full max-w-2xl mx-auto px-2">
+<!-- SECTOR ALPHA (01) -->
+<div class="group relative rounded-xl bg-surface-container-high/80 backdrop-blur-md p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-lg hover:shadow-primary-fixed/20" onclick="selectSector('ALPHA', 99.4, 'ÓPTIMO', 'Temp Prom: 41.2°C · Sin manchas')">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-tag text-label-tag text-primary-fixed font-bold tracking-wider">SECTOR ALPHA (01)</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary/20 text-secondary font-label-code text-label-code">99.4% OPT</span>
+</div>
+<div class="h-16 w-full rounded-lg bg-surface-container-lowest/80 p-2 relative overflow-hidden flex flex-col justify-end">
+<div class="absolute inset-0 bg-gradient-to-r from-secondary/15 via-primary-container/20 to-transparent"></div>
+<div class="relative z-10 flex justify-between items-end font-label-code text-label-code">
+<span class="text-on-surface">4,800 Módulos</span>
+<span class="text-secondary font-bold">3.24 MWp</span>
+</div>
+</div>
+<span class="mt-2 block font-body-sm text-body-sm text-on-surface-variant">Flujo de celdas continuo · Trackers sincronizados</span>
+</div>
+<!-- SECTOR BRAVO (02) -->
+<div class="group relative rounded-xl bg-surface-container-high/80 backdrop-blur-md p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-lg" onclick="selectSector('BRAVO', 91.2, 'ALERTA LEVE', 'Soiling granular localizado +2.4%')">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-tag text-label-tag text-on-surface font-bold tracking-wider">SECTOR BRAVO (02)</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-code text-label-code">91.2% POLVO</span>
+</div>
+<div class="h-16 w-full rounded-lg bg-surface-container-lowest/80 p-2 relative overflow-hidden flex flex-col justify-end">
+<div class="absolute inset-0 bg-gradient-to-r from-tertiary-fixed-dim/20 via-surface-variant to-transparent"></div>
+<div class="relative z-10 flex justify-between items-end font-label-code text-label-code">
+<span class="text-on-surface">3,600 Módulos</span>
+<span class="text-on-surface-variant font-bold">2.41 MWp</span>
+</div>
+</div>
+<span class="mt-2 block font-body-sm text-body-sm text-on-surface-variant">Soiling +2.4% · Depósito eólico de arena</span>
+</div>
+<!-- SECTOR CHARLIE (03) - CRITICAL ANOMALY -->
+<div class="group relative rounded-xl bg-error-container/40 backdrop-blur-md p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-xl animate-pulse" onclick="selectSector('CHARLIE', 74.8, 'CRÍTICO', 'Falla Diodo Inversor C-14 · 68.4°C')" style="animation-duration: 3s;">
+<!-- Pulsing Beacon Pin -->
+<div class="absolute -top-2.5 -right-2.5 flex h-6 w-6">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+<span class="relative inline-flex rounded-full h-6 w-6 bg-error text-on-error items-center justify-center font-label-code text-[10px] font-bold">!</span>
+</div>
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-tag text-label-tag text-error font-bold tracking-wider">SECTOR CHARLIE (03)</span>
+<span class="px-2 py-0.5 rounded-full bg-error/30 text-error font-label-code text-label-code font-bold">74.8% CRIT</span>
+</div>
+<div class="h-16 w-full rounded-lg bg-surface-container-lowest/80 p-2 relative overflow-hidden flex flex-col justify-end">
+<div class="absolute inset-0 bg-gradient-to-r from-error/30 via-error-container/20 to-transparent"></div>
+<div class="relative z-10 flex justify-between items-end font-label-code text-label-code">
+<span class="text-on-surface">5,200 Módulos</span>
+<span class="text-error font-bold">Hotspot 68.4°C</span>
+</div>
+</div>
+<span class="mt-2 block font-body-sm text-body-sm text-error font-semibold">String #C-14 desbalanceado · Diodo perforado</span>
+</div>
+<!-- SECTOR DELTA (04) -->
+<div class="group relative rounded-xl bg-surface-container-high/80 backdrop-blur-md p-4 transition-all duration-300 hover:scale-[1.02] cursor-pointer shadow-lg" onclick="selectSector('DELTA', 98.1, 'NOMINAL', 'Comportamiento en curva óptima')">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-tag text-label-tag text-on-surface font-bold tracking-wider">SECTOR DELTA (04)</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary/15 text-secondary font-label-code text-label-code">98.1% NOM</span>
+</div>
+<div class="h-16 w-full rounded-lg bg-surface-container-lowest/80 p-2 relative overflow-hidden flex flex-col justify-end">
+<div class="absolute inset-0 bg-gradient-to-r from-secondary-container/15 via-surface-variant to-transparent"></div>
+<div class="relative z-10 flex justify-between items-end font-label-code text-label-code">
+<span class="text-on-surface">4,100 Módulos</span>
+<span class="text-secondary font-bold">2.80 MWp</span>
+</div>
+</div>
+<span class="mt-2 block font-body-sm text-body-sm text-on-surface-variant">Régimen normal · Sin acumulación térmica</span>
+</div>
+</div>
+<!-- DRONE FLEET LIVE OVERLAY & CONTROLS -->
+<div class="relative z-10 flex items-end justify-between flex-wrap gap-3">
+<!-- Active Drone Flight Badge -->
+<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container-high/90 backdrop-blur-md shadow-lg">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-fixed">
+<span class="material-symbols-outlined text-xl animate-pulse">flight_takeoff</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-label-tag text-label-tag font-bold text-on-surface">AERO-GUARD 01</span>
+<span class="px-1.5 py-0.2 rounded bg-secondary/20 text-secondary font-label-code text-[10px]">PATROL</span>
+</div>
+<span class="font-label-code text-label-code text-on-surface-variant">Alt: 45m · Vel: 18km/h · Bat: 82%</span>
+</div>
+<div class="h-6 w-px bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-tag text-label-tag text-outline">AERO-GUARD 02</span>
+<span class="font-label-code text-label-code text-secondary">En Bahía #1 (100%)</span>
+</div>
+</div>
+<!-- Tactical Viewport Map Controls -->
+<div class="flex items-center gap-2">
+<div class="flex bg-surface-container-high/90 backdrop-blur-md rounded-xl p-1 gap-1">
+<button class="w-9 h-9 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface transition-colors" onclick="zoomTactical(1)" title="Zoom In">
+<span class="material-symbols-outlined text-base">add</span>
+</button>
+<button class="w-9 h-9 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface transition-colors" onclick="zoomTactical(-1)" title="Zoom Out">
+<span class="material-symbols-outlined text-base">remove</span>
+</button>
+<button class="w-9 h-9 rounded-lg bg-surface-container hover:bg-surface-bright flex items-center justify-center text-on-surface transition-colors" onclick="centerMap()" title="Centrar Inversores">
+<span class="material-symbols-outlined text-base">filter_center_focus</span>
+</button>
+</div>
+<button class="px-4 py-2.5 rounded-xl bg-secondary hover:bg-secondary-fixed text-on-secondary-fixed font-body-md text-body-md font-bold flex items-center gap-2 shadow-lg transition-transform active:scale-95" onclick="dispatchDrone()">
+<span class="material-symbols-outlined text-base">drone</span>
+<span>Desplegar Dron de Inspección</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Satellite Imagery Stream Snapshot Preview -->
+<div class="grid grid-cols-3 gap-3 w-full">
+<div class="relative rounded-xl overflow-hidden bg-surface-container h-28 group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80" data-alt="High-resolution aerial satellite thermal infrared view of solar array rows in desert landscape showing heat signatures in deep blue and vibrant yellow spots, sleek clean-tech telemetry aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEgCWmcBVSLkii2rf1SbXe-Fjqx4p5FRUPECW7E7DlxNAaEy9VG8j7GZVxWxHPfK-loFlowfUUi4j9slLVAVcy3BKBFVAubd0Bdz8xtdDEzDVCTfGRbn_e98D7gPPrXvdtyzua-elhkEvibiqxeZWbr5zTpDLBZr5SNRF24-r0WqfUEEzBOZFl_3CdMWk7Ui7Eottxez-7-7fbAAM7RIbvK99WjRUjKmWrF8R0jqV4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent"></div>
+<span class="absolute bottom-2 left-2 font-label-code text-label-code text-on-surface bg-surface-container-lowest/80 px-2 py-0.5 rounded">Térmico Directo (FLIR)</span>
+</div>
+<div class="relative rounded-xl overflow-hidden bg-surface-container h-28 group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80" data-alt="Satellite top-down multispectral optical photograph of aligned solar panels in outback red desert soil with crisp reflection highlights, aerospace satellite telemetry capture style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvam2SCPaVZD_uiby4uqbj5HSeEuugN1hhe3quB62K0MgGUHw9NhTWHkqq0wcuVt9BeQHFLXBCO8mXtoFbzVPdkSdtZ1vBaPpD8SfH8mE2-rySS6s94ZAuib7Xrkj8Wqs5qdBfbxwhy26zw3tE6c_d0elJHTkB8SCNfXOKWen1iVPUfev8bxlmXmoxv-SHWH_BsS6MJs8DGzm1Pgv-5_kTzvqiF7r9lyvCzorG4BIG"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent"></div>
+<span class="absolute bottom-2 left-2 font-label-code text-label-code text-on-surface bg-surface-container-lowest/80 px-2 py-0.5 rounded">Multiespectral RGB</span>
+</div>
+<div class="relative rounded-xl overflow-hidden bg-surface-container h-28 group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80" data-alt="Autonomous industrial carbon fiber quadcopter drone flying over industrial solar farm panels capturing radiometric sensor footage, dusk desert lighting with neon HUD indicators" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtuT5T0jaKctes9BU6qHbracypJMwekMzll1oExw4ZSRzJYroG_8HfvfcpKKlNz9NjUJzIJhkt0brTARMXzEwId-KDQ7vMXFWkC_a3lnO3LrnZHpOO3rgKYg_vmvSErlYOP79NIaD3jz6pEaIC5GetbkJjtQTBTImP7DQ75ke6MRBvTD7wtWq4e_r6RjH0WKJBHTdYlXqLUYnl1asVmJhTWRSNRgk_IYLkOz1Lk1Aa"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-transparent"></div>
+<span class="absolute bottom-2 left-2 font-label-code text-label-code text-secondary bg-surface-container-lowest/80 px-2 py-0.5 rounded">Cámara Dron en Vivo</span>
+</div>
+</div>
+</div>
+<!-- PANEL LATERAL TÁCTICO FLOTANTE (4 cols) -->
+<div class="col-span-12 xl:col-span-4 flex flex-col gap-4">
+<!-- AI Incident Card (String C-14) -->
+<div class="rounded-2xl bg-surface-container-high/90 backdrop-blur-xl p-5 shadow-xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error">warning</span>
+<span class="font-headline-lg text-metric-md text-on-surface">Diagnóstico IA</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-code text-label-code font-bold">ALERTA CRÍTICA</span>
+</div>
+<div class="p-3.5 rounded-xl bg-surface-container-lowest flex flex-col gap-2">
+<div class="flex justify-between items-center font-label-code text-label-code">
+<span class="text-on-surface-variant">Nodo Objetivo:</span>
+<span class="text-error font-bold">Inversor String #C-14</span>
+</div>
+<div class="flex justify-between items-center font-label-code text-label-code">
+<span class="text-on-surface-variant">Temperatura Lectura:</span>
+<span class="text-error font-bold">68.4°C (+27.2° s/ prom)</span>
+</div>
+<div class="flex justify-between items-center font-label-code text-label-code">
+<span class="text-on-surface-variant">Causa Más Probable:</span>
+<span class="text-primary-fixed font-semibold">Diodo bypass perforado</span>
+</div>
+<div class="flex justify-between items-center font-label-code text-label-code">
+<span class="text-on-surface-variant">Pérdida Financiera Est.:</span>
+<span class="text-on-surface">$18.40 AUD / día</span>
+</div>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant bg-surface-container p-3 rounded-xl leading-relaxed">
+<strong class="text-on-surface">Recomendación Algorítmica:</strong> Aislamiento preventivo del bus DC en el inversor #C-14 para mitigar riesgo de degradación acelerada del encapsulante EVA y microfisuras térmicas.
+        </div>
+<!-- Intervention Action Buttons -->
+<div class="flex flex-col gap-2">
+<button class="w-full py-3 rounded-xl bg-error hover:bg-error/90 text-on-error font-body-md text-body-md font-bold transition-all flex items-center justify-center gap-2 shadow-lg" onclick="isolateString()">
+<span class="material-symbols-outlined text-base">power_settings_new</span>
+<span>Aislar String #C-14 Remotamente</span>
+</button>
+<button class="w-full py-3 rounded-xl bg-surface-container hover:bg-surface-bright text-on-surface font-body-md text-body-md font-semibold transition-all flex items-center justify-center gap-2" onclick="startDroneSweep()">
+<span class="material-symbols-outlined text-base text-secondary">flight</span>
+<span>Iniciar Barrido Térmico HD con Dron</span>
+</button>
+</div>
+</div>
+<!-- Telemetría Ambiental Satelital Card -->
+<div class="rounded-2xl bg-surface-container-high/90 backdrop-blur-xl p-5 shadow-xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed">cloud_sync</span>
+<span class="font-headline-lg text-metric-md text-on-surface">Meteo &amp; Albedo</span>
+</div>
+<span class="font-label-code text-label-code text-secondary font-bold">LIVE TELEMETRY</span>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl bg-surface-container-lowest flex flex-col">
+<span class="font-label-tag text-label-tag text-outline uppercase">Radiación GHI</span>
+<span class="font-metric-xl text-headline-lg text-primary-fixed font-bold">982 <span class="font-label-code text-xs text-on-surface-variant font-normal">W/m²</span></span>
+<span class="font-label-code text-label-code text-secondary text-xs">Pico solar zenital</span>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-lowest flex flex-col">
+<span class="font-label-tag text-label-tag text-outline uppercase">Albedo Terreno</span>
+<span class="font-metric-xl text-headline-lg text-on-surface font-bold">0.22 <span class="font-label-code text-xs text-on-surface-variant font-normal">Index</span></span>
+<span class="font-label-code text-label-code text-on-surface-variant text-xs">Arena rojiza outback</span>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-lowest flex flex-col">
+<span class="font-label-tag text-label-tag text-outline uppercase">Viento Superficie</span>
+<span class="font-metric-xl text-headline-lg text-on-surface font-bold">14 <span class="font-label-code text-xs text-on-surface-variant font-normal">km/h</span></span>
+<span class="font-label-code text-label-code text-secondary text-xs">Sin carga estática</span>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-lowest flex flex-col">
+<span class="font-label-tag text-label-tag text-outline uppercase">Nubosidad Orbital</span>
+<span class="font-metric-xl text-headline-lg text-on-surface font-bold">3% <span class="font-label-code text-xs text-on-surface-variant font-normal">Cloud Cover</span></span>
+<span class="font-label-code text-label-code text-secondary text-xs">Transparencia 99.1%</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-bright text-on-surface font-label-tag text-label-tag uppercase tracking-wider font-bold transition-all flex items-center justify-center gap-2" onclick="exportReport()">
+<span class="material-symbols-outlined text-sm text-outline">description</span>
+<span>Exportar Reporte Satelital (PDF/CSV)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- DOCK INFERIOR DE SIMULACIÓN Y ESCENARIOS PREDICTIVOS -->
+<section class="w-full rounded-2xl bg-surface-container-high/90 backdrop-blur-xl p-5 shadow-xl grid grid-cols-12 gap-5 items-center">
+<!-- Simulation Sliders -->
+<div class="col-span-12 lg:col-span-6 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="font-label-tag text-label-tag uppercase text-primary-fixed font-bold tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">tune</span>
+          Modelado de Escenarios Cenitales en Tiempo Real
+        </span>
+<button class="font-label-code text-label-code text-secondary hover:underline" onclick="resetSimulations()">Restablecer Valores</button>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<!-- Slider 1 -->
+<div class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-surface-container-lowest">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-on-surface-variant">Paso Nubes</span>
+<span class="text-primary-fixed" id="cloudVal">0%</span>
+</div>
+<input class="w-full accent-primary-fixed cursor-pointer" max="100" min="0" oninput="updateSimulation('cloud', this.value)" type="range" value="0"/>
+</div>
+<!-- Slider 2 -->
+<div class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-surface-container-lowest">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-on-surface-variant">Soiling (Polvo)</span>
+<span class="text-secondary" id="soilingVal">2.4%</span>
+</div>
+<input class="w-full accent-secondary cursor-pointer" max="25" min="0" oninput="updateSimulation('soiling', this.value)" step="0.5" type="range" value="2.4"/>
+</div>
+<!-- Slider 3 -->
+<div class="flex flex-col gap-1.5 p-2.5 rounded-xl bg-surface-container-lowest">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-on-surface-variant">Inyección Pico</span>
+<span class="text-primary-fixed" id="peakVal">14:00h</span>
+</div>
+<input class="w-full accent-primary-fixed cursor-pointer" max="18" min="8" oninput="updateSimulation('peak', this.value)" type="range" value="14"/>
+</div>
+</div>
+</div>
+<!-- Mini Telemetry Sparkline Trend Chart -->
+<div class="col-span-12 lg:col-span-6 flex flex-col gap-2">
+<div class="flex justify-between items-center font-label-code text-label-code">
+<span class="text-on-surface-variant flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+          Flujo de Telemetría Satelital de Generación (MW) vs. Predicción Teórica
+        </span>
+<span class="text-primary-fixed font-bold">11.45 MW / 12.00 MWp</span>
+</div>
+<div class="w-full h-16 bg-surface-container-lowest rounded-xl p-2 relative flex items-end">
+<!-- SVG Sparkline with Glow -->
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 30">
+<defs>
+<lineargradient id="telemetryGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#bbd200" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#bbd200" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Theoretical curve (dashed) -->
+<path d="M 0,26 Q 25,6 50,4 T 100,24" fill="none" stroke="#464932" stroke-dasharray="2,2" stroke-width="1.2"></path>
+<!-- Area under actual curve -->
+<path d="M 0,28 L 0,26 Q 20,12 40,7 Q 60,8 70,18 Q 85,9 100,12 L 100,28 Z" fill="url(#telemetryGrad)"></path>
+<!-- Actual live telemetry glowing curve -->
+<path class="drop-shadow-[0_0_8px_rgba(187,210,0,0.6)]" d="M 0,26 Q 20,12 40,7 Q 60,8 70,18 Q 85,9 100,12" fill="none" id="sparklinePath" stroke="#bbd200" stroke-width="2"></path>
+<!-- Anomaly point drop on sector Charlie -->
+<circle class="animate-ping" cx="70" cy="18" fill="#ffb4ab" r="3"></circle>
+<circle cx="70" cy="18" fill="#93000a" r="2.5"></circle>
+</svg>
+</div>
+</div>
+</section>
+</div>
+<!-- CLIENT MICRO-INTERACTIONS SCRIPT -->
+<script>
+  // Countdown simulation for Satellite Overpass
+  let seconds = 872;
+  const timerElem = document.getElementById('countdownTimer');
+  if (timerElem) {
+    setInterval(() => {
+      if (seconds > 0) {
+        seconds--;
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        timerElem.textContent = `+00:${m}:${s}`;
+      }
+    }, 1000);
+  }
+
+  // Interactive Layer Switcher
+  const layerButtons = document.querySelectorAll('.layer-btn');
+  const displayLayer = document.getElementById('currentLayerDisplay');
+  const layerNames = {
+    thermal: 'FLIR IR-LWIR RADIOMÉTRICO',
+    rgb: 'MULTIESPECTRAL RGB ÓPTICO',
+    albedo: 'ÍNDICE ALBEDO & RELIEVE',
+    lidar: 'NUBE DE PUNTOS LIDAR 3D'
+  };
+
+  layerButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      layerButtons.forEach(b => {
+        b.classList.remove('bg-primary-container', 'text-on-primary-fixed', 'font-bold', 'shadow-md');
+        b.classList.add('text-on-surface-variant');
+      });
+      btn.classList.add('bg-primary-container', 'text-on-primary-fixed', 'font-bold', 'shadow-md');
+      btn.classList.remove('text-on-surface-variant');
+      const layer = btn.getAttribute('data-layer');
+      if (displayLayer && layerNames[layer]) {
+        displayLayer.textContent = layerNames[layer];
+      }
+    });
+  });
+
+  // Sector Selection Handler
+  function selectSector(name, eff, status, detail) {
+    console.log(`Sector seleccionado: ${name} (${eff}% - ${status}) -> ${detail}`);
+  }
+
+  // Simulation Sliders Update Handlers
+  function updateSimulation(type, val) {
+    if (type === 'cloud') {
+      const el = document.getElementById('cloudVal');
+      if (el) el.textContent = val + '%';
+    } else if (type === 'soiling') {
+      const el = document.getElementById('soilingVal');
+      if (el) el.textContent = val + '%';
+    } else if (type === 'peak') {
+      const el = document.getElementById('peakVal');
+      if (el) el.textContent = val + ':00h';
+    }
+  }
+
+  function resetSimulations() {
+    updateSimulation('cloud', 0);
+    updateSimulation('soiling', 2.4);
+    updateSimulation('peak', 14);
+    document.querySelectorAll('input[type="range"]').forEach((input, idx) => {
+      if (idx === 0) input.value = 0;
+      if (idx === 1) input.value = 2.4;
+      if (idx === 2) input.value = 14;
+    });
+  }
+
+  // Tactical Actions
+  function isolateString() {
+    alert('Comando emitido: Inversor String #C-14 aislado del bus de distribución principal.');
+  }
+
+  function startDroneSweep() {
+    alert('AERO-GUARD 01: Vector de vuelo redirigido para inspección radiométrica de alta resolución a 15m.');
+  }
+
+  function dispatchDrone() {
+    alert('AERO-GUARD 02 desplegado desde Bahía 1 hacia coordenadas de Sector Charlie.');
+  }
+
+  function exportReport() {
+    alert('Generando telemetría Sentinel-4B y datos de vuelo de dron en formato cifrado...');
+  }
+
+  function zoomTactical(direction) {
+    console.log('Zoom tactical shift:', direction);
+  }
+
+  function centerMap() {
+    console.log('Centrado en el centro geométrico de la planta fotovoltaica.');
+  }
+</script></main>
+<!-- END: DashboardGrid -->
+<!-- BEGIN: QuickFooter -->
+<footer class="text-center py-4 text-xs text-slate-500 font-medium" data-purpose="footer-meta">
+      HelioGuard Energy Intelligence Platform • Live Telemetry Sync: Connected • v2.4.0
+    </footer>
+<!-- END: QuickFooter -->
+</div>
+<!-- END: MainContainer -->
+<!-- JavaScript Interactivity -->
+<script data-purpose="dashboard-interactions">
+    // Add lightweight interactive ripple or state management if required
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('HelioGuard Dashboard Initialized successfully.');
+    });
+  </script>
+</body></html>

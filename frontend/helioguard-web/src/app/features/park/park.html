@@ -41,10 +41,15 @@
           </p>
         }
       </div>
-      <aside class="border border-q-line bg-q-surface p-4">
+      <aside class="sheet">
         @if (state.selected; as selected) {
-        <h2 class="text-lg">{{ selected.name }}</h2>
-        <p class="mt-1 text-sm text-q-muted">Azimut {{ selected.azimuthDegrees }}° · inclinación {{ selected.tiltDegrees }}°</p>
+          <p class="kicker">Bloque elegido</p>
+          <h2 class="mt-1 text-2xl">{{ selected.name }}</h2>
+          <p class="mt-2 text-sm">{{ stateOf(selected.id) }}</p>
+          <p class="mt-1 text-sm text-q-muted">Azimut {{ selected.azimuthDegrees }}° · inclinación {{ selected.tiltDegrees }}°</p>
+          @if (stateOf(selected.id) !== 'Operativo') {
+            <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" routerLink="/energia">Ver por qué rinde menos</a>
+          }
         }
         <ul class="mt-4 space-y-2 text-sm">
           @for (row of state.strings; track row.id) {

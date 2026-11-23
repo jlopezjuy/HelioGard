@@ -5,8 +5,9 @@
     <h1 class="text-3xl">Economía</h1>
     <p class="mt-2">Solo lectura de esta sesión: la economía queda en la organización dueña. Un grant de mantenimiento no abre estos montos.</p>
   } @else {
-    <h1 class="text-3xl">{{ state.plan.name }}</h1>
-    <p class="mt-2 max-w-2xl text-sm text-q-muted">{{ state.plan.distributor }}. Compra evitada e inyección se monetizan por separado. Cifras en ARS de demostración.</p>
+    <p class="kicker">¿Cuánto cuesta el déficit?</p>
+    <h1 class="mt-2 text-3xl">{{ state.plan.name }}</h1>
+    <p class="lede">{{ state.plan.distributor }}. Compra evitada e inyección se monetizan por separado. No es una factura.</p>
     <p class="mt-4 text-2xl">{{ formatArs(state.economy.estimatedLossAmount) }}</p>
     <p class="text-sm text-q-muted">Autoconsumo no entregado {{ formatWh(state.economy.selfConsumptionLostWh) }} · inyección no realizada {{ formatWh(state.economy.exportedLostWh) }}</p>
     <form class="mt-4 flex flex-wrap items-end gap-3" [formGroup]="form" (ngSubmit)="save()">

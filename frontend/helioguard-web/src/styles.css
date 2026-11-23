@@ -44,6 +44,38 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.kicker {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-q-cactus);
+}
+
+.lede {
+  max-width: 42rem;
+  margin-top: 0.75rem;
+  color: var(--color-q-muted);
+}
+
+.sheet {
+  border: 1px solid var(--color-q-line);
+  background: var(--color-q-surface);
+  padding: 1rem;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-q-line);
+  font-size: 0.875rem;
+}
+
+.fact dt {
+  color: var(--color-q-muted);
+}
+
 .hatch {
   background-image: repeating-linear-gradient(
     -45deg,

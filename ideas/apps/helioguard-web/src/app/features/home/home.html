@@ -1,0 +1,93 @@
+<section class="grid items-start gap-10 lg:grid-cols-[minmax(0,1.5fr)_minmax(260px,0.7fr)]">
+  @if (store.selected(); as selected) {
+  <div>
+    <p class="kicker">{{ selected.name }} · datos simulados</p>
+    <h1 class="mt-3 max-w-3xl text-3xl font-semibold leading-tight md:text-4xl">{{ headline() }}</h1>
+    <p class="mt-4 max-w-2xl text-base leading-relaxed text-q-muted">
+      @if (selected.id === 'ins-puna') {
+        La irradiancia es un modelo meteorológico, no una termografía satelital. La telemetría sale de inversores y strings.
+        El monto en pesos es demostrativo.
+      } @else if (scope() === 'MAINTENANCE') {
+        Esta instalación entra por un permiso de mantenimiento. Tarifas, integridad y otras organizaciones quedan fuera.
+      } @else {
+        El caso visible es el de esta organización. Cambiar de persona no arrastra datos ajenos.
+      }
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a class="btn btn-primary" routerLink="/parque">Abrir la vista cenital</a>
+      @if (incident()) {
+        <a class="btn" [routerLink]="['/incidentes']">Ir al incidente</a>
+      }
+    </div>
+
+    @if (selected.id === 'ins-puna') {
+      <figure class="mt-8 max-w-xl">
+        <figcaption class="text-sm font-medium">
+          Esperado contra real, 10:00–12:00. Intervalos de 15 min.
+        </figcaption>
+        <div class="mt-3 grid grid-cols-8 gap-2" aria-hidden="true">
+          @for (point of store.rollup() ? series() : []; track point.label) {
+            <div class="flex h-36 items-end gap-1">
+              <span class="w-1/2 bg-q-sand" [style.height.%]="bar(point.expectedW)"></span>
+              <span
+                class="w-1/2"
+                [class]="point.actualW === null ? 'bg-q-line' : point.actualW < point.expectedW * 0.8 ? 'bg-q-terracotta' : 'bg-q-slate'"
+                [style.height.%]="bar(point.actualW ?? 0)"
+              ></span>
+            </div>
+          }
+        </div>
+        <table class="mt-3 w-full text-left text-sm">
+          <caption class="sr-only">Potencia esperada y real por intervalo</caption>
+          <thead class="text-q-muted">
+            <tr>
+              <th class="py-1 font-medium">Hora</th>
+              <th class="py-1 font-medium">Esperado</th>
+              <th class="py-1 font-medium">Real</th>
+            </tr>
+          </thead>
+          <tbody class="mono">
+            @for (point of series(); track point.label) {
+              <tr class="border-t border-q-line">
+                <td class="py-1">{{ point.label }}</td>
+                <td class="py-1">{{ power(point.expectedW) }}</td>
+                <td class="py-1">{{ point.actualW === null ? 'sin medición' : power(point.actualW) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="mt-3 text-sm">
+          Déficit del período:
+          <strong class="mono">{{ deficitLabel() }}</strong>
+          @if (live(); as money) {
+            · impacto demo <strong class="mono">{{ arsLabel(money.estimatedLossAmount) }}</strong>
+          }
+        </p>
+      </figure>
+    }
+  </div>
+
+  <aside class="border-t border-q-line pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+    <h2 class="text-lg font-semibold">Qué hacer ahora</h2>
+    @if (incident(); as item) {
+      <p class="mt-3 text-sm leading-relaxed">
+        <span class="font-medium">{{ item.severity }}</span> · {{ item.status }} · {{ item.firstSeenAt }}
+      </p>
+      <p class="mt-2 text-sm text-q-muted">{{ item.title }}</p>
+    } @else {
+      <p class="mt-3 text-sm text-q-muted">No hay un incidente abierto en la instalación elegida.</p>
+    }
+    <ol class="mt-6 space-y-3 text-sm">
+      <li><button type="button" class="btn w-full" data-testid="scenario-soiling" (click)="store.activateScenario('soiling')">1. Marcar sector sucio</button></li>
+      <li><a class="btn w-full" routerLink="/misiones">2. Armar la misión</a></li>
+      <li><button type="button" class="btn w-full" data-testid="replay" (click)="store.replay()">3. Reinyectar la secuencia</button></li>
+      <li><button type="button" class="btn w-full" data-testid="inject" (click)="store.injectFalse()">4. Probar un valor imposible</button></li>
+    </ol>
+    <p class="mt-4 text-xs leading-relaxed text-q-muted">
+      Mediciones válidas: <span class="mono">{{ store.acceptedCount() }}</span>. La simulación no certifica criptografía ni opera un dron.
+    </p>
+  </aside>
+  } @else {
+    <h1 class="text-3xl font-semibold">No hay instalaciones en esta sesión</h1>
+  }
+</section>

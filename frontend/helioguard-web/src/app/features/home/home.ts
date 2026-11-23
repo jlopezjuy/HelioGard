@@ -28,12 +28,16 @@ export class HomePage {
     const expectedWh = interval ? wattHoursFromPower(interval.expectedPowerW, interval.durationSeconds) : 0;
     const actualWh = interval?.actualPowerW == null ? null : wattHoursFromPower(interval.actualPowerW, interval.durationSeconds);
     const deficit = deficitWh(expectedWh, actualWh, interval?.comparable ?? false);
+    const ratio = expectedWh > 0 && actualWh !== null ? Math.min(100, Math.round((actualWh / expectedWh) * 100)) : 0;
     const level = focus ? installationAccess(snapshot, focus.id) : 'NONE';
     const urgent = snapshot.incidents.find((item) => item.installationId === focus?.id && item.status !== 'CLOSED' && item.status !== 'RESOLVED');
     return {
       focus,
       site,
       deficit,
+      expectedWh,
+      actualWh,
+      ratio,
       economy,
       level,
       urgent,

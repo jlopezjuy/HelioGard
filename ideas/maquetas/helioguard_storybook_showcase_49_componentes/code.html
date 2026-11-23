@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary-fixed": "#d6f000",
+          "on-primary": "#2d3400",
+          "inverse-surface": "#e1e2e7",
+          "outline": "#909378",
+          "on-secondary-container": "#00613e",
+          "error": "#ffb4ab",
+          "surface-container-high": "#272a2e",
+          "on-error": "#690005",
+          "primary": "#ffffff",
+          "primary-container": "#d6f000",
+          "surface-variant": "#323538",
+          "surface-container-highest": "#323538",
+          "background": "#111417",
+          "secondary-fixed": "#4dffb2",
+          "inverse-on-surface": "#2e3134",
+          "surface-container-lowest": "#0b0e11",
+          "surface-container-low": "#191c1f",
+          "on-tertiary": "#00354a",
+          "on-secondary-fixed": "#002112",
+          "inverse-primary": "#596400",
+          "on-primary-fixed-variant": "#424b00",
+          "outline-variant": "#464932",
+          "tertiary-fixed": "#c4e7ff",
+          "tertiary-container": "#c4e7ff",
+          "surface": "#111417",
+          "surface-bright": "#37393d",
+          "on-tertiary-fixed": "#001e2c",
+          "tertiary": "#ffffff",
+          "on-error-container": "#ffdad6",
+          "on-surface-variant": "#c7c9ac",
+          "secondary-container": "#01e599",
+          "secondary": "#70ffba",
+          "surface-container": "#1d2023",
+          "error-container": "#93000a",
+          "secondary-fixed-dim": "#00e297",
+          "on-secondary-fixed-variant": "#005234",
+          "primary-fixed-dim": "#bbd200",
+          "on-surface": "#e1e2e7",
+          "on-tertiary-fixed-variant": "#004c69",
+          "on-primary-container": "#5e6b00",
+          "on-tertiary-container": "#006c93",
+          "surface-tint": "#bbd200",
+          "on-primary-fixed": "#191e00",
+          "on-secondary": "#003822",
+          "on-background": "#e1e2e7",
+          "surface-dim": "#111417",
+          "tertiary-fixed-dim": "#7bd0ff"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-2xl": "3rem",
+          "margin-mobile": "1rem",
+          "margin": "2rem",
+          "space-lg": "1.5rem",
+          "space-sm": "0.5rem",
+          "space-xs": "0.25rem",
+          "gutter-mobile": "0.75rem",
+          "gutter": "1.25rem",
+          "space-xl": "2rem",
+          "space-md": "1rem"
+        },
+        "fontFamily": {
+          "body-lg": ["Manrope"],
+          "headline-lg": ["Space Grotesk"],
+          "display-lg": ["Space Grotesk"],
+          "label-tag": ["Manrope"],
+          "display-sm": ["Space Grotesk"],
+          "metric-xl": ["Space Grotesk"],
+          "body-md": ["Manrope"],
+          "metric-md": ["Space Grotesk"],
+          "label-code": ["JetBrains Mono"],
+          "headline-lg-mobile": ["Space Grotesk"],
+          "body-sm": ["Manrope"]
+        },
+        "fontSize": {
+          "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+          "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+          "label-tag": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+          "display-sm": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "metric-xl": ["38px", {"lineHeight": "42px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+          "metric-md": ["24px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "label-code": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+          "headline-lg-mobile": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="h-16 px-space-md flex items-center justify-between bg-surface-container-low"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary-container text-[18px]">bolt</span></div><div class="flex flex-col"><span class="font-headline-lg text-[15px] font-semibold tracking-tight text-primary leading-none">HelioGuard</span><span class="font-label-code text-[10px] text-on-surface-variant uppercase tracking-wider mt-1">DS // CleanTech</span></div></div><span class="font-label-code text-[11px] px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-medium">v2.0</span></div><div class="px-space-md py-space-sm bg-surface-container-lowest"><div class="flex items-center justify-between text-on-surface-variant font-label-tag text-label-tag uppercase tracking-widest px-space-xs"><span>Atomic Manifest</span><span class="font-label-code text-primary-fixed-dim">49 Nodes</span></div></div><nav class="flex-1 overflow-y-auto px-space-sm space-y-1 py-space-xs" data-active-classes="bg-surface-container-high text-primary-container font-semibold shadow-inner"><a aria-current="page" class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl transition-all bg-surface-container-high text-primary-container font-semibold shadow-inner" data-path="layout-chrome" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">view_quilt</span><span class="font-body-md text-[13px]">Layout &amp; Chrome</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">01-07</span></a><a class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="navigation-controls" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">alt_route</span><span class="font-body-md text-[13px]">Navigation &amp; Controls</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">08-14</span></a><a class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="inputs-forms" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">edit_note</span><span class="font-body-md text-[13px]">Inputs &amp; Forms</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">15-22</span></a><a class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="buttons-badges" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">toggle_on</span><span class="font-body-md text-[13px]">Buttons &amp; Badges</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">23-30</span></a><a class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="typography-dataviz" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">monitoring</span><span class="font-body-md text-[13px]">Typography &amp; DataViz</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">31-38</span></a><a class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="energy-telemetry" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">solar_power</span><span class="font-body-md text-[13px]">Energy &amp; Telemetry</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">39-44</span></a><a class="group flex items-center justify-between px-space-sm py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" data-path="environmental-modals" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary-container transition-colors">layers</span><span class="font-body-md text-[13px]">Environmental &amp; Modals</span></div><span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">45-49</span></a></nav><div class="p-space-sm bg-surface-container-low"><div class="p-space-sm rounded-lg bg-surface-container flex items-center justify-between"><div class="flex items-center gap-space-xs"><div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#70ffba]"></div><span class="font-label-code text-label-code text-on-surface-variant">STORYBOOK SYNC</span></div><span class="font-label-code text-[10px] text-outline">200 OK</span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 flex items-center justify-between px-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.2)]"><div class="flex items-center gap-space-md flex-1 max-w-2xl"><div class="inline-flex items-center gap-space-xs px-3 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim"><span class="w-1.5 h-1.5 rounded-full bg-primary-fixed shadow-[0_0_6px_#d6f000]"></span><span class="font-label-code text-[11px] font-semibold tracking-tight">HelioGuard UI Storybook v2.0 - 49 Atomic Components</span></div><div class="relative flex-1"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span><input class="w-full bg-surface-container-low rounded-full pl-9 pr-4 py-1.5 font-label-code text-label-code text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary-container transition-all" placeholder="Filter atomic components (cmd+k)..." type="text"/></div></div><div class="flex items-center gap-space-sm"><button class="flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all" title="Toggle Blueprint Canvas Grid" type="button"><span class="material-symbols-outlined text-[18px] text-primary-fixed-dim">grid_4x4</span><span class="font-label-code text-label-code">Grid</span></button><button class="flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all" title="View Storybook Specs" type="button"><span class="material-symbols-outlined text-[18px]">code</span><span class="font-label-code text-label-code">Tokens</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="relative pt-16 bg-surface-container-lowest min-h-screen"><div class="flex flex-col w-full">
+<!-- Top Ambient Glow Field -->
+<div class="relative w-full overflow-hidden px-space-xl pt-space-xl pb-space-2xl bg-gradient-to-b from-surface-container-low via-surface to-surface-container-lowest">
+<div class="absolute -top-32 left-1/4 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-12 right-1/6 w-80 h-80 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Monumental Header & Live State Meta -->
+<div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-space-lg">
+<div class="space-y-space-xs max-w-3xl">
+<div class="inline-flex items-center gap-space-xs px-3 py-1 rounded-full bg-surface-container-high">
+<span class="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_8px_#d6f000]"></span>
+<span class="font-label-code text-label-code text-on-surface uppercase tracking-wider">HelioGuard DS v2.0 // Design Registry</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">Component Catalog</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+          High-performance clean-tech interface nodes. 49 atomic specifications built for residential energy management, aerospace telemetry, and microgrid distribution.
+        </p>
+</div>
+<!-- Quick Metrics Counters -->
+<div class="flex items-stretch gap-space-sm">
+<div class="flex flex-col justify-between p-space-md rounded-2xl bg-surface-container-high/60 backdrop-blur-md min-w-[130px]">
+<span class="font-label-code text-label-code text-outline uppercase tracking-wider">Manifest Total</span>
+<span class="font-metric-xl text-metric-xl text-primary-container leading-none mt-2" id="activeCountDisplay">49</span>
+<span class="font-label-tag text-label-tag text-on-surface-variant mt-1">Live In DOM</span>
+</div>
+<div class="flex flex-col justify-between p-space-md rounded-2xl bg-surface-container-high/60 backdrop-blur-md min-w-[130px]">
+<span class="font-label-code text-label-code text-outline uppercase tracking-wider">Telemetry Yield</span>
+<span class="font-metric-xl text-metric-xl text-secondary leading-none mt-2">99.8%</span>
+<span class="font-label-tag text-label-tag text-on-secondary-container mt-1">Status Healthy</span>
+</div>
+</div>
+</div>
+<!-- Filter Pills, Search Bar & Grid Density Toggles -->
+<div class="relative z-10 mt-space-xl p-space-sm rounded-2xl bg-surface-container-low shadow-xl flex flex-col lg:flex-row items-center justify-between gap-space-md">
+<!-- Filter Categories -->
+<div class="flex items-center gap-1.5 flex-wrap w-full lg:w-auto" id="filterNav">
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code transition-all bg-primary-container text-on-primary font-semibold shadow-[0_0_12px_rgba(214,240,0,0.35)]" data-filter="all" type="button">
+          All (49)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="layout" type="button">
+          Layout (01-07)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="navigation" type="button">
+          Navigation (08-14)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="inputs" type="button">
+          Inputs (15-22)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="buttons" type="button">
+          Buttons &amp; Chips (23-30)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="typography" type="button">
+          Typography &amp; KPI (31-38)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="telemetry" type="button">
+          Energy &amp; DataViz (39-44)
+        </button>
+<button class="filter-tab px-4 py-2 rounded-full font-label-code text-label-code text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" data-filter="diagnostics" type="button">
+          Diagnostics &amp; HUD (45-49)
+        </button>
+</div>
+<!-- Search + Density Switcher -->
+<div class="flex items-center gap-space-sm w-full lg:w-auto">
+<div class="relative flex-1 lg:w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input class="w-full bg-surface-container-lowest text-on-surface font-label-code text-label-code rounded-full pl-9 pr-4 py-2 focus:outline-none focus:ring-1 focus:ring-primary-container" id="componentSearch" placeholder="Search tokens or names..." type="text"/>
+</div>
+<button class="flex items-center gap-space-xs px-3 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-code text-label-code transition-all" id="toggleDensityBtn" title="Toggle 2/3 column layout" type="button">
+<span class="material-symbols-outlined text-[18px]">view_agenda</span>
+<span class="hidden sm:inline">Density</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Component Display Canvas -->
+<div class="px-space-xl py-space-xl space-y-space-2xl">
+<!-- ========================================== -->
+<!-- SECTION 1: LAYOUT & CHROME (01-07) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="layout">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 01</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Layout &amp; Chrome</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 01 – 07</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 01: AppShell -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="AppShell" data-tags="shell chrome container framing">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[01]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Layout</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">AppShell</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dual-rail persistent structure with 72px left-rail clearance and dark viewport canvas.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex h-20 rounded-lg overflow-hidden bg-surface">
+<div class="w-8 bg-surface-container-high flex flex-col items-center py-2 gap-1">
+<span class="w-3 h-3 rounded-full bg-primary-container"></span>
+<span class="w-3 h-1 rounded bg-outline"></span>
+<span class="w-3 h-1 rounded bg-outline"></span>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="h-4 bg-surface-container-low flex items-center px-2">
+<span class="w-12 h-1.5 rounded-full bg-surface-container-highest"></span>
+</div>
+<div class="p-2 flex-1 grid grid-cols-2 gap-1">
+<div class="rounded bg-surface-container-high/60"></div>
+<div class="rounded bg-surface-container-high/60"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;HelioAppShell /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Active Shell</span>
+</div>
+</article>
+<!-- COMPONENT 02: GlobalNavbar -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="GlobalNavbar" data-tags="navbar header chrome breadcrumb">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[02]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Chrome</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">GlobalNavbar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Glassmorphic persistent top tier with live telemetry badge and system status trigger.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="p-2 rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_#70ffba]"></span>
+<span class="font-label-code text-[11px] text-on-surface">GRID // ACTIVE</span>
+</div>
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-high text-primary-container">Live</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;GlobalNavbar status="live" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Sticky Tier</span>
+</div>
+</article>
+<!-- COMPONENT 03: GridDashboard -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="GridDashboard" data-tags="grid layout columns bento dashboard">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[03]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Layout</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">GridDashboard</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">12-column telemetry fluid responsive grid system with calibrated gutters and break offsets.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="grid grid-cols-6 gap-1 h-14">
+<div class="col-span-4 rounded bg-surface-container-high p-1 flex items-center justify-center">
+<span class="font-label-code text-[10px] text-outline">span-8</span>
+</div>
+<div class="col-span-2 rounded bg-surface-container-highest p-1 flex items-center justify-center">
+<span class="font-label-code text-[10px] text-primary-container">span-4</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;GridDashboard cols="12" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Fluid 12-Col</span>
+</div>
+</article>
+<!-- COMPONENT 04: CardContainer -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="CardContainer" data-tags="card container surface depth">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[04]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Chrome</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">CardContainer</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Level 1 dark obsidian container featuring 24px radius and soft perimeter shadows.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="p-3 rounded-2xl bg-surface-container-high shadow-md">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] text-on-surface">Card Canvas</span>
+<span class="material-symbols-outlined text-[16px] text-outline">north_east</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;CardContainer elevation="1" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Level 1 Obsidian</span>
+</div>
+</article>
+<!-- COMPONENT 05: CardHeaderWithAction -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="CardHeaderWithAction" data-tags="header action card title badge">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[05]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Chrome</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">CardHeaderWithAction</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Top card anchor with localized icon badge, header string, and secondary quick-action.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-md bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-[14px]">bolt</span>
+</div>
+<span class="font-label-tag text-label-tag text-primary">Inverter Array</span>
+</div>
+<button class="w-6 h-6 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;CardHeader action="tune" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Action Anchor</span>
+</div>
+</article>
+<!-- COMPONENT 06: HeroWelcomeCard -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="HeroWelcomeCard" data-tags="hero welcome banner announcement">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[06]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Layout</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">HeroWelcomeCard</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Asymmetric editorial card with subtle glowing radial backdrop and high-priority action.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="relative overflow-hidden p-3 rounded-xl bg-gradient-to-r from-surface-container to-surface-container-high">
+<div class="relative z-10">
+<span class="font-label-tag text-[9px] text-secondary">PEAK EFFICIENCY</span>
+<p class="font-headline-lg text-[13px] text-primary mt-0.5 leading-snug">Storage at 94% Capacity</p>
+</div>
+<div class="absolute -right-4 -bottom-4 w-16 h-16 bg-primary-container/20 rounded-full blur-xl"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;HeroWelcomeCard /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Hero Banner</span>
+</div>
+</article>
+<!-- COMPONENT 07: AppFooterMeta -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="AppFooterMeta" data-tags="footer meta system sync timestamp">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[07]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Chrome</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">AppFooterMeta</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Monospaced telemetry summary block verifying cryptographic sync and gateway health.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-between text-outline font-label-code text-[10px]">
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>GW: US-W2-094</span>
+</span>
+<span>PING: 14ms</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;AppFooterMeta /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Meta Bar</span>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 2: NAVIGATION & CONTROLS (08-14) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="navigation">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 02</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Navigation &amp; Controls</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 08 – 14</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 08: BrandLogoShieldMark -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="BrandLogoShieldMark" data-tags="brand logo shield mark icon identity">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[08]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Brand</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">BrandLogo / ShieldMark</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Vector geometric shield with lightning apex and high-contrast radial focal ring.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shadow-[0_0_16px_rgba(214,240,0,0.4)]">
+<span class="material-symbols-outlined text-on-primary-container text-[22px]">shield</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg text-[15px] font-bold text-primary tracking-tight">HelioGuard</span>
+<span class="font-label-code text-[10px] text-secondary">TELEMETRY CORE</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;ShieldMark size="lg" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">SVG Vector</span>
+</div>
+</article>
+<!-- COMPONENT 09: NavPillSwitcher -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="NavPillSwitcher" data-tags="nav navigation switcher pill tabs routing">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[09]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Navigation</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">NavPillSwitcher</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Floating pill array with sliding state indicator and tactile feedback.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="inline-flex p-1 rounded-full bg-surface-container-high" role="tablist">
+<button class="px-3 py-1 rounded-full bg-primary-container text-on-primary font-label-code text-[11px] font-semibold">Live</button>
+<button class="px-3 py-1 rounded-full text-on-surface-variant hover:text-primary font-label-code text-[11px]">Daily</button>
+<button class="px-3 py-1 rounded-full text-on-surface-variant hover:text-primary font-label-code text-[11px]">Audit</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;NavPillSwitcher /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Multi-Pill</span>
+</div>
+</article>
+<!-- COMPONENT 10: NavPillItem -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="NavPillItem" data-tags="pill item link interactive">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[10]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Navigation</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">NavPillItem</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Single interactive navigation capsule supporting counter chips and leading glyphs.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center gap-2">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary-container">battery_charging_full</span>
+<span class="font-body-sm text-body-sm text-on-surface">Storage</span>
+<span class="font-label-code text-[10px] px-1.5 py-0.2 rounded-full bg-primary-container text-on-primary">12</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;NavPillItem label="Storage" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Single Capsule</span>
+</div>
+</article>
+<!-- COMPONENT 11: BreadcrumbBar -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="BreadcrumbBar" data-tags="breadcrumb path hierarchy navigation trail">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[11]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Navigation</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">BreadcrumbBar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Monospaced hierarchical breadcrumb trail with micro-separators for clean location sense.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center">
+<div class="flex items-center gap-1.5 font-label-code text-[11px] text-on-surface-variant">
+<span class="hover:text-primary cursor-pointer">Array-South</span>
+<span class="text-outline">/</span>
+<span class="hover:text-primary cursor-pointer">Inverters</span>
+<span class="text-outline">/</span>
+<span class="text-primary-container font-semibold">INV-04B</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;BreadcrumbBar /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Trail Node</span>
+</div>
+</article>
+<!-- COMPONENT 12: SegmentedTabs -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="SegmentedTabs" data-tags="tabs segmented selector control filter">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[12]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Controls</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">SegmentedTabs</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dual-state segmented control with tactile toggling and crisp obsidian inset depth.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex p-1 rounded-xl bg-surface-container">
+<button class="flex-1 py-1 text-center font-label-code text-[11px] font-semibold rounded-lg bg-surface-container-high text-primary shadow-inner">Generation</button>
+<button class="flex-1 py-1 text-center font-label-code text-[11px] text-on-surface-variant hover:text-primary transition-colors">Consumption</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;SegmentedTabs /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Segment Switch</span>
+</div>
+</article>
+<!-- COMPONENT 13: PaginationControls -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="PaginationControls" data-tags="pagination pager controls navigation table">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[13]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Controls</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">PaginationControls</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Precision data-row pager with numeric pills and fast-forward chevron bounds.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="flex items-center gap-1 font-label-code text-[11px]">
+<button class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-outline hover:text-primary"><span class="material-symbols-outlined text-[14px]">chevron_left</span></button>
+<button class="w-7 h-7 rounded-lg bg-primary-container text-on-primary font-bold flex items-center justify-center">1</button>
+<button class="w-7 h-7 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high flex items-center justify-center">2</button>
+<button class="w-7 h-7 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high flex items-center justify-center">3</button>
+<button class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-outline hover:text-primary"><span class="material-symbols-outlined text-[14px]">chevron_right</span></button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;PaginationControls total="120" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Step Control</span>
+</div>
+</article>
+<!-- COMPONENT 14: MobileTabBar -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="MobileTabBar" data-tags="mobile bottom nav dock tabbar">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[14]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Mobile</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">MobileTabBar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Bottom glass dock designed for handheld field technicians inspect routines.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-around py-1.5 px-3 rounded-2xl bg-surface-container-high/80">
+<div class="flex flex-col items-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]">solar_power</span>
+<span class="font-label-code text-[9px] mt-0.5">Array</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">battery_std</span>
+<span class="font-label-code text-[9px] mt-0.5">Storage</span>
+</div>
+<div class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">monitoring</span>
+<span class="font-label-code text-[9px] mt-0.5">Logs</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;MobileTabBar /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Dock Shell</span>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 3: INPUTS & FORMS (15-22) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="inputs">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 03</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Inputs &amp; Form Controls</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 15 – 22</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 15: SearchTextInput -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="SearchTextInput" data-tags="input search text query form">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[15]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">SearchTextInput</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Ultra-responsive query field with clearable trigger and leading radar glyph.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-primary-container">radar</span>
+<input class="w-full bg-surface-container-high rounded-full pl-9 pr-8 py-2 font-label-code text-[12px] text-primary focus:outline-none" type="text" value="Inverter #3"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;SearchTextInput /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Query Input</span>
+</div>
+</article>
+<!-- COMPONENT 16: DropdownSelect -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="DropdownSelect" data-tags="select dropdown menu filter form">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[16]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">DropdownSelect</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Obsidian styled dropdown picker with custom chevron and hover states.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="relative">
+<select class="w-full bg-surface-container-high text-on-surface font-body-sm text-[12px] rounded-full px-4 py-2 appearance-none focus:outline-none cursor-pointer">
+<option>Grid Export Priority (Default)</option>
+<option>Self-Consumption Max</option>
+<option>Battery Reserve 100%</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;DropdownSelect /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Styled Select</span>
+</div>
+</article>
+<!-- COMPONENT 17: NumberStepper -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="NumberStepper" data-tags="number stepper counter increment decrement">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[17]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">NumberStepper</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Fine-grained threshold stepper with tactile decrement and increment pill buttons.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="inline-flex items-center bg-surface-container-high rounded-full p-1">
+<button class="stepper-dec w-8 h-8 rounded-full bg-surface-container hover:bg-surface-bright flex items-center justify-center text-primary transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="stepper-val font-metric-md text-[16px] text-primary px-4 font-mono">48.5</span>
+<button class="stepper-inc w-8 h-8 rounded-full bg-surface-container hover:bg-surface-bright flex items-center justify-center text-primary transition-all" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;NumberStepper unit="Hz" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Interactive</span>
+</div>
+</article>
+<!-- COMPONENT 18: RangeSlider -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="RangeSlider" data-tags="slider range threshold battery control">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[18]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">RangeSlider</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Continuous slider with bioluminescent fill for battery reserve cutoffs.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest space-y-2">
+<div class="flex items-center justify-between font-label-code text-[11px]">
+<span class="text-outline">Reserve Cutoff</span>
+<span class="text-primary-container font-bold" id="rangeVal">75%</span>
+</div>
+<input class="w-full accent-[#d6f000] cursor-pointer" id="demoSlider" max="95" min="10" type="range" value="75"/>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;RangeSlider min="10" max="95" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Reactive Range</span>
+</div>
+</article>
+<!-- COMPONENT 19: ToggleSwitch -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="ToggleSwitch" data-tags="toggle switch input active inactive power">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[19]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">ToggleSwitch</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">OLED electric toggle with glow halo and snappy slide physics.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-between">
+<span class="font-label-tag text-label-tag text-on-surface">Smart Inverter Load</span>
+<button class="component-toggle w-12 h-6 rounded-full bg-primary-container p-0.5 transition-all shadow-[0_0_12px_rgba(214,240,0,0.35)] flex items-center" type="button">
+<span class="w-5 h-5 rounded-full bg-on-primary-container shadow transform translate-x-6 transition-transform"></span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;ToggleSwitch checked /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Bioluminescent</span>
+</div>
+</article>
+<!-- COMPONENT 20: CheckboxCustom -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="CheckboxCustom" data-tags="checkbox custom form selection check">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[20]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">CheckboxCustom</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Square-beveled clean-tech checkbox with check animation and neon accent.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center gap-3">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="w-4 h-4 rounded bg-surface-container-high accent-[#d6f000]" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Auto-shed peak loads</span>
+</label>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;CheckboxCustom checked /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Selection</span>
+</div>
+</article>
+<!-- COMPONENT 21: RadioGroupItem -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="RadioGroupItem" data-tags="radio group options picker form">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[21]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">RadioGroupItem</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Concentric dot radio selector with animated ring focus highlight.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest space-y-1.5">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="accent-[#d6f000]" name="demoRadio" type="radio"/>
+<span class="font-label-code text-[11px] text-primary">Autonomous Grid</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="accent-[#d6f000]" name="demoRadio" type="radio"/>
+<span class="font-label-code text-[11px] text-on-surface-variant">Virtual Power Plant (VPP)</span>
+</label>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;RadioGroup /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Mutual Exclusive</span>
+</div>
+</article>
+<!-- COMPONENT 22: TimeDateFilter -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="TimeDateFilter" data-tags="time date filter calendar picker">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[22]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Inputs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">TimeDateFilter</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Granular time-window selector for telemetry lookbacks and audit ranges.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-between p-2 rounded-xl bg-surface-container-high">
+<div class="flex items-center gap-1.5 font-label-code text-[11px] text-on-surface">
+<span class="material-symbols-outlined text-[16px] text-secondary">calendar_today</span>
+<span>Today: 06:00 - 18:00</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-outline">tune</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;TimeDateFilter range="day" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Telemetry Window</span>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 4: BUTTONS, BADGES & CHIPS (23-30) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="buttons">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 04</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Buttons, Badges &amp; Chips</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 23 – 30</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 23: PrimarySolarButton -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="PrimarySolarButton" data-tags="button primary solar lime pill action">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[23]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Buttons</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">PrimarySolarButton</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Electric lime hyper-vibrant focal button triggering key grid state conversions.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<button class="demo-interactive-btn px-5 py-2.5 rounded-full bg-primary-container text-on-primary font-body-lg text-[13px] font-bold shadow-[0_0_20px_rgba(214,240,0,0.4)] hover:shadow-[0_0_28px_rgba(214,240,0,0.7)] transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+<span>Engage Inverter</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;Button variant="primary-solar" /&gt;</span>
+<span class="font-label-tag text-[10px] text-primary-container">Key Focal</span>
+</div>
+</article>
+<!-- COMPONENT 24: SecondaryDarkButton -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="SecondaryDarkButton" data-tags="button secondary dark obsidian action">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[24]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Buttons</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">SecondaryDarkButton</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Obsidian level-2 pill button with white text and cool hover illumination.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<button class="demo-interactive-btn px-5 py-2.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-primary font-body-lg text-[13px] font-semibold transition-all flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Configure Inverter</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;Button variant="secondary" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Dark Obsidian</span>
+</div>
+</article>
+<!-- COMPONENT 25: GhostButton -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="GhostButton" data-tags="button ghost transparent outline minimal">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[25]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Buttons</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">GhostButton</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Subtle translucent pill with muted typography and low visual footprint.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<button class="demo-interactive-btn px-4 py-2 rounded-full hover:bg-surface-container-high text-on-surface-variant hover:text-primary font-body-sm text-[12px] transition-all flex items-center gap-1.5" type="button">
+<span>View Logs</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;Button variant="ghost" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Ghost</span>
+</div>
+</article>
+<!-- COMPONENT 26: IconButtonAction -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="IconButtonAction" data-tags="icon button action circular quick">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[26]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Buttons</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">IconButtonAction</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Compact circular utility button for rapid quick-link jumps or diagnostic dismissal.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center gap-3">
+<button class="w-9 h-9 rounded-full bg-surface-container-high hover:bg-primary-container hover:text-on-primary text-primary flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="w-9 h-9 rounded-full bg-surface-container-high hover:bg-secondary hover:text-on-secondary text-primary flex items-center justify-center transition-all">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;IconButton icon="download" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Circular</span>
+</div>
+</article>
+<!-- COMPONENT 27: NotificationDot -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="NotificationDot" data-tags="badge notification dot status alert pulse">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[27]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Badges</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">NotificationDot</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Animated ping dot for real-time alerts or pending grid sync tasks.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">notifications</span>
+<span class="absolute -top-1 -right-1 flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary-container"></span>
+</span>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">hub</span>
+<span class="absolute -top-1 -right-1 flex h-3 w-3">
+<span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;NotificationDot ping /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Pulsing Node</span>
+</div>
+</article>
+<!-- COMPONENT 28: StatusPillBadge -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="StatusPillBadge" data-tags="badge status pill active live alert warning">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[28]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Badges</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">StatusPillBadge</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">High-visibility status capsules communicating live states (Normal, Warning, Standby).</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center gap-2 flex-wrap">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/20 text-secondary font-label-code text-[10px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              GRID HEALTHY
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-container/20 text-primary-fixed-dim font-label-code text-[10px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+              SOLAR EXPORT
+            </span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;StatusPill type="healthy" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Multi-Palette</span>
+</div>
+</article>
+<!-- COMPONENT 29: DeltaPillChip -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="DeltaPillChip" data-tags="delta chip pill percent trend up down">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[29]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Chips</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">DeltaPillChip</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Performance variance chip showing relative generation shifts with directional arrows.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-secondary font-label-code text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+              +14.8%
+            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-error font-label-code text-[11px] font-bold">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+              -3.2%
+            </span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;DeltaPill value="+14.8%" /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Trend Chip</span>
+</div>
+</article>
+<!-- COMPONENT 30: TelemetryIconButton -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="TelemetryIconButton" data-tags="telemetry button square action icon">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[30]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Buttons</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">TelemetryIconButton</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Diagnostic square action icon embedded in upper right quadrant of metric blocks.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<button class="w-10 h-10 rounded-xl bg-surface-container-high hover:bg-surface-bright flex items-center justify-center text-primary-container hover:shadow-[0_0_12px_rgba(214,240,0,0.35)] transition-all">
+<span class="material-symbols-outlined text-[20px]">north_east</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;TelemetryIconButton /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Corner Jump</span>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 5: TYPOGRAPHY, KPIS & INDICATORS (31-38) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="typography">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 05</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Typography, KPIs &amp; Indicators</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 31 – 38</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 31: DisplayHeroHeading -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="DisplayHeroHeading" data-tags="typography display heading hero headline title">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[31]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Typography</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">DisplayHeroHeading</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Editorial scale Space Grotesk headline featuring tight kerning and negative tracking.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<h1 class="font-display-lg text-[28px] leading-tight text-primary font-bold">HelioOS 9.4</h1>
+<span class="font-label-code text-[11px] text-outline">SPACE GROTESK 700</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;DisplayHeroHeading /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">48px Display</span>
+</div>
+</article>
+<!-- COMPONENT 32: MetricKpiMonumental -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="MetricKpiMonumental" data-tags="kpi metric monumental large number readout">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[32]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">KPIs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">MetricKpiMonumental</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Monumental high-yield readout pairing Space Grotesk value with JetBrains Mono unit.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-baseline gap-2">
+<span class="font-metric-xl text-metric-xl text-primary font-bold">14.82</span>
+<span class="font-label-code text-[14px] text-primary-container font-semibold">kWh</span>
+</div>
+<span class="font-label-tag text-label-tag text-outline">TODAY SOLAR PRODUCTION</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;MetricKpi value="14.82" /&gt;</span>
+<span class="font-label-tag text-[10px] text-primary-container">Monumental 38px</span>
+</div>
+</article>
+<!-- COMPONENT 33: MetricTimeDisplay -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="MetricTimeDisplay" data-tags="time clock runtime battery backup readout">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[33]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">KPIs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">MetricTimeDisplay</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Monospaced dual-digit time ticker for battery reserve duration estimation.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-baseline gap-1.5 font-label-code">
+<span class="text-[26px] font-bold text-secondary">19</span>
+<span class="text-[12px] text-outline">hrs</span>
+<span class="text-[26px] font-bold text-secondary ml-1">42</span>
+<span class="text-[12px] text-outline">mins</span>
+</div>
+<span class="font-label-tag text-label-tag text-outline">AUTONOMOUS BACKUP RUNTIME</span>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;MetricTime /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Time Vector</span>
+</div>
+</article>
+<!-- COMPONENT 34: RadialMetricLabel -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="RadialMetricLabel" data-tags="radial gauge center label percent status">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[34]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Typography</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">RadialMetricLabel</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Concentric stack designed to sit inside radial ring dials and progress gauges.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="text-center">
+<span class="font-metric-xl text-[28px] text-primary font-bold leading-none">94%</span>
+<div class="font-label-tag text-[10px] text-secondary uppercase tracking-widest mt-1">Charging</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;RadialMetricLabel /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Dial Inset</span>
+</div>
+</article>
+<!-- COMPONENT 35: SubcardFooterCaption -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="SubcardFooterCaption" data-tags="caption footer metadata microcopy subcard">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[35]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Typography</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">SubcardFooterCaption</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Muted metadata line pairing confidence indicators with hardware serials.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Inverter efficiency calibrated at 98.4% ISO yield under standard test condition (STC).
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;SubcardFooterCaption /&gt;</span>
+<span class="font-label-tag text-[10px] text-outline">Body-SM</span>
+</div>
+</article>
+<!-- COMPONENT 36: WeatherMetricDisplay -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="WeatherMetricDisplay" data-tags="weather solar irradiance irradiance temperature">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[36]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">KPIs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">WeatherMetricDisplay</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Solar irradiance and ambient roof surface temperature readout pair.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-[20px]">wb_sunny</span>
+<span class="font-metric-md text-[18px] text-primary">840 W/m²</span>
+</div>
+<span class="font-label-code text-[12px] text-outline">Roof: 32°C</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;WeatherMetric /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Ambient Telemetry</span>
+</div>
+</article>
+<!-- COMPONENT 37: FinancialKpiRow -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="FinancialKpiRow" data-tags="financial savings revenue billing cost grid">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[37]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">KPIs</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">FinancialKpiRow</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Live billing arbitrage tracker reporting daily feed-in export profit.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-[12px] text-on-surface-variant">Estimated Savings</span>
+<div class="flex items-baseline gap-1">
+<span class="font-label-code text-[12px] text-secondary font-bold">+$</span>
+<span class="font-metric-md text-[20px] text-secondary font-bold">8.42</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;FinancialKpi /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Export ROI</span>
+</div>
+</article>
+<!-- COMPONENT 38: ProgressMetaLabel -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="ProgressMetaLabel" data-tags="progress meta ratio capacity fraction label">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[38]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Indicators</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">ProgressMetaLabel</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Fractional capacity indicator with dual-tone ratio display (e.g. 13.2 / 14 kWh).</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-center justify-between font-label-code text-[12px]">
+<span class="text-on-surface">Powerwall II</span>
+<div>
+<span class="text-primary-container font-bold">13.2</span>
+<span class="text-outline"> / 14.0 kWh</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;ProgressMeta current="13.2" /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Fraction Readout</span>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 6: ENERGY & TELEMETRY (39-44) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="telemetry">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 06</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Energy &amp; Telemetry Visualizations</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 39 – 44</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 39: EqualizerBarChart -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="EqualizerBarChart" data-tags="chart equalizer bars visualizer audio energy spectrum">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[39]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">DataViz</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">EqualizerBarChart</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Real-time solar inverter frequency equalizer with interactive dynamic heights.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<!-- Inline SVG Equalizer -->
+<svg class="w-full h-16" fill="none" viewbox="0 0 240 64" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#323538" height="40" rx="4" width="8" x="10" y="24"></rect>
+<rect fill="#323538" height="48" rx="4" width="8" x="26" y="16"></rect>
+<rect fill="#d6f000" height="56" rx="4" width="8" x="42" y="8"></rect>
+<rect fill="#d6f000" height="60" rx="4" width="8" x="58" y="4"></rect>
+<rect fill="#d6f000" height="52" rx="4" width="8" x="74" y="12"></rect>
+<rect fill="#70ffba" height="44" rx="4" width="8" x="90" y="20"></rect>
+<rect fill="#70ffba" height="36" rx="4" width="8" x="106" y="28"></rect>
+<rect fill="#d6f000" height="46" rx="4" width="8" x="122" y="18"></rect>
+<rect fill="#d6f000" height="54" rx="4" width="8" x="138" y="10"></rect>
+<rect fill="#323538" height="38" rx="4" width="8" x="154" y="26"></rect>
+<rect fill="#323538" height="32" rx="4" width="8" x="170" y="32"></rect>
+<rect fill="#70ffba" height="44" rx="4" width="8" x="186" y="20"></rect>
+<rect fill="#d6f000" height="50" rx="4" width="8" x="202" y="14"></rect>
+<rect fill="#323538" height="34" rx="4" width="8" x="218" y="30"></rect>
+</svg>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;EqualizerChart channels="14" /&gt;</span>
+<span class="font-label-tag text-[10px] text-primary-container">60 Hz Array</span>
+</div>
+</article>
+<!-- COMPONENT 40: RadialProgressGauge -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="RadialProgressGauge" data-tags="radial gauge dial ring battery progress circle">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[40]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">DataViz</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">RadialProgressGauge</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dual concentric vector arcs tracking real-time storage state of charge.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<!-- Inline SVG Gauge -->
+<div class="relative w-24 h-24">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="40" stroke="#272a2e" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#d6f000" stroke-dasharray="251.2" stroke-dashoffset="40" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-metric-md text-[18px] text-primary font-bold">84%</span>
+<span class="font-label-code text-[8px] text-outline">SOC</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;RadialGauge value="84" /&gt;</span>
+<span class="font-label-tag text-[10px] text-primary-container">Vector Arc</span>
+</div>
+</article>
+<!-- COMPONENT 41: StripedProgressBar -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="StripedProgressBar" data-tags="progress bar striped hatch linear telemetry">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[41]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">DataViz</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">StripedProgressBar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Angled hatched power level bar with active bioluminescent highlight stripe.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest space-y-2">
+<div class="flex justify-between font-label-code text-[10px] text-outline">
+<span>PHOTOVOLTAIC FEED</span>
+<span class="text-secondary">72% ACTIVE</span>
+</div>
+<div class="h-3 w-full rounded-full bg-surface-container-high overflow-hidden relative">
+<div class="h-full bg-gradient-to-r from-secondary-container via-primary-container to-secondary rounded-full" style="width: 72%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;StripedProgressBar /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Linear Flow</span>
+</div>
+</article>
+<!-- COMPONENT 42: BiphaseLoadBar -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="BiphaseLoadBar" data-tags="biphase balance grid solar load split bar">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[42]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">DataViz</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">BiphaseLoadBar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dual-terminal center-zero load balance bar measuring net import vs net export.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex justify-between font-label-code text-[10px] text-outline mb-1.5">
+<span>← IMPORT</span>
+<span class="text-primary-container">NET 0.0</span>
+<span>EXPORT →</span>
+</div>
+<div class="h-2.5 w-full rounded-full bg-surface-container-high relative flex items-center">
+<div class="absolute left-1/2 w-0.5 h-4 bg-outline -translate-x-1/2"></div>
+<div class="absolute left-1/2 h-full bg-primary-container rounded-r-full" style="width: 32%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;BiphaseLoadBar /&gt;</span>
+<span class="font-label-tag text-[10px] text-primary-container">Bi-Directional</span>
+</div>
+</article>
+<!-- COMPONENT 43: MonthlyHighDensityBarChart -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="MonthlyHighDensityBarChart" data-tags="chart monthly bar density histogram energy yield">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[43]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">DataViz</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">MonthlyHighDensityBarChart</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Compact 12-month aggregated energy generation spark histogram.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="flex items-end justify-between h-14 pt-2 gap-1">
+<div class="w-full bg-surface-container-high rounded-t" style="height: 30%;"></div>
+<div class="w-full bg-surface-container-high rounded-t" style="height: 45%;"></div>
+<div class="w-full bg-surface-container-high rounded-t" style="height: 60%;"></div>
+<div class="w-full bg-primary-container rounded-t" style="height: 85%;"></div>
+<div class="w-full bg-primary-container rounded-t" style="height: 100%;"></div>
+<div class="w-full bg-primary-container rounded-t" style="height: 95%;"></div>
+<div class="w-full bg-primary-container rounded-t" style="height: 90%;"></div>
+<div class="w-full bg-primary-container rounded-t" style="height: 80%;"></div>
+<div class="w-full bg-surface-container-high rounded-t" style="height: 65%;"></div>
+<div class="w-full bg-surface-container-high rounded-t" style="height: 50%;"></div>
+<div class="w-full bg-surface-container-high rounded-t" style="height: 35%;"></div>
+<div class="w-full bg-surface-container-high rounded-t" style="height: 25%;"></div>
+</div>
+<div class="flex justify-between font-label-code text-[9px] text-outline mt-1 px-0.5">
+<span>JAN</span>
+<span>JUN</span>
+<span>DEC</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;MonthlyDensityChart /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">12-Mo Spark</span>
+</div>
+</article>
+<!-- COMPONENT 44: TripartiteEnergyFlowBar -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="TripartiteEnergyFlowBar" data-tags="energy flow segmented tripartite solar battery home">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[44]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">DataViz</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">TripartiteEnergyFlowBar</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Triple-segment proportional track showing Solar vs Battery vs Grid distribution.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest space-y-2">
+<div class="flex h-3 w-full rounded-full overflow-hidden bg-surface-container-high gap-0.5">
+<div class="bg-primary-container" style="width: 58%;" title="Solar"></div>
+<div class="bg-secondary" style="width: 28%;" title="Battery"></div>
+<div class="bg-tertiary-fixed-dim" style="width: 14%;" title="Grid"></div>
+</div>
+<div class="flex justify-between font-label-code text-[10px]">
+<span class="text-primary-container">Solar 58%</span>
+<span class="text-secondary">Bat 28%</span>
+<span class="text-tertiary-fixed-dim">Grid 14%</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;TripartiteFlowBar /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">3-Phase Alloc</span>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- SECTION 7: ENVIRONMENTAL & MODALS (45-49) -->
+<!-- ========================================== -->
+<section class="space-y-space-lg" data-section="diagnostics">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-code text-label-code px-2.5 py-1 rounded-full bg-primary-container/15 text-primary-fixed-dim font-bold">GROUP 07</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Diagnostics, HUD &amp; Overlays</h2>
+</div>
+<span class="font-label-code text-label-code text-outline">NODES 45 – 49</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter catalog-grid">
+<!-- COMPONENT 45: ThermalHotspotCard -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="ThermalHotspotCard" data-tags="thermal hotspot infrared drone diagnostic cell array">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[45]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Diagnostics</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">ThermalHotspotCard</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Infrared panel cell anomaly inspection tile with delta temp readouts.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="relative h-20 rounded-lg overflow-hidden bg-gradient-to-r from-surface-container-highest via-surface-container-high to-surface-container">
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-[32px] opacity-40">heat_pump</span>
+</div>
+<div class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-error-container text-error font-label-code text-[10px] font-bold">
+                Δ +12.4°C
+              </div>
+<div class="absolute bottom-2 left-2 font-label-code text-[10px] text-on-surface">
+                CELL ID: 12-B
+              </div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;ThermalHotspot cell="12-B" /&gt;</span>
+<span class="font-label-tag text-[10px] text-error">IR Anomaly</span>
+</div>
+</article>
+<!-- COMPONENT 46: SatelliteStatusPill -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="SatelliteStatusPill" data-tags="satellite gps link telemetry sync connection">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[46]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Telemetry</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">SatelliteStatusPill</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Downlink orbital sync badge with live constellation constellation tracking.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high">
+<span class="material-symbols-outlined text-[16px] text-primary-container">satellite_alt</span>
+<span class="font-label-code text-[11px] text-primary">IRIDIUM-90</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#70ffba]"></span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;SatelliteStatusPill sat="IR-90" /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Orbit Synced</span>
+</div>
+</article>
+<!-- COMPONENT 47: DroneTelemetryHUD -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="DroneTelemetryHUD" data-tags="drone hud telemetry flight camera crosshair aerial">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[47]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">HUD</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">DroneTelemetryHUD</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Aviation HUD crosshair overlay for rooftop automated drone surveillance.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="relative h-20 rounded-lg bg-surface-container flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary-container/40 text-[42px]">filter_center_focus</span>
+<div class="absolute top-1 left-2 font-label-code text-[9px] text-primary-container">ALT: 18.4m</div>
+<div class="absolute top-1 right-2 font-label-code text-[9px] text-secondary">BAT: 88%</div>
+<div class="absolute bottom-1 text-center font-label-code text-[9px] text-outline">AUTO-SURVEY // RUNNING</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;DroneHUD mode="survey" /&gt;</span>
+<span class="font-label-tag text-[10px] text-primary-container">Aero Telemetry</span>
+</div>
+</article>
+<!-- COMPONENT 48: ModalOverlayDialog -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="ModalOverlayDialog" data-tags="modal dialog overlay confirmation prompt popup">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[48]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Modals</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">ModalOverlayDialog</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Level 2 floating critical dialog modal with scrim backdrop and primary confirm.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest">
+<div class="p-3 rounded-xl bg-surface-container-high shadow-2xl space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-headline-lg text-[13px] text-primary">Grid Disconnect</span>
+<span class="material-symbols-outlined text-[14px] text-outline cursor-pointer">close</span>
+</div>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Isolate facility microgrid from municipal network?</p>
+<div class="flex justify-end gap-2 pt-1">
+<button class="px-2.5 py-1 rounded-full bg-surface text-on-surface-variant font-label-code text-[10px]" type="button">Cancel</button>
+<button class="px-2.5 py-1 rounded-full bg-error-container text-error font-label-code text-[10px] font-bold" type="button">Disconnect</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;ModalOverlay critical /&gt;</span>
+<span class="font-label-tag text-[10px] text-on-surface-variant">Elevated L2</span>
+</div>
+</article>
+<!-- COMPONENT 49: ToastNotificationSnack -->
+<article class="component-card flex flex-col justify-between p-space-md rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all shadow-lg" data-component-name="ToastNotificationSnack" data-tags="toast snackbar alert notification floating popup">
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-[11px] px-2 py-0.5 rounded-full bg-surface-container-low text-primary-container">[49]</span>
+<span class="font-label-tag text-label-tag text-outline uppercase tracking-wider">Modals</span>
+</div>
+<h3 class="font-headline-lg text-[18px] text-primary">ToastNotificationSnack</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Floating transient bottom snackbar confirming telemetry firmware sync.</p>
+</div>
+<div class="my-space-md p-space-sm rounded-xl bg-surface-container-lowest flex items-center justify-center">
+<div class="flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-surface-container-high shadow-xl">
+<span class="material-symbols-outlined text-secondary text-[16px]">check_circle</span>
+<span class="font-label-code text-[11px] text-primary">Firmware v2.4 Applied</span>
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-label-code text-[10px] text-outline">&lt;ToastSnack type="success" /&gt;</span>
+<span class="font-label-tag text-[10px] text-secondary">Transient</span>
+</div>
+</article>
+</div>
+</section>
+</div>
+<!-- Interactive Script for Live Registry Search, Tabs, Density and Controls -->
+<script>
+    (function initHelioGuardStorybook() {
+      const searchInput = document.getElementById('componentSearch');
+      const filterTabs = document.querySelectorAll('.filter-tab');
+      const cards = document.querySelectorAll('.component-card');
+      const sections = document.querySelectorAll('section[data-section]');
+      const activeCountDisplay = document.getElementById('activeCountDisplay');
+      const toggleDensityBtn = document.getElementById('toggleDensityBtn');
+      const catalogGrids = document.querySelectorAll('.catalog-grid');
+
+      // 1. Category Filtering
+      let activeFilter = 'all';
+      filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          filterTabs.forEach(t => {
+            t.classList.remove('bg-primary-container', 'text-on-primary', 'font-semibold', 'shadow-[0_0_12px_rgba(214,240,0,0.35)]');
+            t.classList.add('text-on-surface-variant');
+          });
+          tab.classList.add('bg-primary-container', 'text-on-primary', 'font-semibold', 'shadow-[0_0_12px_rgba(214,240,0,0.35)]');
+          tab.classList.remove('text-on-surface-variant');
+
+          activeFilter = tab.getAttribute('data-filter');
+          applySearchAndFilter();
+        });
+      });
+
+      // 2. Real-time Search
+      searchInput.addEventListener('input', applySearchAndFilter);
+
+      function applySearchAndFilter() {
+        const query = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+          const name = card.getAttribute('data-component-name')?.toLowerCase() || '';
+          const tags = card.getAttribute('data-tags')?.toLowerCase() || '';
+          const parentSection = card.closest('section')?.getAttribute('data-section') || '';
+
+          const matchesQuery = query === '' || name.includes(query) || tags.includes(query);
+          const matchesFilter = activeFilter === 'all' || parentSection === activeFilter;
+
+          if (matchesQuery && matchesFilter) {
+            card.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+
+        // Toggle entire section visibility if all cards hidden
+        sections.forEach(sec => {
+          const visibleInSec = sec.querySelectorAll('.component-card:not(.hidden)').length;
+          sec.style.display = visibleInSec === 0 ? 'none' : 'block';
+        });
+
+        if (activeCountDisplay) {
+          activeCountDisplay.textContent = visibleCount;
+        }
+      }
+
+      // 3. Grid Density Switcher (2 or 3 cols toggle)
+      let densityMode = 3;
+      if (toggleDensityBtn) {
+        toggleDensityBtn.addEventListener('click', () => {
+          catalogGrids.forEach(grid => {
+            if (densityMode === 3) {
+              grid.classList.remove('lg:grid-cols-3');
+              grid.classList.add('lg:grid-cols-2');
+            } else {
+              grid.classList.remove('lg:grid-cols-2');
+              grid.classList.add('lg:grid-cols-3');
+            }
+          });
+          densityMode = densityMode === 3 ? 2 : 3;
+        });
+      }
+
+      // 4. Interactive Range Slider demo
+      const slider = document.getElementById('demoSlider');
+      const rangeVal = document.getElementById('rangeVal');
+      if (slider && rangeVal) {
+        slider.addEventListener('input', (e) => {
+          rangeVal.textContent = e.target.value + '%';
+        });
+      }
+
+      // 5. Interactive Number Stepper
+      const decBtn = document.querySelector('.stepper-dec');
+      const incBtn = document.querySelector('.stepper-inc');
+      const stepperVal = document.querySelector('.stepper-val');
+      if (decBtn && incBtn && stepperVal) {
+        decBtn.addEventListener('click', () => {
+          let curr = parseFloat(stepperVal.textContent);
+          stepperVal.textContent = (curr - 0.5).toFixed(1);
+        });
+        incBtn.addEventListener('click', () => {
+          let curr = parseFloat(stepperVal.textContent);
+          stepperVal.textContent = (curr + 0.5).toFixed(1);
+        });
+      }
+
+      // 6. Interactive Toggle Switch
+      const toggle = document.querySelector('.component-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', () => {
+          const knob = toggle.querySelector('span');
+          if (knob.classList.contains('translate-x-6')) {
+            knob.classList.remove('translate-x-6');
+            knob.classList.add('translate-x-0.5');
+            toggle.classList.remove('bg-primary-container');
+            toggle.classList.add('bg-surface-container-highest');
+          } else {
+            knob.classList.add('translate-x-6');
+            knob.classList.remove('translate-x-0.5');
+            toggle.classList.add('bg-primary-container');
+            toggle.classList.remove('bg-surface-container-highest');
+          }
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

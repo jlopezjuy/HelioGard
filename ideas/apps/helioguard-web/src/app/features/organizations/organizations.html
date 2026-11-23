@@ -1,0 +1,12 @@
+<h1 class="text-3xl font-semibold">Organizaciones y permisos de demo</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">El selector cambia la persona y, con ella, la organización. Esto no es autenticación. Un prestador ve la casa solo con el grant de mantenimiento.</p>
+<ul class="mt-6 space-y-2 text-sm">
+  @for (item of memberships(); track item.id) {
+    <li>{{ user(item.userId) }} · {{ item.role }} · {{ item.status }}</li>
+  }
+</ul>
+<h2 class="mt-8 text-lg font-semibold">Grants</h2>
+@for (grant of grants(); track grant.id) {
+  <p class="mt-2 text-sm">{{ org(grant.granteeOrganizationId) }} sobre la instalación, alcance {{ grant.scope }}. {{ grant.reason }}</p>
+}
+<a class="btn mt-6" routerLink="/instalaciones/ins-salta">Abrir Salta y ver el rechazo</a>

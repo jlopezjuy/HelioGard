@@ -1,0 +1,24 @@
+<h1 class="text-3xl font-semibold">Pérdida en pesos de demostración</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">
+  Se separa la compra evitada de la inyección. Los precios no son una tarifa vigente. Cambiar el número recalcula el monto y lo guarda en este navegador.
+</p>
+@for (rate of rates(); track rate.id) {
+  <form class="mt-5 flex flex-wrap items-end gap-3" (submit)="$event.preventDefault(); save(rate.id)">
+    <label class="field">Compra evitada, ARS/kWh
+      <input type="number" min="0" step="1" [ngModel]="purchase()" (ngModelChange)="purchase.set(+$event)" name="purchase" />
+    </label>
+    <label class="field">Inyección, ARS/kWh
+      <input type="number" min="0" step="1" [ngModel]="exported()" (ngModelChange)="exported.set(+$event)" name="export" />
+    </label>
+    <button class="btn btn-primary" type="submit">Guardar tarifa</button>
+  </form>
+}
+<ul class="mt-6 space-y-4">
+  @for (item of assessments(); track item.id) {
+    <li class="border-t border-q-line pt-3 text-sm">
+      <p class="mono text-base">{{ arsLabel(item.estimatedLossAmount) }}</p>
+      <p>Autoconsumo perdido {{ whLabel(item.selfConsumptionLostWh) }} · inyección perdida {{ whLabel(item.exportedLostWh) }}</p>
+      <p class="text-q-muted">{{ item.tariffSnapshotNote }}</p>
+    </li>
+  }
+</ul>

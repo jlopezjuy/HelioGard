@@ -1,8 +1,9 @@
 @if (phase() === 'loading') {
   <p role="status">Abriendo el catálogo de fuentes…</p>
 } @else if (view(); as state) {
-  <h1 class="text-3xl">Fuentes</h1>
-  <p class="mt-2 max-w-2xl text-sm text-q-muted">La fuente meteorológica estima recurso solar. No ve un panel ni certifica un ataque. Ninguna fila está criptográficamente verificada.</p>
+  <p class="kicker">¿De dónde sale el número?</p>
+  <h1 class="mt-2 text-3xl">Fuentes</h1>
+  <p class="lede">La fuente meteorológica estima recurso solar. No ve un panel ni certifica un ataque. Ninguna fila está criptográficamente verificada.</p>
   <ul class="mt-4 space-y-3">
     @for (source of state.sources; track source.id) {
       <li class="border border-q-line bg-q-surface p-3 text-sm">

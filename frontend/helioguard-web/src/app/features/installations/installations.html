@@ -1,8 +1,9 @@
 @if (phase() === 'loading') {
   <p role="status">Listando instalaciones visibles…</p>
 } @else {
-  <h1 class="text-3xl">Instalaciones</h1>
-  <p class="mt-2 max-w-2xl text-sm text-q-muted">Cada fila respeta el tenant y los grants. Salta no aparece en la sesión de Jujuy.</p>
+  <p class="kicker">¿Qué planta puedo abrir?</p>
+  <h1 class="mt-2 text-3xl">Instalaciones</h1>
+  <p class="lede">Cada fila respeta el tenant y los grants. Salta no aparece en la sesión de Jujuy.</p>
   @if (rows().length === 0) {
     <p class="mt-6" role="status">No hay sitios para esta sesión.</p>
   } @else {

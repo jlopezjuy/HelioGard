@@ -1,0 +1,25 @@
+<h1 class="text-3xl font-semibold">Cobertura versionada</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">Aceptar la propuesta publica la versión nueva en la demo y deja la suscripción en PROPOSED. No es un contrato ni un seguro.</p>
+@for (plan of plans(); track plan.id) {
+  <article class="mt-6">
+    <h2 class="text-lg font-medium">{{ plan.name }} · {{ plan.status }}</h2>
+    <ul class="mt-2 space-y-2 text-sm">
+      @for (version of versions(plan.id); track version.id) {
+        <li>{{ version.versionCode }} · {{ arsLabel(version.recurringAmount) }} · {{ version.publishedAt ? 'publicada' : 'borrador' }}. {{ version.termsReference }}</li>
+      }
+    </ul>
+  </article>
+}
+<h2 class="mt-8 text-lg font-semibold">Propuestas</h2>
+@for (proposal of proposals(); track proposal.id) {
+  <p class="mt-3 text-sm">{{ proposal.referenceCode }} · {{ arsLabel(proposal.amount) }} · válida hasta {{ proposal.validUntil }}</p>
+  <button type="button" class="btn mt-2" [disabled]="!!proposal.acceptedAt" (click)="store.acceptProposal(proposal.id)">
+    {{ proposal.acceptedAt ? 'Aceptada' : 'Aceptar propuesta' }}
+  </button>
+}
+<h2 class="mt-8 text-lg font-semibold">Suscripciones</h2>
+<ul class="mt-2 space-y-2 text-sm">
+  @for (item of subscriptions(); track item.id) {
+    <li>{{ item.status }} · {{ arsLabel(item.agreedAmount) }} {{ item.currencyCode }}</li>
+  }
+</ul>

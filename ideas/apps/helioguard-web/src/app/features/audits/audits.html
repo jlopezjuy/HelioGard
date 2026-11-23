@@ -1,0 +1,41 @@
+<h1 class="text-3xl font-semibold">Auditoría de campo</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">La plantilla publicada no se reescribe. El informe se guarda, se cierra y se puede reabrir. Las evidencias quedan con una clave local, no en un servidor.</p>
+@if (!report()) {
+  <p class="mt-8">Esta organización no tiene un informe abierto.</p>
+} @else {
+  @if (report(); as report) {
+    <p class="mt-4 text-sm">{{ report.status }} · {{ report.summary }}</p>
+    <label class="field mt-4 max-w-xl">
+      Nota para la próxima respuesta
+      <textarea rows="3" name="audit-note" [ngModel]="note()" (ngModelChange)="note.set($event)"></textarea>
+    </label>
+    <ol class="mt-4 space-y-4">
+      @for (question of questions(report.auditTemplateId); track question.id) {
+        <li>
+          <p>{{ question.sortOrder }}. {{ question.label }} {{ question.mandatory ? '' : '(opcional)' }}</p>
+          @if (question.answerType === 'BOOLEAN') {
+            <div class="mt-2 flex gap-2">
+              <button type="button" class="btn" (click)="save(question.id, true)">Sí</button>
+              <button type="button" class="btn" (click)="save(question.id, false)">No</button>
+            </div>
+          } @else {
+            <button type="button" class="btn mt-2" (click)="save(question.id, null)">Guardar nota</button>
+          }
+          <p class="mt-1 text-xs text-q-muted">{{ answer(question.id)?.answerText || 'Sin respuesta' }} · {{ answer(question.id)?.compliant }}</p>
+        </li>
+      }
+    </ol>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <button type="button" class="btn" (click)="store.setAuditStatus(report.id, 'SUBMITTED')">Enviar</button>
+      <button type="button" class="btn btn-primary" (click)="store.setAuditStatus(report.id, 'APPROVED')">Cerrar</button>
+      <button type="button" class="btn" (click)="store.setAuditStatus(report.id, 'IN_PROGRESS')">Reabrir</button>
+    </div>
+    @for (finding of findings(); track finding.id) {
+      <article class="mt-6 border-t border-q-line pt-4">
+        <h2 class="font-medium">{{ finding.title }} · {{ finding.severity }}</h2>
+        <p class="text-sm">{{ finding.description }}</p>
+        <p class="text-sm text-q-muted">{{ finding.recommendation }}</p>
+      </article>
+    }
+  }
+}

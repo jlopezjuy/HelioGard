@@ -5,6 +5,7 @@ test('recorre suciedad, misión, integridad y el rol técnico', async ({ page })
   await page.goto('/parque');
   await page.evaluate(() => localStorage.removeItem('helioguard.demo.v4'));
   await page.reload();
+  await page.getByText('Guion de la demo').click();
   await page.getByRole('button', { name: 'Sector sucio' }).click();
   await expect(page.getByRole('button', { name: /Bloque B2 Suciedad sospechada/ })).toBeVisible();
   await page.screenshot({ path: 'docs/screenshots/parque-1440.png' });

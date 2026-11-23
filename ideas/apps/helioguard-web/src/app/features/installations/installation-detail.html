@@ -1,0 +1,58 @@
+@switch (view().kind) {
+  @case ('missing') {
+    <h1 class="text-3xl font-semibold">No encontramos esa instalación</h1>
+  }
+  @case ('denied') {
+    <h1 class="text-3xl font-semibold">Acceso no autorizado en esta demo</h1>
+    <p class="mt-3 max-w-xl text-q-muted">La sesión activa no tiene membresía ni grant sobre este sitio. El filtro ocurre antes de mostrar equipos, tarifas o eventos.</p>
+    <a class="btn mt-5" routerLink="/instalaciones">Volver al listado</a>
+  }
+  @case ('ok') {
+    @if (view(); as page) {
+      @if (page.kind === 'ok') {
+        <p class="kicker">{{ page.site?.climate }} · {{ page.site?.timeZone }}</p>
+        <h1 class="mt-2 text-3xl font-semibold">{{ page.installation.name }}</h1>
+        <p class="mt-2 text-sm text-q-muted">
+          {{ page.site?.address }} · {{ page.site?.altitudeM }} m · {{ page.installation.gridMode }} · alcance {{ page.scope }}
+        </p>
+        <p class="mono mt-2 text-sm">{{ page.site?.latitude }}, {{ page.site?.longitude }}</p>
+
+        <h2 class="mt-8 text-lg font-semibold">Arreglos y strings</h2>
+        <ul class="mt-3 divide-y divide-q-line border-y border-q-line">
+          @for (array of page.arrays; track array.id) {
+            <li class="py-3">
+              <p class="font-medium">{{ array.name }} · azimut {{ array.azimuthDegrees }}° · tilt {{ array.tiltDegrees }}°</p>
+              @for (item of page.strings; track item.id) {
+                @if (item.solarArrayId === array.id) {
+                  <p class="mt-1 flex flex-wrap items-center gap-3 text-sm">
+                    <span class="mono">{{ item.stringCode }}</span>
+                    {{ item.modulesInSeries }} módulos · {{ item.active ? 'activo' : 'fuera de servicio' }}
+                    @if (page.scope === 'FULL' || page.scope === 'MAINTENANCE' || page.scope === 'MANAGE') {
+                      <button type="button" class="btn" (click)="store.toggleString(item.id)">Cambiar estado</button>
+                    }
+                  </p>
+                }
+              }
+            </li>
+          }
+        </ul>
+
+        <h2 class="mt-8 text-lg font-semibold">Equipos y borde</h2>
+        <ul class="mt-3 space-y-2 text-sm">
+          @for (item of page.equipment; track item.id) {
+            <li class="mono">{{ item.tag }} · {{ item.kind }} · {{ item.status }} · {{ item.serialNumber }}</li>
+          }
+          @for (gateway of page.gateways; track gateway.id) {
+            <li>Gateway {{ gateway.hardwareId }} · {{ gateway.status }} · firmware {{ gateway.firmwareVersion }}</li>
+          }
+          @for (channel of page.channels; track channel.id) {
+            <li>Canal {{ channel.externalChannelCode }} · cada {{ channel.samplePeriodSeconds }} s · {{ channel.enabled ? 'habilitado' : 'apagado' }}</li>
+          }
+        </ul>
+        @if (page.scope === 'MAINTENANCE') {
+          <p class="mt-6 max-w-xl text-sm">Solo lectura de tarifas e integridad: el grant vigente es MAINTENANCE y no abre la economía del hogar.</p>
+        }
+      }
+    }
+  }
+}

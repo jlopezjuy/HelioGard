@@ -28,6 +28,9 @@ Thumbs.db
 logs/
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
+blob-report/
 
 # Java, Maven, Gradle, and JHipster
 .gradle/

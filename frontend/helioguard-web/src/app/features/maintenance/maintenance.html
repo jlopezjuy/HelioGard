@@ -1,8 +1,9 @@
 @if (phase() === 'loading') {
   <p role="status">Cargando el tablero…</p>
 } @else if (view(); as state) {
-  <h1 class="text-3xl">Mantenimiento</h1>
-  <p class="mt-2 text-sm text-q-muted">Las figuras de antes y después son esquemas locales, no fotografías de una planta.</p>
+  <p class="kicker">¿Qué trabajo está vivo?</p>
+  <h1 class="mt-2 text-3xl">Mantenimiento</h1>
+  <p class="lede">Las figuras de antes y después son esquemas locales, no fotografías de una planta.</p>
   @if (state.orders.length === 0) {
     <p class="mt-4">No hay órdenes en este alcance. La cadena del bloque B2 se crea desde la demostración.</p>
   } @else {

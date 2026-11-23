@@ -1,0 +1,20 @@
+<h1 class="text-3xl font-semibold">Instalaciones del ámbito</h1>
+<p class="mt-2 max-w-2xl text-sm text-q-muted">Solo aparecen sitios de la organización activa y los que tienen un grant vigente. El resto responde como no autorizado.</p>
+@if (rows().length === 0) {
+  <p class="mt-8">No hay instalaciones para esta persona.</p>
+} @else {
+  <ul class="mt-6 divide-y divide-q-line border-y border-q-line">
+    @for (row of rows(); track row.installation.id) {
+      <li class="flex flex-wrap items-baseline justify-between gap-3 py-4">
+        <div>
+          <a class="text-lg font-medium text-q-ink" [routerLink]="['/instalaciones', row.installation.id]">{{ row.installation.name }}</a>
+          <p class="text-sm text-q-muted">{{ row.site?.name }} · {{ row.site?.climate }} · {{ row.installation.nominalDcKw }} kWdc · {{ row.scope }}</p>
+        </div>
+        <span class="mono text-sm">{{ row.installation.code }}</span>
+      </li>
+    }
+  </ul>
+}
+<p class="mt-6 text-sm">
+  <a class="underline" routerLink="/instalaciones/ins-salta">Probar la ficha de Salta con la sesión actual</a>
+</p>

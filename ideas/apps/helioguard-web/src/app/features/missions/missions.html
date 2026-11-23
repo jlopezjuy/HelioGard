@@ -1,0 +1,41 @@
+<p class="kicker">Misión simulada — la aprobación no es un permiso de vuelo</p>
+<h1 class="mt-2 text-3xl font-semibold">Inspección y limpieza</h1>
+<p class="mt-3 max-w-2xl text-sm text-q-muted">
+  El recorrido pasa por borrador, revisión, autorización, despacho y vuelo. No hay salto directo al aire.
+  Helada, viento, granizo y techo residencial bloquean la limpieza.
+</p>
+@if (drone(); as asset) {
+  <p class="mt-3 text-sm">{{ asset.assetCode }} · {{ asset.modelName }} · {{ asset.status }} · viento máximo {{ asset.maximumWindMs }} m/s</p>
+}
+<div class="mt-4 flex flex-wrap gap-2">
+  <button type="button" class="btn btn-primary" data-testid="propose-cleaning" (click)="propose('CLEANING')">Proponer limpieza</button>
+  <button type="button" class="btn" (click)="propose('VISUAL_INSPECTION')">Proponer inspección visual</button>
+  <button type="button" class="btn" (click)="propose('THERMAL_INSPECTION')">Proponer térmica de dron</button>
+</div>
+@if (missions().length === 0) {
+  <p class="mt-8 text-sm">No hay misiones. La flota espera un incidente y una orden.</p>
+} @else {
+  <ol class="mt-6 space-y-6">
+    @for (mission of missions(); track mission.id) {
+      <li class="border-t border-q-line pt-4">
+        <h2 class="font-medium">{{ mission.missionCode }} · {{ mission.kind }} · {{ mission.status }}</h2>
+        <p class="mt-2 text-sm">{{ mission.safetyChecklistSummary }}</p>
+        @if (auth(mission.id); as item) {
+          <p class="mt-1 text-sm">Autorización {{ item.status }}. {{ item.decisionNote }}</p>
+        }
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button type="button" class="btn" (click)="store.reviewSafety(mission.id)">Revisar seguridad</button>
+          <button type="button" class="btn" data-testid="approve-mission" (click)="store.decideMission(mission.id, 'APPROVED')">Aprobar en la demo</button>
+          <button type="button" class="btn" (click)="store.decideMission(mission.id, 'REJECTED')">Rechazar</button>
+          <button type="button" class="btn" data-testid="dispatch" (click)="store.dispatch(mission.id)">Despachar</button>
+          <button type="button" class="btn" (click)="store.fly(mission.id)">Iniciar recorrido</button>
+          <button type="button" class="btn" (click)="store.completeMission(mission.id)">Completar</button>
+          <button type="button" class="btn btn-primary" (click)="store.verify(mission.id)">Verificar recuperación</button>
+        </div>
+        @if (verification(mission.id); as item) {
+          <p class="mt-3 text-sm">{{ item.status }} · {{ item.baselineMethod }} · {{ item.evidenceSummary }}</p>
+        }
+      </li>
+    }
+  </ol>
+}

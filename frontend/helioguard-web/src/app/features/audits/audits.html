@@ -5,8 +5,9 @@
     <h1 class="text-3xl">Auditorías</h1>
     <p class="mt-2 text-sm">No hay un informe en el alcance de esta sesión.</p>
   } @else {
-    <p class="text-xs text-q-muted">Plantilla {{ state.template.title }} · versión {{ state.template.templateVersion }} · publicada, no editable</p>
-    <h1 class="text-3xl">Informe {{ state.report.status }}</h1>
+    <p class="kicker">Plantilla {{ state.template.title }} · versión {{ state.template.templateVersion }} · publicada, no editable</p>
+    <h1 class="mt-2 text-3xl">Informe {{ state.report.status }}</h1>
+    <p class="lede">Tres secciones de campo. Guardar deja el borrador. Cerrar lo envía. Reabrir solo si sigue enviado.</p>
     <form class="mt-4 max-w-2xl space-y-4" [formGroup]="form()" (ngSubmit)="save('IN_PROGRESS')">
       @for (section of ['Eléctrica', 'Señalización', 'Acceso']; track section) {
         <fieldset class="border border-q-line p-3">

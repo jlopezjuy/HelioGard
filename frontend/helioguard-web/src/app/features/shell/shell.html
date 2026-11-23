@@ -11,32 +11,35 @@
       </button>
     </div>
     <nav class="flex flex-col px-2 pb-4" aria-label="Secciones">
-      @for (item of visibleNav(); track item.path) {
-        <a
-          [routerLink]="item.path"
-          routerLinkActive="bg-white/15"
-          class="flex min-h-11 items-center gap-2 rounded-ui px-3 text-sm"
-          (click)="close()"
-        >
-          @switch (item.path) {
-            @case ('/inicio') { <svg lucideSun [size]="18"></svg> }
-            @case ('/parque') { <svg lucideMap [size]="18"></svg> }
-            @case ('/instalaciones') { <svg lucideFactory [size]="18"></svg> }
-            @case ('/telemetria') { <svg lucideRadio [size]="18"></svg> }
-            @case ('/energia') { <svg lucideActivity [size]="18"></svg> }
-            @case ('/incidentes') { <svg lucideTriangleAlert [size]="18"></svg> }
-            @case ('/integridad') { <svg lucideShield [size]="18"></svg> }
-            @case ('/fuentes') { <svg lucideFileSearch [size]="18"></svg> }
-            @case ('/misiones') { <svg lucideDrone [size]="18"></svg> }
-            @case ('/auditorias') { <svg lucideClipboardCheck [size]="18"></svg> }
-            @case ('/mantenimiento') { <svg lucideWrench [size]="18"></svg> }
-            @case ('/economia') { <svg lucideWallet [size]="18"></svg> }
-            @case ('/planes') { <svg lucideLayers [size]="18"></svg> }
-            @case ('/organizaciones') { <svg lucideBuilding [size]="18"></svg> }
-            @case ('/configuracion') { <svg lucideSettings [size]="18"></svg> }
-          }
-          {{ item.label }}
-        </a>
+      @for (group of visibleNav(); track group.label) {
+        <p class="px-3 pt-4 pb-1 text-[0.7rem] tracking-[0.14em] text-q-sand uppercase">{{ group.label }}</p>
+        @for (item of group.items; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="bg-white/15"
+            class="flex min-h-11 items-center gap-2 rounded-ui px-3 text-sm"
+            (click)="close()"
+          >
+            @switch (item.path) {
+              @case ('/inicio') { <svg lucideSun [size]="18"></svg> }
+              @case ('/parque') { <svg lucideMap [size]="18"></svg> }
+              @case ('/instalaciones') { <svg lucideFactory [size]="18"></svg> }
+              @case ('/telemetria') { <svg lucideRadio [size]="18"></svg> }
+              @case ('/energia') { <svg lucideActivity [size]="18"></svg> }
+              @case ('/incidentes') { <svg lucideTriangleAlert [size]="18"></svg> }
+              @case ('/integridad') { <svg lucideShield [size]="18"></svg> }
+              @case ('/fuentes') { <svg lucideFileSearch [size]="18"></svg> }
+              @case ('/misiones') { <svg lucideDrone [size]="18"></svg> }
+              @case ('/auditorias') { <svg lucideClipboardCheck [size]="18"></svg> }
+              @case ('/mantenimiento') { <svg lucideWrench [size]="18"></svg> }
+              @case ('/economia') { <svg lucideWallet [size]="18"></svg> }
+              @case ('/planes') { <svg lucideLayers [size]="18"></svg> }
+              @case ('/organizaciones') { <svg lucideBuilding [size]="18"></svg> }
+              @case ('/configuracion') { <svg lucideSettings [size]="18"></svg> }
+            }
+            {{ item.label }}
+          </a>
+        }
       }
     </nav>
   </aside>
@@ -71,12 +74,10 @@
       </p>
     }
     <p class="border-b border-q-line bg-q-bg px-4 py-2 text-sm text-q-muted" role="status">{{ store.notice() }}</p>
-    <main id="contenido" class="flex-1 px-4 py-5 pb-40">
-      <router-outlet />
-    </main>
-    <section class="fixed inset-x-0 bottom-0 z-20 border-t border-q-line bg-q-surface px-3 py-3 lg:left-60" aria-label="Controles de la demostración">
-      <p class="mb-2 text-xs font-semibold tracking-wide text-q-muted uppercase">Demostración · datos simulados</p>
-      <div class="flex gap-2 overflow-x-auto">
+    <details class="border-b border-q-line bg-q-surface px-4 py-2">
+      <summary class="flex min-h-11 cursor-pointer items-center text-sm font-semibold">Guion de la demo</summary>
+      <p class="max-w-3xl pb-2 text-sm text-q-muted">Estos controles arman el relato. La pantalla de abajo responde una sola pregunta y conserva la misma función.</p>
+      <div class="flex gap-2 overflow-x-auto pb-2" aria-label="Controles de la demostración">
         <label class="flex shrink-0 items-center gap-2 text-xs text-q-muted">
           Escenario
           <select class="min-h-11 rounded-ui border border-q-line bg-q-bg px-2 text-sm text-q-ink" aria-label="Escenario de pérdida" [value]="store.snapshot().scenario.lossScenario" (change)="store.loss($any($event.target).value)">
@@ -102,6 +103,9 @@
         <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.cut()">Cortar red</button>
         <button type="button" class="min-h-11 shrink-0 rounded-ui border border-q-line px-3 text-sm" (click)="store.restore()">Restaurar red</button>
       </div>
-    </section>
+    </details>
+    <main id="contenido" class="flex-1 px-4 py-6">
+      <router-outlet />
+    </main>
   </div>
 </div>
