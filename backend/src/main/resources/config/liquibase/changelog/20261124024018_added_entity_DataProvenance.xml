@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity DataProvenance.
+    -->
+    <changeSet id="20261124024018-1" author="jhipster">
+        <createTable tableName="data_provenance">
+            <column name="id" type="bigint" autoIncrement="true" startWith="1500">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="source_record_key" type="varchar(180)">
+                <constraints nullable="false" />
+            </column>
+            <column name="observed_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="period_start" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="period_end" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="ingested_at" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="source_product_code" type="varchar(140)">
+                <constraints nullable="true" />
+            </column>
+            <column name="spatial_resolution_m" type="decimal(21,2)">
+                <constraints nullable="true" />
+            </column>
+            <column name="content_sha_256" type="varchar(64)">
+                <constraints nullable="true" />
+            </column>
+            <column name="trust_level" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="quality_flags" type="varchar(300)">
+                <constraints nullable="true" />
+            </column>
+            <column name="algorithm_version" type="varchar(80)">
+                <constraints nullable="true" />
+            </column>
+            <column name="organization_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="installation_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="evidence_source_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="model_run_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="data_provenance" columnName="observed_at" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="data_provenance" columnName="period_start" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="data_provenance" columnName="period_end" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="data_provenance" columnName="ingested_at" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+    <!--
+        Load sample data generated with Faker.js
+        - This data can be easily edited using a CSV editor (or even MS Excel) and
+          is located in the 'src/main/resources/config/liquibase/fake-data' directory
+        - By default this data is applied when running with the JHipster 'dev' profile.
+          This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
+          Spring Boot configuration key.
+    -->
+    <changeSet id="20261124024018-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="../fake-data/data_provenance.csv"
+                  relativeToChangelogFile="true"
+                  separator=";"
+                  tableName="data_provenance"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="source_record_key" type="string"/>
+            <column name="observed_at" type="date"/>
+            <column name="period_start" type="date"/>
+            <column name="period_end" type="date"/>
+            <column name="ingested_at" type="date"/>
+            <column name="source_product_code" type="string"/>
+            <column name="spatial_resolution_m" type="numeric"/>
+            <column name="content_sha_256" type="string"/>
+            <column name="trust_level" type="string"/>
+            <column name="quality_flags" type="string"/>
+            <column name="algorithm_version" type="string"/>
+            <column name="organization_id" type="numeric"/>
+            <column name="installation_id" type="numeric"/>
+            <column name="evidence_source_id" type="numeric"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

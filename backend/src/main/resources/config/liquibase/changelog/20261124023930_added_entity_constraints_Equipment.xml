@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity Equipment.
+    -->
+    <changeSet id="20261124023930-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="equipment"
+                                 constraintName="fk_equipment__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="installation_id"
+                                 baseTableName="equipment"
+                                 constraintName="fk_equipment__installation_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="installation"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="equipment_model_id"
+                                 baseTableName="equipment"
+                                 constraintName="fk_equipment__equipment_model_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="equipment_model"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="solar_string_id"
+                                 baseTableName="equipment"
+                                 constraintName="fk_equipment__solar_string_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="solar_string"
+                                 />
+    </changeSet>
+</databaseChangeLog>

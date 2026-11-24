@@ -1,0 +1,112 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023942"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "modelName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "modelVersion",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "periodStart",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "periodEnd",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "EnergyModelRunStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "SUCCEEDED,INSUFFICIENT_DATA,FAILED"
+    },
+    {
+      "fieldName": "expectedWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "expectedLowerWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "expectedUpperWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "actualWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "coveragePct",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "100",
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "inputFingerprint",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "qualityNote",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "300"
+    },
+    {
+      "fieldName": "calculatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "name": "EnergyModelRun",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "configVersion",
+      "otherEntityName": "energyModelConfiguration",
+      "relationshipName": "modelConfiguration",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "providerBatchCode",
+      "otherEntityName": "weatherIngestionBatch",
+      "relationshipName": "weatherBatch",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

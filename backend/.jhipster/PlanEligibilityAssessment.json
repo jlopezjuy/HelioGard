@@ -1,0 +1,64 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024013"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "status",
+      "fieldType": "PlanEligibilityStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ELIGIBLE,CONDITIONAL,REQUIRES_REMEDIATION,INCOMPLETE,NOT_ELIGIBLE"
+    },
+    {
+      "fieldName": "assessedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "rationale",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "requiresCorrection",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "name": "PlanEligibilityAssessment",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "auditReport",
+      "relationshipName": "auditReport",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "versionCode",
+      "otherEntityName": "maintenancePlanVersion",
+      "relationshipName": "planVersion",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

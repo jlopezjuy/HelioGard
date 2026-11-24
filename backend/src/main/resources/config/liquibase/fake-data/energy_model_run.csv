@@ -1,0 +1,31 @@
+id;model_name;model_version;period_start;period_end;status;expected_wh;expected_lower_wh;expected_upper_wh;actual_wh;coverage_pct;input_fingerprint;quality_note;calculated_at;organization_id;installation_id
+1;fledgling quaver;abaft above;2026-11-23T05:22:57;2026-11-23T05:37:21;INSUFFICIENT_DATA;12232.9;15537.34;6116.18;13669.06;50.8;quaintly fork thump;now in;2026-11-23T04:36:58;1;1
+2;behind minor;grizzled boo;2026-11-23T08:47:53;2026-11-23T21:10:01;SUCCEEDED;12220.76;18417.57;8314.15;3282.84;14.19;suffice;cellar crystallize;2026-11-23T07:56:53;2;2
+3;the costume;amidst contrail daintily;2026-11-23T16:11:18;2026-11-23T08:32:31;SUCCEEDED;11822.23;16096;18154.1;22523.06;89.24;plus pfft peaceful;nudge;2026-11-23T17:33:41;3;3
+4;evenly;bemuse;2026-11-23T04:03:43;2026-11-23T03:30:29;SUCCEEDED;23131.66;8751.61;22619.25;15661.32;92.51;yippee equate among;relieve huzzah;2026-11-24T01:41:14;4;4
+5;faint of sedately;phew;2026-11-23T15:22:53;2026-11-23T17:07:25;INSUFFICIENT_DATA;28652.28;17708.7;22871.63;31028.85;98.52;regarding yippee oof;with alongside blah;2026-11-23T17:27:04;5;5
+6;chops drive youthfully;considering;2026-11-23T19:05:59;2026-11-23T06:09:05;SUCCEEDED;32232.74;30560.55;24540.39;17535.99;9.49;anenst stealthily allocation;horde;2026-11-23T16:44:27;6;6
+7;newsprint with far;hm;2026-11-23T06:29:18;2026-11-24T01:20:43;INSUFFICIENT_DATA;13250.02;29772.61;3005.68;29820.39;31.68;instantly supposing;um fiddle;2026-11-24T00:09:04;7;7
+8;though;utterly overcoat drat;2026-11-23T21:58:09;2026-11-23T05:25:39;INSUFFICIENT_DATA;30185.14;32548.93;26603.53;14252.6;93.73;between as;gee sign;2026-11-23T16:30:02;8;8
+9;innocent nor apud;frenetically joy where;2026-11-23T05:05:20;2026-11-23T18:36:53;SUCCEEDED;4268.5;14068.67;25903.95;5387.95;29.11;opposite;memorable elevation eventually;2026-11-24T01:25:24;9;9
+10;transcend;kindheartedly;2026-11-23T13:07:07;2026-11-23T15:43:29;FAILED;27081.71;24237.92;22745.72;5596.3;40.25;likewise troubled smoke;mmm;2026-11-23T23:22:21;10;10
+11;meh apud lively;hippodrome brr;2026-11-23T08:23:20;2026-11-23T11:44:56;SUCCEEDED;11731.62;25481.08;23822.41;17694.59;26.93;ethical gaseous inasmuch;willow bracelet quizzically;2026-11-23T09:35:24;11;11
+12;when furthermore;louse;2026-11-23T09:19:59;2026-11-24T01:29:54;SUCCEEDED;6279.34;11934.83;1925.58;6895.68;96.46;destock brr incidentally;sans;2026-11-23T12:46:02;12;12
+13;aha knotty;symbolise innocently;2026-11-24T01:21:56;2026-11-23T06:17:16;FAILED;4557.74;24527.08;9606.45;6349.1;47.46;teeming milestone retrospectivity;mortally mmm but;2026-11-23T12:44:45;13;13
+14;duster;vice;2026-11-23T12:24:52;2026-11-23T15:05:25;FAILED;26837.98;20382.2;4807.12;27535.06;31.15;gut unimportant;strictly;2026-11-24T00:51:08;14;14
+15;why;cook progress only;2026-11-23T11:00:23;2026-11-23T12:20:36;SUCCEEDED;26721.25;22310.79;28221.81;22227.87;79.28;inspect consequently;widow syringe;2026-11-23T08:23:31;15;15
+16;lest meh hole;capsize whereas;2026-11-24T02:29:50;2026-11-23T21:20:53;SUCCEEDED;28033.26;5062.13;24478.5;11656.82;83.15;fowl versus;phooey enrage ugh;2026-11-23T09:42:08;16;16
+17;muddy finally lest;solder hm;2026-11-23T22:48:15;2026-11-24T02:38:56;SUCCEEDED;12863.35;4506.67;29784.72;12165.6;14.28;regal juvenile frantically;kookily;2026-11-23T13:53:42;17;17
+18;zany distinction edible;ha howl;2026-11-24T01:22:26;2026-11-23T18:03:14;INSUFFICIENT_DATA;10143.7;22504.16;1259.3;14765.33;99.79;gracefully;diversity shoot statue;2026-11-23T20:01:48;18;18
+19;upright;that amidst unzip;2026-11-23T06:36:38;2026-11-23T20:01:30;FAILED;3034.33;8831.44;17127.25;6825.91;66.57;opposite aw which;to above innocent;2026-11-23T18:09:53;19;19
+20;square baggy oily;cuckoo psst decongestant;2026-11-23T08:01:31;2026-11-23T20:06:56;SUCCEEDED;12810.78;18166.96;15849.78;1845.23;88.42;ouch;treasure swear lyre;2026-11-23T17:57:17;20;20
+21;now thin hard-to-find;limping;2026-11-23T13:27:08;2026-11-23T13:00:32;INSUFFICIENT_DATA;256.35;23737.89;19468.03;4948.81;60.63;gadzooks;upon;2026-11-23T11:38:36;21;21
+22;blah front insolence;upon;2026-11-23T06:31:24;2026-11-23T06:50:47;FAILED;13065.54;9692.78;7416.79;1956.32;85.11;orient freckle;er lightly;2026-11-23T23:39:56;22;22
+23;blah;though but aw;2026-11-23T19:39:58;2026-11-23T08:21:21;FAILED;25127.27;3838.18;25977.35;8485.62;56.97;off yet um;huzzah rapidly;2026-11-23T03:59:17;23;23
+24;than greedily because;pro phew vamoose;2026-11-23T13:50:17;2026-11-23T22:54:15;FAILED;27601.02;13903.23;14007.45;346.91;37.26;fuel;best over whether;2026-11-23T03:39:10;24;24
+25;acidic sneaky consequently;redact unto;2026-11-23T22:23:30;2026-11-23T17:10:24;FAILED;202.63;17440.88;10846.57;6054.17;22.16;boohoo;if incidentally dimly;2026-11-23T21:26:18;25;25
+26;athwart;yawningly yuck the;2026-11-23T17:43:54;2026-11-23T13:21:28;INSUFFICIENT_DATA;6334.76;15778.31;6931.76;2389.8;51.31;jaggedly observe pocket-watch;eek during hype;2026-11-23T16:34:33;26;26
+27;equally signature slowly;victoriously er;2026-11-23T02:52:23;2026-11-23T21:42:19;FAILED;32072.45;12183.23;25655.25;9262.59;28.31;holster;pillow bell;2026-11-23T15:41:03;27;27
+28;ouch throughout jacket;stool ouch;2026-11-23T19:29:39;2026-11-23T12:51:04;SUCCEEDED;26280.88;8227.67;23647.35;9156.51;48.45;pish indeed why;fooey pale for;2026-11-23T20:06:42;28;28
+29;atop;midst colon;2026-11-23T13:50:54;2026-11-23T03:46:31;FAILED;16572.24;13803.39;31085.77;9656.89;32.44;marathon;provided punctual;2026-11-23T16:12:09;29;29
+30;book;amidst;2026-11-23T16:18:27;2026-11-23T05:56:18;INSUFFICIENT_DATA;11819.29;16592.69;30875.69;21240.37;86.21;browse candid;ample unfreeze;2026-11-23T04:19:14;30;30

@@ -1,0 +1,69 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024023"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "status",
+      "fieldType": "VerificationStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,INCONCLUSIVE,RECOVERED,NOT_RECOVERED"
+    },
+    {
+      "fieldName": "assessedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "baselineMethod",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "recoveredWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "evidenceSummary",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "VerificationResult",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "missionCode",
+      "otherEntityName": "droneMission",
+      "relationshipName": "droneMission",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "recoveryAssessment",
+      "relationshipName": "recoveryAssessment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity StringInputAssignment.
+    -->
+    <changeSet id="20261124023936-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="string_input_assignment"
+                                 constraintName="fk_string_input_assignment__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="solar_string_id"
+                                 baseTableName="string_input_assignment"
+                                 constraintName="fk_string_input_assignment__solar_string_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="solar_string"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="mppt_input_id"
+                                 baseTableName="string_input_assignment"
+                                 constraintName="fk_string_input_assignment__mppt_input_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="inverter_mppt_input"
+                                 />
+    </changeSet>
+</databaseChangeLog>

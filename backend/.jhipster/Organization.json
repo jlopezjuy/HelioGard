@@ -1,0 +1,42 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023922"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "160"
+    },
+    {
+      "fieldName": "slug",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "80"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "OrganizationStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACTIVE,SUSPENDED"
+    },
+    {
+      "fieldName": "kind",
+      "fieldType": "OrganizationKind",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "HOUSEHOLD,BUSINESS,SERVICE_PROVIDER"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "name": "Organization",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

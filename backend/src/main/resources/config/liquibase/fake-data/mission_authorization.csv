@@ -1,0 +1,31 @@
+id;status;decided_at;expires_at;operator_reference;decision_note;organization_id;mission_id
+1;PENDING;2026-11-23T10:10:07;2026-11-23T06:27:09;for;../fake-data/blob/hipster.txt;1;1
+2;EXPIRED;2026-11-23T15:31:59;2026-11-23T10:12:05;supplier unnecessarily burdensome;../fake-data/blob/hipster.txt;2;2
+3;APPROVED;2026-11-23T13:58:28;2026-11-23T05:53:19;last beneath;../fake-data/blob/hipster.txt;3;3
+4;PENDING;2026-11-23T06:31:13;2026-11-23T18:37:33;why gratefully;../fake-data/blob/hipster.txt;4;4
+5;APPROVED;2026-11-23T12:07:02;2026-11-23T11:15:32;rigidly across as;../fake-data/blob/hipster.txt;5;5
+6;PENDING;2026-11-23T23:40:03;2026-11-23T10:51:03;although;../fake-data/blob/hipster.txt;6;6
+7;PENDING;2026-11-23T22:22:21;2026-11-23T06:32:56;zowie major boo;../fake-data/blob/hipster.txt;7;7
+8;REJECTED;2026-11-23T06:16:07;2026-11-23T03:04:40;feather;../fake-data/blob/hipster.txt;8;8
+9;REJECTED;2026-11-23T17:42:49;2026-11-23T06:05:44;nervous sizzle;../fake-data/blob/hipster.txt;9;9
+10;PENDING;2026-11-23T16:49:12;2026-11-23T06:02:33;after;../fake-data/blob/hipster.txt;10;10
+11;REJECTED;2026-11-23T10:59:06;2026-11-23T23:34:36;lumpy from;../fake-data/blob/hipster.txt;11;11
+12;EXPIRED;2026-11-23T20:12:27;2026-11-23T03:23:09;candid;../fake-data/blob/hipster.txt;12;12
+13;APPROVED;2026-11-23T09:20:55;2026-11-23T08:21:13;lanky anti;../fake-data/blob/hipster.txt;13;13
+14;REVOKED;2026-11-23T12:02:28;2026-11-23T06:47:59;confiscate;../fake-data/blob/hipster.txt;14;14
+15;EXPIRED;2026-11-23T19:19:59;2026-11-23T17:06:01;of finally seemingly;../fake-data/blob/hipster.txt;15;15
+16;REVOKED;2026-11-23T21:18:41;2026-11-23T07:21:04;lean;../fake-data/blob/hipster.txt;16;16
+17;EXPIRED;2026-11-23T03:06:32;2026-11-23T04:50:17;ick blah;../fake-data/blob/hipster.txt;17;17
+18;APPROVED;2026-11-24T02:01:27;2026-11-23T18:07:48;deform aw past;../fake-data/blob/hipster.txt;18;18
+19;REVOKED;2026-11-23T03:25:53;2026-11-23T12:33:20;inside custody mmm;../fake-data/blob/hipster.txt;19;19
+20;PENDING;2026-11-24T01:06:12;2026-11-23T13:27:27;defiantly immediately whoever;../fake-data/blob/hipster.txt;20;20
+21;PENDING;2026-11-23T07:14:18;2026-11-23T09:21:52;readmit;../fake-data/blob/hipster.txt;21;21
+22;REJECTED;2026-11-23T11:08:15;2026-11-23T12:23:44;sour;../fake-data/blob/hipster.txt;22;22
+23;APPROVED;2026-11-23T11:30:30;2026-11-23T15:42:35;browse oh wherever;../fake-data/blob/hipster.txt;23;23
+24;EXPIRED;2026-11-23T15:08:31;2026-11-23T08:51:00;banish for that;../fake-data/blob/hipster.txt;24;24
+25;REVOKED;2026-11-23T22:45:45;2026-11-23T19:54:47;since see peninsula;../fake-data/blob/hipster.txt;25;25
+26;EXPIRED;2026-11-23T14:12:29;2026-11-23T07:57:56;um deploy hmph;../fake-data/blob/hipster.txt;26;26
+27;REVOKED;2026-11-23T17:52:37;2026-11-23T13:18:05;ugh;../fake-data/blob/hipster.txt;27;27
+28;APPROVED;2026-11-23T08:30:23;2026-11-23T16:56:57;rationale limply excited;../fake-data/blob/hipster.txt;28;28
+29;APPROVED;2026-11-23T19:42:59;2026-11-23T23:11:46;confute drat unnaturally;../fake-data/blob/hipster.txt;29;29
+30;EXPIRED;2026-11-23T14:11:28;2026-11-23T15:21:19;outlaw own;../fake-data/blob/hipster.txt;30;30

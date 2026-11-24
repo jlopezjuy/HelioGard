@@ -1,0 +1,59 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023937"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "kind",
+      "fieldType": "TopologyConnectionKind",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "DC,AC,DATA,BATTERY_DC"
+    },
+    {
+      "fieldName": "connectionCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "validFrom",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "validUntil",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "EquipmentConnection",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "tag",
+      "otherEntityName": "equipment",
+      "relationshipName": "fromEquipment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "tag",
+      "otherEntityName": "equipment",
+      "relationshipName": "toEquipment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

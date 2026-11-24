@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity EconomicAssessment.
+    -->
+    <changeSet id="20261124023952-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="economic_assessment"
+                                 constraintName="fk_economic_assessment__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="loss_assessment_id"
+                                 baseTableName="economic_assessment"
+                                 constraintName="fk_economic_assessment__loss_assessment_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="loss_assessment"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="tariff_rate_id"
+                                 baseTableName="economic_assessment"
+                                 constraintName="fk_economic_assessment__tariff_rate_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tariff_rate"
+                                 />
+    </changeSet>
+</databaseChangeLog>

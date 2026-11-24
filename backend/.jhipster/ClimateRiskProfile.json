@@ -1,0 +1,42 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023945"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "region",
+      "fieldType": "ClimateZone",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PUNA,QUEBRADA,VALLES,YUNGAS,CHACO,VALLES_CALCHAQUIES,OTHER"
+    },
+    {
+      "fieldName": "profileVersion",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "40"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "250"
+    },
+    {
+      "fieldName": "active",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "name": "ClimateRiskProfile",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

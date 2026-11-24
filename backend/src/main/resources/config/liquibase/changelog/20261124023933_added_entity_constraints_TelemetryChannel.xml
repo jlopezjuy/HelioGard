@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity TelemetryChannel.
+    -->
+    <changeSet id="20261124023933-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="telemetry_channel"
+                                 constraintName="fk_telemetry_channel__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="equipment_id"
+                                 baseTableName="telemetry_channel"
+                                 constraintName="fk_telemetry_channel__equipment_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="equipment"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="metric_definition_id"
+                                 baseTableName="telemetry_channel"
+                                 constraintName="fk_telemetry_channel__metric_definition_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="metric_definition"
+                                 />
+    </changeSet>
+</databaseChangeLog>

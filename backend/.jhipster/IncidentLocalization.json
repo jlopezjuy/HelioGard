@@ -1,0 +1,73 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023948"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "scope",
+      "fieldType": "LocalizationScope",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INSTALLATION,SECTOR,INVERTER,STRING,MODULE,UNKNOWN"
+    },
+    {
+      "fieldName": "locatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "confidencePct",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "100",
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "evidenceSummary",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "IncidentLocalization",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "incident",
+      "relationshipName": "incident",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "sectorCode",
+      "otherEntityName": "solarSector",
+      "relationshipName": "solarSector",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "stringCode",
+      "otherEntityName": "solarString",
+      "relationshipName": "solarString",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "tag",
+      "otherEntityName": "equipment",
+      "relationshipName": "equipment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023923"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "role",
+      "fieldType": "MembershipRole",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "OWNER,ADMIN,OPERATOR,TECHNICIAN,AUDITOR,VIEWER"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "MembershipStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INVITED,ACTIVE,SUSPENDED,REVOKED"
+    },
+    {
+      "fieldName": "invitedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "activatedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "OrganizationMembership",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "login",
+      "otherEntityName": "user",
+      "relationshipName": "member",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required",
+      "relationshipWithBuiltInEntity": true
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

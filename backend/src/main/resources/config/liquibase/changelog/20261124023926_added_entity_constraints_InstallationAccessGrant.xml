@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity InstallationAccessGrant.
+    -->
+    <changeSet id="20261124023926-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="installation_access_grant"
+                                 constraintName="fk_installation_access_grant__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="installation_id"
+                                 baseTableName="installation_access_grant"
+                                 constraintName="fk_installation_access_grant__installation_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="installation"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="grantee_organization_id"
+                                 baseTableName="installation_access_grant"
+                                 constraintName="fk_installation_access_grant__grantee_organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+    </changeSet>
+</databaseChangeLog>

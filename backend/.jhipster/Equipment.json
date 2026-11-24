@@ -1,0 +1,72 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023930"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "tag",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "serialNumber",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "160"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "EquipmentStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACTIVE,FAILED,DECOMMISSIONED"
+    },
+    {
+      "fieldName": "installedOn",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "removedOn",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "name": "Equipment",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "modelCode",
+      "otherEntityName": "equipmentModel",
+      "relationshipName": "equipmentModel",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "stringCode",
+      "otherEntityName": "solarString",
+      "relationshipName": "solarString",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

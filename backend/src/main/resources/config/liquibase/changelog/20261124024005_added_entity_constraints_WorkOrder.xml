@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity WorkOrder.
+    -->
+    <changeSet id="20261124024005-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="work_order"
+                                 constraintName="fk_work_order__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="installation_id"
+                                 baseTableName="work_order"
+                                 constraintName="fk_work_order__installation_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="installation"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="incident_id"
+                                 baseTableName="work_order"
+                                 constraintName="fk_work_order__incident_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="incident"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="subscription_id"
+                                 baseTableName="work_order"
+                                 constraintName="fk_work_order__subscription_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="plan_subscription"
+                                 />
+    </changeSet>
+</databaseChangeLog>

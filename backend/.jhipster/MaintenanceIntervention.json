@@ -1,0 +1,65 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024007"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "InterventionType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INSPECTION,CLEANING,REPAIR,REPLACEMENT"
+    },
+    {
+      "fieldName": "startedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "finishedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "workCost",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "currencyCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "3"
+    },
+    {
+      "fieldName": "notes",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "MaintenanceIntervention",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "referenceCode",
+      "otherEntityName": "workOrder",
+      "relationshipName": "workOrder",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "organizationMembership",
+      "relationshipName": "performedByMembership",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

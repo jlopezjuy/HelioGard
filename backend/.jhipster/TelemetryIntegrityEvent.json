@@ -1,0 +1,92 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024015"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "eventUid",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "140"
+    },
+    {
+      "fieldName": "eventType",
+      "fieldType": "IntegrityEventType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "REPLAY,DUPLICATE_EVENT,SEQUENCE_GAP,SIGNATURE_INVALID,AUTH_FAILURE,CLOCK_SKEW,PHYSICAL_INCONSISTENCY,DEVICE_UNAVAILABLE"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "IntegrityEventStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "OBSERVED,QUARANTINED,UNDER_REVIEW,EXPLAINED,CONFIRMED,CLOSED"
+    },
+    {
+      "fieldName": "observedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sourceObservedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "bootId",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "sequenceNumber",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "payloadSha256",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "64"
+    },
+    {
+      "fieldName": "detail",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "TelemetryIntegrityEvent",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "deviceUid",
+      "otherEntityName": "deviceIdentity",
+      "relationshipName": "deviceIdentity",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "externalChannelCode",
+      "otherEntityName": "telemetryChannel",
+      "relationshipName": "telemetryChannel",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

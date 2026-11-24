@@ -1,0 +1,87 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024021"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "missionCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "kind",
+      "fieldType": "DroneMissionKind",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "VISUAL_INSPECTION,THERMAL_INSPECTION,CLEANING"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "DroneMissionStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "DRAFT,SAFETY_REVIEW,AWAITING_AUTHORIZATION,AUTHORIZED,DISPATCHED,IN_FLIGHT,COMPLETED,ABORTED"
+    },
+    {
+      "fieldName": "proposedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "startedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "completedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "safetyChecklistSummary",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "DroneMission",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "referenceCode",
+      "otherEntityName": "workOrder",
+      "relationshipName": "workOrder",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "assetCode",
+      "otherEntityName": "droneAsset",
+      "relationshipName": "droneAsset",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "providerOrganization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

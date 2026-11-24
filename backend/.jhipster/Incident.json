@@ -1,0 +1,80 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023940"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "180"
+    },
+    {
+      "fieldName": "severity",
+      "fieldType": "AlertSeverity",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INFO,LOW,MEDIUM,HIGH,CRITICAL"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "IncidentStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "OPEN,ACKNOWLEDGED,IN_PROGRESS,RESOLVED,CLOSED"
+    },
+    {
+      "fieldName": "firstSeenAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "lastSeenAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "acknowledgedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "resolvedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "dedupKey",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "180"
+    }
+  ],
+  "name": "Incident",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "versionCode",
+      "otherEntityName": "alertRuleVersion",
+      "relationshipName": "alertRuleVersion",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

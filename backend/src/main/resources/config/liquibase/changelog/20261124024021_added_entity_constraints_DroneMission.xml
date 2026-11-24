@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity DroneMission.
+    -->
+    <changeSet id="20261124024021-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="drone_mission"
+                                 constraintName="fk_drone_mission__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="installation_id"
+                                 baseTableName="drone_mission"
+                                 constraintName="fk_drone_mission__installation_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="installation"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="work_order_id"
+                                 baseTableName="drone_mission"
+                                 constraintName="fk_drone_mission__work_order_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="work_order"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="drone_asset_id"
+                                 baseTableName="drone_mission"
+                                 constraintName="fk_drone_mission__drone_asset_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="drone_asset"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="provider_organization_id"
+                                 baseTableName="drone_mission"
+                                 constraintName="fk_drone_mission__provider_organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+    </changeSet>
+</databaseChangeLog>

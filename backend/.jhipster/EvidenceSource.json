@@ -1,0 +1,41 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024017"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "providerName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "160"
+    },
+    {
+      "fieldName": "kind",
+      "fieldType": "EvidenceSourceKind",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "SATELLITE_WEATHER,ONSITE_SENSOR,INVERTER,EDGE_GATEWAY,DRONE,MANUAL,MODEL"
+    },
+    {
+      "fieldName": "spatialResolutionM",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "licenseReference",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "300"
+    }
+  ],
+  "name": "EvidenceSource",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

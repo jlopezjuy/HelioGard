@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity SolarString.
+    -->
+    <changeSet id="20261124023929-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="organization_id"
+                                 baseTableName="solar_string"
+                                 constraintName="fk_solar_string__organization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="organization"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="solar_array_id"
+                                 baseTableName="solar_string"
+                                 constraintName="fk_solar_string__solar_array_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="solar_array"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="module_model_id"
+                                 baseTableName="solar_string"
+                                 constraintName="fk_solar_string__module_model_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="equipment_model"
+                                 />
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,82 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024005"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "referenceCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "80"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "160"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "WorkOrderStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "CREATED,ASSIGNED,ACCEPTED,IN_PROGRESS,DONE,VERIFIED,CANCELLED"
+    },
+    {
+      "fieldName": "priority",
+      "fieldType": "AlertSeverity",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "INFO,LOW,MEDIUM,HIGH,CRITICAL"
+    },
+    {
+      "fieldName": "openedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "scheduledAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "closedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "WorkOrder",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "incident",
+      "relationshipName": "incident",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "planSubscription",
+      "relationshipName": "subscription",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

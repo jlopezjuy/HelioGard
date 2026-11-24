@@ -1,0 +1,64 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023956"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "answerText",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "answerNumber",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "answerBoolean",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "answerUnitCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "24"
+    },
+    {
+      "fieldName": "answeredAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "compliant",
+      "fieldType": "Boolean"
+    }
+  ],
+  "name": "AuditAnswer",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "auditReport",
+      "relationshipName": "auditReport",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "questionCode",
+      "otherEntityName": "auditQuestion",
+      "relationshipName": "auditQuestion",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

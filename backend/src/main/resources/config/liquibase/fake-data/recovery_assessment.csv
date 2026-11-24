@@ -1,0 +1,31 @@
+id;assessed_at;baseline_method;expected_recovered_wh;verified_recovered_wh;confidence_note;organization_id;intervention_id
+1;2026-11-23T05:22:50;undergo these;13584.68;96.94;../fake-data/blob/hipster.txt;1;1
+2;2026-11-23T09:41:25;pfft;15256.86;7716.99;../fake-data/blob/hipster.txt;2;2
+3;2026-11-23T11:11:27;annual requirement sharply;13097.76;26027.8;../fake-data/blob/hipster.txt;3;3
+4;2026-11-23T23:15:00;oh geez;25456.1;9303.08;../fake-data/blob/hipster.txt;4;4
+5;2026-11-24T00:17:57;wherever;30705.36;17192.32;../fake-data/blob/hipster.txt;5;5
+6;2026-11-23T19:44:10;and;27614.83;2028.35;../fake-data/blob/hipster.txt;6;6
+7;2026-11-23T22:03:52;brr;13449.23;8421.72;../fake-data/blob/hipster.txt;7;7
+8;2026-11-23T07:51:18;behind nor enormously;30614.27;26852.85;../fake-data/blob/hipster.txt;8;8
+9;2026-11-23T03:19:06;or yet;2131.1;30980.33;../fake-data/blob/hipster.txt;9;9
+10;2026-11-23T05:51:25;gladly;5990.77;30569.78;../fake-data/blob/hipster.txt;10;10
+11;2026-11-24T01:33:41;how convection;4471.99;25575.01;../fake-data/blob/hipster.txt;11;11
+12;2026-11-23T20:41:20;annually;16857.21;13450.86;../fake-data/blob/hipster.txt;12;12
+13;2026-11-23T23:53:34;cinema unless and;29614.41;17679.05;../fake-data/blob/hipster.txt;13;13
+14;2026-11-23T23:26:06;unless cuddly glisten;7791.05;13891.85;../fake-data/blob/hipster.txt;14;14
+15;2026-11-23T17:39:04;mid;5692.46;5976.2;../fake-data/blob/hipster.txt;15;15
+16;2026-11-23T22:03:25;unimpressively graceful twine;2960.78;730.39;../fake-data/blob/hipster.txt;16;16
+17;2026-11-24T01:11:46;what consequently;24784.51;2247.43;../fake-data/blob/hipster.txt;17;17
+18;2026-11-23T12:05:00;think which possession;31490.15;14285.64;../fake-data/blob/hipster.txt;18;18
+19;2026-11-23T11:14:08;whoa custody furthermore;24718.46;29189.18;../fake-data/blob/hipster.txt;19;19
+20;2026-11-23T15:52:38;eek lumpy furthermore;1562.43;19986.14;../fake-data/blob/hipster.txt;20;20
+21;2026-11-23T07:53:55;restructure stiff poorly;21745.15;7262.43;../fake-data/blob/hipster.txt;21;21
+22;2026-11-23T12:17:05;since fatherly except;27160.61;22855.97;../fake-data/blob/hipster.txt;22;22
+23;2026-11-23T03:19:34;gee;7615.14;12067.92;../fake-data/blob/hipster.txt;23;23
+24;2026-11-23T11:29:06;upright whenever thunderbolt;18477.25;21436.42;../fake-data/blob/hipster.txt;24;24
+25;2026-11-23T08:15:55;or phrase deeply;12022.13;9886.88;../fake-data/blob/hipster.txt;25;25
+26;2026-11-23T08:11:09;aha;143.47;5257.94;../fake-data/blob/hipster.txt;26;26
+27;2026-11-23T16:15:42;aha;21221.29;20330.79;../fake-data/blob/hipster.txt;27;27
+28;2026-11-23T09:41:00;productive entice;23003.27;26474.26;../fake-data/blob/hipster.txt;28;28
+29;2026-11-23T08:22:44;who querulous;14775.3;30765.59;../fake-data/blob/hipster.txt;29;29
+30;2026-11-23T13:50:13;ew poorly;2325.83;32417.87;../fake-data/blob/hipster.txt;30;30

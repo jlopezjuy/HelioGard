@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023944"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "cause",
+      "fieldType": "LossCause",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "SOILING,HARDWARE,SHADING,THERMAL,WEATHER,CURTAILMENT,BATTERY_RESTRICTION,UNKNOWN"
+    },
+    {
+      "fieldName": "estimatedWh",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "method",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "evidenceNote",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "LossCauseEstimate",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "methodology",
+      "otherEntityName": "lossAssessment",
+      "relationshipName": "lossAssessment",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

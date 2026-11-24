@@ -1,0 +1,31 @@
+id;status;assessed_at;baseline_method;recovered_wh;evidence_summary;organization_id;installation_id
+1;RECOVERED;2026-11-23T11:48:13;before whispered repeat;22304.94;../fake-data/blob/hipster.txt;1;1
+2;PENDING;2026-11-23T09:03:33;aw colon;29435.06;../fake-data/blob/hipster.txt;2;2
+3;RECOVERED;2026-11-23T19:47:29;ouch;12622.55;../fake-data/blob/hipster.txt;3;3
+4;RECOVERED;2026-11-23T17:16:53;sleepy meh;26160.24;../fake-data/blob/hipster.txt;4;4
+5;INCONCLUSIVE;2026-11-23T09:54:06;ack;3262.59;../fake-data/blob/hipster.txt;5;5
+6;RECOVERED;2026-11-23T19:29:01;er within painfully;1318.27;../fake-data/blob/hipster.txt;6;6
+7;NOT_RECOVERED;2026-11-23T16:24:34;holster whose;22537.52;../fake-data/blob/hipster.txt;7;7
+8;PENDING;2026-11-24T01:37:00;ape;28980.6;../fake-data/blob/hipster.txt;8;8
+9;RECOVERED;2026-11-23T19:26:49;as;25082.02;../fake-data/blob/hipster.txt;9;9
+10;INCONCLUSIVE;2026-11-23T14:05:36;genuine;20816.49;../fake-data/blob/hipster.txt;10;10
+11;RECOVERED;2026-11-23T21:52:05;opposite;10376.2;../fake-data/blob/hipster.txt;11;11
+12;PENDING;2026-11-23T23:25:08;knowingly owlishly;12018.01;../fake-data/blob/hipster.txt;12;12
+13;RECOVERED;2026-11-23T10:23:54;ew;5192.97;../fake-data/blob/hipster.txt;13;13
+14;INCONCLUSIVE;2026-11-23T05:31:28;bungalow shakily than;30916.12;../fake-data/blob/hipster.txt;14;14
+15;RECOVERED;2026-11-24T02:34:59;whole;7736.91;../fake-data/blob/hipster.txt;15;15
+16;RECOVERED;2026-11-23T21:09:13;fond why;18142.15;../fake-data/blob/hipster.txt;16;16
+17;PENDING;2026-11-23T13:49:30;before duh;29555.25;../fake-data/blob/hipster.txt;17;17
+18;RECOVERED;2026-11-23T09:47:32;an;21961.09;../fake-data/blob/hipster.txt;18;18
+19;RECOVERED;2026-11-23T20:15:27;ajar;14507.97;../fake-data/blob/hipster.txt;19;19
+20;RECOVERED;2026-11-23T07:20:14;so mysteriously;16925.86;../fake-data/blob/hipster.txt;20;20
+21;NOT_RECOVERED;2026-11-23T11:45:23;from muddy;18711.5;../fake-data/blob/hipster.txt;21;21
+22;NOT_RECOVERED;2026-11-23T10:10:37;er excluding;25608.97;../fake-data/blob/hipster.txt;22;22
+23;PENDING;2026-11-23T22:34:44;gosh under;15412.45;../fake-data/blob/hipster.txt;23;23
+24;PENDING;2026-11-23T13:59:43;yearly angle;5183.34;../fake-data/blob/hipster.txt;24;24
+25;NOT_RECOVERED;2026-11-23T22:12:55;until revoke;28197.05;../fake-data/blob/hipster.txt;25;25
+26;RECOVERED;2026-11-23T05:13:37;wholly offensively until;30328.59;../fake-data/blob/hipster.txt;26;26
+27;RECOVERED;2026-11-23T10:06:52;eternity;12574.26;../fake-data/blob/hipster.txt;27;27
+28;PENDING;2026-11-24T00:40:59;furthermore;24263.22;../fake-data/blob/hipster.txt;28;28
+29;RECOVERED;2026-11-23T20:59:33;furthermore if;32412.69;../fake-data/blob/hipster.txt;29;29
+30;RECOVERED;2026-11-23T15:15:20;outside minus;9113.72;../fake-data/blob/hipster.txt;30;30

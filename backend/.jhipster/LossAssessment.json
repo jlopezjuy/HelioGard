@@ -1,0 +1,56 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023943"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "totalLossWh",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "lossPct",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "methodology",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "assessedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "validationStatus",
+      "fieldType": "LossAssessmentStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ESTIMATED,INCONCLUSIVE,VALIDATED"
+    }
+  ],
+  "name": "LossAssessment",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "modelName",
+      "otherEntityName": "energyModelRun",
+      "relationshipName": "modelRun",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

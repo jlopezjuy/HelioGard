@@ -1,0 +1,84 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023949"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "versionCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "comparator",
+      "fieldType": "RuleComparison",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "GREATER_THAN,LESS_THAN,OUTSIDE_RANGE,DEVIATION_PERCENT,STALE_DATA,BOOLEAN_MATCH"
+    },
+    {
+      "fieldName": "thresholdValue",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "thresholdMaxValue",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "metricUnitCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "24"
+    },
+    {
+      "fieldName": "windowSeconds",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "1"
+    },
+    {
+      "fieldName": "cooldownSeconds",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "minCoveragePct",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "100",
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "validFrom",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "validUntil",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "AlertRuleVersion",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "ruleCode",
+      "otherEntityName": "alertRule",
+      "relationshipName": "alertRule",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

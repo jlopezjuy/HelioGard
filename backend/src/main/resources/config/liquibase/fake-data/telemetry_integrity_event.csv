@@ -1,0 +1,31 @@
+id;event_uid;event_type;status;observed_at;source_observed_at;boot_id;sequence_number;payload_sha_256;detail;organization_id;installation_id
+1;woot morning crossly;DEVICE_UNAVAILABLE;QUARANTINED;2026-11-23T10:04:58;2026-11-23T23:00:19;rudely as unibody;7904;vision;../fake-data/blob/hipster.txt;1;1
+2;huzzah yet;CLOCK_SKEW;CLOSED;2026-11-23T15:57:23;2026-11-23T19:22:04;of but;19845;excluding untrue aha;../fake-data/blob/hipster.txt;2;2
+3;adult;PHYSICAL_INCONSISTENCY;UNDER_REVIEW;2026-11-23T10:38:51;2026-11-23T02:59:21;super dramatic;1341;depot gratefully;../fake-data/blob/hipster.txt;3;3
+4;consequently;CLOCK_SKEW;EXPLAINED;2026-11-23T19:30:01;2026-11-23T06:53:57;as violently;12079;seriously bashfully;../fake-data/blob/hipster.txt;4;4
+5;madly now dismal;REPLAY;CLOSED;2026-11-23T12:31:03;2026-11-23T21:00:07;wonderful;24229;stranger;../fake-data/blob/hipster.txt;5;5
+6;woot;AUTH_FAILURE;EXPLAINED;2026-11-23T05:10:49;2026-11-23T22:46:27;median;2259;to;../fake-data/blob/hipster.txt;6;6
+7;paintwork alongside trolley;AUTH_FAILURE;CLOSED;2026-11-23T22:39:50;2026-11-23T09:01:54;by representation;535;furthermore nocturnal fraternise;../fake-data/blob/hipster.txt;7;7
+8;punctually;DUPLICATE_EVENT;EXPLAINED;2026-11-23T22:00:13;2026-11-23T04:35:20;worth mmm experienced;11679;council seriously yowza;../fake-data/blob/hipster.txt;8;8
+9;towards;AUTH_FAILURE;CONFIRMED;2026-11-23T12:00:38;2026-11-23T22:05:06;what boohoo fatherly;20988;ick;../fake-data/blob/hipster.txt;9;9
+10;optimistically;SIGNATURE_INVALID;CLOSED;2026-11-23T09:53:45;2026-11-23T17:51:09;ah frail quaintly;31179;worth;../fake-data/blob/hipster.txt;10;10
+11;mid during;SEQUENCE_GAP;EXPLAINED;2026-11-23T08:16:25;2026-11-23T04:57:27;why supposing yowza;5273;platter unabashedly;../fake-data/blob/hipster.txt;11;11
+12;intelligent plumber;SIGNATURE_INVALID;UNDER_REVIEW;2026-11-23T15:58:03;2026-11-24T02:32:01;coordinated;13353;toward bobble;../fake-data/blob/hipster.txt;12;12
+13;aw though waver;DUPLICATE_EVENT;QUARANTINED;2026-11-23T20:41:50;2026-11-23T08:59:24;to afford unto;20118;worldly;../fake-data/blob/hipster.txt;13;13
+14;judgementally truly rosemary;SIGNATURE_INVALID;UNDER_REVIEW;2026-11-23T18:50:08;2026-11-23T16:42:44;stake;13209;dead but;../fake-data/blob/hipster.txt;14;14
+15;gloomy down;SIGNATURE_INVALID;EXPLAINED;2026-11-23T19:55:08;2026-11-23T06:25:27;rebound that;17802;even wealthy think;../fake-data/blob/hipster.txt;15;15
+16;swanling soggy;PHYSICAL_INCONSISTENCY;QUARANTINED;2026-11-23T19:52:05;2026-11-23T21:11:57;foolishly once;15740;keenly enlist guard;../fake-data/blob/hipster.txt;16;16
+17;meanwhile;SIGNATURE_INVALID;QUARANTINED;2026-11-23T12:21:47;2026-11-23T15:23:13;mammoth enhance;11242;collaborate whoever along;../fake-data/blob/hipster.txt;17;17
+18;oxidise break;DEVICE_UNAVAILABLE;CLOSED;2026-11-23T19:51:12;2026-11-23T12:31:04;after;2776;advocate pocket-watch;../fake-data/blob/hipster.txt;18;18
+19;surprisingly lecture especially;PHYSICAL_INCONSISTENCY;EXPLAINED;2026-11-23T21:21:54;2026-11-23T03:36:04;lined showboat;1753;minus huzzah peony;../fake-data/blob/hipster.txt;19;19
+20;crafty zowie what;AUTH_FAILURE;EXPLAINED;2026-11-23T08:29:18;2026-11-23T13:46:17;furthermore naughty;25633;through growing;../fake-data/blob/hipster.txt;20;20
+21;even;SIGNATURE_INVALID;EXPLAINED;2026-11-23T18:01:56;2026-11-23T09:59:49;embossing;22006;beautifully overstay lest;../fake-data/blob/hipster.txt;21;21
+22;whoa whine;SIGNATURE_INVALID;CONFIRMED;2026-11-23T10:44:20;2026-11-23T12:57:28;for furiously;30043;absentmindedly;../fake-data/blob/hipster.txt;22;22
+23;ack;AUTH_FAILURE;EXPLAINED;2026-11-23T10:54:15;2026-11-24T01:17:28;kettledrum um mid;29759;trim jaunty daily;../fake-data/blob/hipster.txt;23;23
+24;however;SEQUENCE_GAP;UNDER_REVIEW;2026-11-23T10:39:56;2026-11-23T09:08:44;provider to;21979;upon;../fake-data/blob/hipster.txt;24;24
+25;liquid;CLOCK_SKEW;QUARANTINED;2026-11-23T15:09:20;2026-11-23T10:12:44;failing;13969;oh;../fake-data/blob/hipster.txt;25;25
+26;amidst finally;REPLAY;CLOSED;2026-11-23T19:44:48;2026-11-23T20:09:58;whereas certainly;4776;simple;../fake-data/blob/hipster.txt;26;26
+27;brr institute excepting;DUPLICATE_EVENT;CONFIRMED;2026-11-23T18:55:52;2026-11-23T18:21:46;drat instead fatally;11559;sign other;../fake-data/blob/hipster.txt;27;27
+28;failing pear amidst;DEVICE_UNAVAILABLE;CLOSED;2026-11-23T08:17:11;2026-11-23T21:18:14;mealy;12291;ick;../fake-data/blob/hipster.txt;28;28
+29;and wilderness gee;SIGNATURE_INVALID;CLOSED;2026-11-23T19:53:16;2026-11-23T18:51:14;utilization to yowza;20119;worth;../fake-data/blob/hipster.txt;29;29
+30;entry;DEVICE_UNAVAILABLE;EXPLAINED;2026-11-23T21:56:42;2026-11-23T09:05:55;larva excited cool;703;yowza how;../fake-data/blob/hipster.txt;30;30

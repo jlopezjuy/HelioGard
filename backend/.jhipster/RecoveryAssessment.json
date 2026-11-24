@@ -1,0 +1,60 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024009"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "assessedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "baselineMethod",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "expectedRecoveredWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "verifiedRecoveredWh",
+      "fieldType": "BigDecimal"
+    },
+    {
+      "fieldName": "confidenceNote",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "name": "RecoveryAssessment",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "id",
+      "otherEntityName": "maintenanceIntervention",
+      "relationshipName": "intervention",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "modelName",
+      "otherEntityName": "energyModelRun",
+      "relationshipName": "modelRun",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

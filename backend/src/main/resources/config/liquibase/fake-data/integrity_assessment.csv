@@ -1,0 +1,31 @@
+id;assessed_at;trust_level;rule_version;reason;organization_id;installation_id;integrity_event_id
+1;2026-11-23T21:06:28;SUSPECT;ouch;../fake-data/blob/hipster.txt;1;1;1
+2;2026-11-23T08:09:45;SUSPECT;yieldingly finally habit;../fake-data/blob/hipster.txt;2;2;2
+3;2026-11-23T15:00:37;SUSPECT;reword enormously unit;../fake-data/blob/hipster.txt;3;3;3
+4;2026-11-23T21:15:22;ESTIMATED;unless finally pro;../fake-data/blob/hipster.txt;4;4;4
+5;2026-11-23T09:24:44;VALIDATED;converse release cafe;../fake-data/blob/hipster.txt;5;5;5
+6;2026-11-23T12:25:48;SUSPECT;democratize;../fake-data/blob/hipster.txt;6;6;6
+7;2026-11-23T03:28:03;ESTIMATED;table;../fake-data/blob/hipster.txt;7;7;7
+8;2026-11-23T05:27:41;SUSPECT;ha obediently;../fake-data/blob/hipster.txt;8;8;8
+9;2026-11-23T12:19:39;UNKNOWN;finally typewriter ravioli;../fake-data/blob/hipster.txt;9;9;9
+10;2026-11-23T10:17:17;ESTIMATED;gosh;../fake-data/blob/hipster.txt;10;10;10
+11;2026-11-23T16:45:17;VALIDATED;than venture trash;../fake-data/blob/hipster.txt;11;11;11
+12;2026-11-24T00:22:48;UNKNOWN;pish eminent immediate;../fake-data/blob/hipster.txt;12;12;12
+13;2026-11-23T11:13:08;UNKNOWN;warmly promptly;../fake-data/blob/hipster.txt;13;13;13
+14;2026-11-23T14:24:42;VALIDATED;institutionalize sophisticated owlishly;../fake-data/blob/hipster.txt;14;14;14
+15;2026-11-23T19:44:25;VALIDATED;that economise lest;../fake-data/blob/hipster.txt;15;15;15
+16;2026-11-23T19:53:52;ESTIMATED;antagonize stiffen;../fake-data/blob/hipster.txt;16;16;16
+17;2026-11-24T02:19:58;VALIDATED;shameful after that;../fake-data/blob/hipster.txt;17;17;17
+18;2026-11-23T17:39:42;VALIDATED;secrecy;../fake-data/blob/hipster.txt;18;18;18
+19;2026-11-23T05:33:43;UNKNOWN;sophisticated;../fake-data/blob/hipster.txt;19;19;19
+20;2026-11-23T16:00:52;ESTIMATED;anenst nervously;../fake-data/blob/hipster.txt;20;20;20
+21;2026-11-23T18:15:49;VALIDATED;tender yum over;../fake-data/blob/hipster.txt;21;21;21
+22;2026-11-23T15:25:21;SUSPECT;onto display;../fake-data/blob/hipster.txt;22;22;22
+23;2026-11-23T23:04:45;SUSPECT;likewise;../fake-data/blob/hipster.txt;23;23;23
+24;2026-11-23T08:31:43;VALIDATED;pip;../fake-data/blob/hipster.txt;24;24;24
+25;2026-11-23T20:10:11;ESTIMATED;finally technician;../fake-data/blob/hipster.txt;25;25;25
+26;2026-11-23T13:27:03;UNKNOWN;quickly;../fake-data/blob/hipster.txt;26;26;26
+27;2026-11-23T05:31:08;UNKNOWN;phooey justly fathom;../fake-data/blob/hipster.txt;27;27;27
+28;2026-11-23T16:49:48;VALIDATED;elastic;../fake-data/blob/hipster.txt;28;28;28
+29;2026-11-23T06:36:14;UNKNOWN;though;../fake-data/blob/hipster.txt;29;29;29
+30;2026-11-23T05:06:05;VALIDATED;fall;../fake-data/blob/hipster.txt;30;30;30

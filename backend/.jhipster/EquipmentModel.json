@@ -1,0 +1,41 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023927"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "manufacturer",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "modelCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "revision",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "60"
+    },
+    {
+      "fieldName": "kind",
+      "fieldType": "EquipmentKind",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "MODULE,INVERTER,BATTERY,METER,SENSOR,OPTIMIZER,PROTECTION,OTHER"
+    },
+    {
+      "fieldName": "nominalPowerW",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "name": "EquipmentModel",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

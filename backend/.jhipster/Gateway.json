@@ -1,0 +1,57 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023931"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "hardwareId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "firmwareVersion",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "80"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "GatewayStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PROVISIONING,ONLINE,OFFLINE,REVOKED"
+    },
+    {
+      "fieldName": "lastSeenAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "provisionedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "Gateway",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "installation",
+      "relationshipName": "installation",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

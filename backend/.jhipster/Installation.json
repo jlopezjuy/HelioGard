@@ -1,0 +1,72 @@
+{
+  "annotations": {
+    "changelogDate": "20261124023925"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "60"
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "160"
+    },
+    {
+      "fieldName": "gridMode",
+      "fieldType": "GridMode",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "GRID_TIED,HYBRID,OFF_GRID"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "InstallationStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "COMMISSIONING,ACTIVE,MAINTENANCE,INACTIVE"
+    },
+    {
+      "fieldName": "nominalDcKw",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "commissionedOn",
+      "fieldType": "LocalDate"
+    }
+  ],
+  "name": "Installation",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "site",
+      "relationshipName": "site",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "code",
+      "otherEntityName": "climateRiskProfile",
+      "relationshipName": "climateRiskProfile",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

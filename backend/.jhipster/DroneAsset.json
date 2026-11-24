@@ -1,0 +1,44 @@
+{
+  "annotations": {
+    "changelogDate": "20261124024020"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "assetCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "modelName",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "120"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "DroneAssetStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "READY,MAINTENANCE,GROUNDED,RETIRED"
+    },
+    {
+      "fieldName": "maximumWindMs",
+      "fieldType": "BigDecimal"
+    }
+  ],
+  "name": "DroneAsset",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "organization",
+      "relationshipName": "organization",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
