@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S5 indexes and temporal constraints for alert rules and incidents (expand-only).
+    -->
+    <changeSet id="20261124160000-1" author="helioguard-sdd">
+        <sql dbms="postgresql">
+            CREATE INDEX IF NOT EXISTS idx_incident_org_dedup_status
+                ON incident (organization_id, dedup_key, status);
+
+            ALTER TABLE alert_rule_version
+                ADD CONSTRAINT ck_alert_rule_version_window
+                CHECK (valid_until IS NULL OR valid_until > valid_from);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

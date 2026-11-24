@@ -24,7 +24,6 @@ public class SecurityCaseEventDTO implements Serializable {
     @Lob
     private String detail;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

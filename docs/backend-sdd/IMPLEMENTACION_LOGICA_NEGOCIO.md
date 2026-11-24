@@ -166,8 +166,39 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 6. Pendientes (Sprints S5–S8)
-- **S5:** Incidentes, integridad y seguridad (`IntegrityAssessment`, `TelemetryIntegrityEvent`, `SecurityIncident`, sin confundir datos inconsistentes con ciberataque confirmado).
+## 6. Sprint S5 — Alertas, Diagnóstico e Integridad
+
+### Reglas de Negocio (`RB-*`) Implementadas
+
+| RB-ID | Regla | Clase / Método | Comportamiento implementado |
+|---|---|---|---|
+| `RB-TEL-006`<br>`RB-INC-002` | Diferenciación nocturna/offline/clima/falla y deduplicación de incidentes activos | `AlertDiagnosticService.evaluateAlert()`<br>`IncidentDiagnosticResource.evaluateAlert()` | `POST /api/incidents/evaluate`: si irradiancia ≤ 10 W/m² → `NO_PRODUCTION_NIGHT` (sin incidente). Si telemetría vencida → `TELEMETRY_OFFLINE` (nunca `PANEL_FAILURE`). Si `weatherLimited` → `WEATHER_LIMITED`. Deduplica incidentes activos por `(installation, alertRuleVersion, affectedScope)` actualizando `lastSeenAt` + `IncidentEvent`. |
+| `RB-INC-001` | Inmutabilidad de `AlertRuleVersion` una vez usada | `AlertRuleVersionServiceImpl.assertMutable()` | Rechaza con `409 RULE_VERSION_IMMUTABLE` cualquier `PUT`/`PATCH`/`DELETE` sobre una versión ya referenciada por un `Incident`. |
+| `RB-INC-003` | Ciclo de vida y aislamiento de `Incident` | `IncidentServiceImpl`<br>`IncidentEventServiceImpl`<br>`IncidentLocalizationServiceImpl` | Transiciones válidas `OPEN → ACKNOWLEDGED → IN_PROGRESS → RESOLVED → CLOSED` (`409 INVALID_INCIDENT_TRANSITION` si es inválida) con estampado de `acknowledgedAt`/`resolvedAt`. |
+| `RB-SEC-002` | Integridad física sin imputar ciberataque sin evidencia | `AlertDiagnosticService.evaluatePhysicalIntegrity()`<br>`IncidentDiagnosticResource.evaluatePhysicalIntegrity()` | `POST /api/integrity/evaluate`: lecturas físicamente imposibles (negativas, >125% kW nominal o producción nocturna) generan `TelemetryIntegrityEvent(PHYSICAL_INCONSISTENCY, UNDER_REVIEW)` + `IntegrityAssessment(SUSPECT)` con `cyberAttackConfirmed = false`. |
+
+### Migración Liquibase S5
+
+- `backend/src/main/resources/config/liquibase/changelog/20261124160000_s5_incidents_and_integrity_indexes.xml` (registrada en `master.xml`, expand-only): índice `idx_incident_org_dedup_status` y check `ck_alert_rule_version_window`.
+
+### Pruebas y Resultados Reales (S1–S5)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="IncidentDiagnosticSddIT,EnergyModelingSddIT,TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `IncidentDiagnosticSddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/IncidentDiagnosticSddIT.java`):**
+  - `T11`: irradiancia 0 en medianoche → `NO_PRODUCTION_NIGHT`, 0 incidentes creados.
+  - `T12`: telemetría vencida → `TELEMETRY_OFFLINE` + deduplicación en repetición (1 incidente, 2 `IncidentEvent`).
+  - `T13`: lectura físicamente imposible (50 kW en planta de 10 kW) → `DataTrustLevel.SUSPECT`, `PHYSICAL_INCONSISTENCY`, `cyberAttackConfirmed == false`.
+  - Inmutabilidad de `AlertRuleVersion` (`409`), máquina de estados de `Incident` (`409` inválida / `200` válida) e IDOR `404`.
+
+---
+
+## 7. Pendientes (Sprints S6–S8)
 - **S6:** Pérdidas económicas (`EconomicLossAssessment`, `TariffRule`, `EnergyLossSummary`).
 - **S7:** Auditorías y planes de mantenimiento (`MaintenancePlan`, `MaintenancePlanVersion`, `PlanBenefit`, `PlanEligibilityAssessment`).
 - **S8:** Mantenimiento y misiones (`WorkOrder`, `DroneMission` simulada/controlada con drones físicos deshabilitados).

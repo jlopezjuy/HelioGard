@@ -39,7 +39,6 @@ public class IncidentDTO implements Serializable {
     @Size(max = 180)
     private String dedupKey;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

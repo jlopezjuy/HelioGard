@@ -29,7 +29,6 @@ public class SecurityCaseEvidenceDTO implements Serializable {
     @Size(max = 250)
     private String note;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

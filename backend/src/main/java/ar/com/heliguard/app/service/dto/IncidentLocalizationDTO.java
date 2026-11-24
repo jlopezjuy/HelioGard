@@ -29,7 +29,6 @@ public class IncidentLocalizationDTO implements Serializable {
     @Lob
     private String evidenceSummary;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

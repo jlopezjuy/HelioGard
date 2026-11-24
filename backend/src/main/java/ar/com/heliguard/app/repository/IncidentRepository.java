@@ -28,6 +28,18 @@ public interface IncidentRepository extends ReactiveCrudRepository<Incident, Lon
     @Query("SELECT * FROM incident entity WHERE entity.organization_id = :id")
     Flux<Incident> findByOrganization(Long id);
 
+    @Query("SELECT * FROM incident entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<Incident> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM incident entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
+    @Query(
+        "SELECT * FROM incident entity WHERE entity.organization_id = :orgId AND entity.dedup_key = :dedupKey " +
+        "AND entity.status IN ('OPEN', 'ACKNOWLEDGED', 'IN_PROGRESS')"
+    )
+    Mono<Incident> findActiveByOrgAndDedupKey(Long orgId, String dedupKey);
+
     @Query("SELECT * FROM incident entity WHERE entity.organization_id IS NULL")
     Flux<Incident> findAllWhereOrganizationIsNull();
 

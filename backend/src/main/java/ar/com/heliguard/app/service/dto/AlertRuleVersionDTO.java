@@ -44,7 +44,6 @@ public class AlertRuleVersionDTO implements Serializable {
 
     private Instant validUntil;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

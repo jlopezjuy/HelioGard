@@ -1,86 +1,157 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.AlertRule;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.AlertRuleRepository;
 import ar.com.heliguard.app.service.AlertRuleService;
 import ar.com.heliguard.app.service.dto.AlertRuleDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.AlertRuleMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.AlertRule}.
+ * Tenant-isolated service for {@link AlertRule}.
  */
 @Service
 @Transactional
 public class AlertRuleServiceImpl implements AlertRuleService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AlertRuleServiceImpl.class);
+    private final AlertRuleRepository repository;
+    private final AlertRuleMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final AlertRuleRepository alertRuleRepository;
-
-    private final AlertRuleMapper alertRuleMapper;
-
-    public AlertRuleServiceImpl(AlertRuleRepository alertRuleRepository, AlertRuleMapper alertRuleMapper) {
-        this.alertRuleRepository = alertRuleRepository;
-        this.alertRuleMapper = alertRuleMapper;
+    public AlertRuleServiceImpl(
+        AlertRuleRepository repository,
+        AlertRuleMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<AlertRuleDTO> save(AlertRuleDTO alertRuleDTO) {
-        LOG.debug("Request to save AlertRule : {}", alertRuleDTO);
-        return alertRuleRepository.save(alertRuleMapper.toEntity(alertRuleDTO)).map(alertRuleMapper::toDto);
+    public Mono<AlertRuleDTO> save(AlertRuleDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                (dto.getInstallation() != null && dto.getInstallation().getId() != null
+                    ? permissionService.requireOwnedInstallation(dto.getInstallation().getId(), tenant.organizationId()).then()
+                    : Mono.empty())
+                    .then(
+                        Mono.defer(() -> {
+                            AlertRule entity = mapper.toEntity(dto);
+                            entity.setId(null);
+                            entity.setOrganizationId(tenant.organizationId());
+                            entity.setOrganization(new Organization().id(tenant.organizationId()));
+                            return repository.save(entity);
+                        })
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AlertRuleDTO> update(AlertRuleDTO alertRuleDTO) {
-        LOG.debug("Request to update AlertRule : {}", alertRuleDTO);
-        return alertRuleRepository.save(alertRuleMapper.toEntity(alertRuleDTO)).map(alertRuleMapper::toDto);
+    public Mono<AlertRuleDTO> update(AlertRuleDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                dto.getInstallation() != null && dto.getInstallation().getId() != null
+                                    ? permissionService.requireOwnedInstallation(dto.getInstallation().getId(), tenant.organizationId()).then()
+                                    : Mono.empty()
+                            )
+                            .then(
+                                Mono.defer(() -> {
+                                    AlertRule entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AlertRuleDTO> partialUpdate(AlertRuleDTO alertRuleDTO) {
-        LOG.debug("Request to partially update AlertRule : {}", alertRuleDTO);
-
-        return alertRuleRepository
-            .findById(alertRuleDTO.getId())
-            .map(existingAlertRule -> {
-                alertRuleMapper.partialUpdate(existingAlertRule, alertRuleDTO);
-
-                return existingAlertRule;
-            })
-            .flatMap(alertRuleRepository::save)
-            .map(alertRuleMapper::toDto);
+    public Mono<AlertRuleDTO> partialUpdate(AlertRuleDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<AlertRuleDTO> findAll() {
-        LOG.debug("Request to get all AlertRules");
-        return alertRuleRepository.findAll().map(alertRuleMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<AlertRuleDTO> findAllWithEagerRelationships() {
-        return alertRuleRepository.findAllWithEagerRelationships().map(alertRuleMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return alertRuleRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<AlertRuleDTO> findOne(Long id) {
-        LOG.debug("Request to get AlertRule : {}", id);
-        return alertRuleRepository.findOneWithEagerRelationships(id).map(alertRuleMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete AlertRule : {}", id);
-        return alertRuleRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(r -> repository.deleteById(r.getId()));
+    }
+
+    private Mono<AlertRule> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(r -> orgId.equals(r.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "ALERT_RULE_NOT_FOUND", "AlertRule not found")));
     }
 }

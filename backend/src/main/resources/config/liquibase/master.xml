@@ -148,4 +148,5 @@
     <include file="config/liquibase/changelog/20261124130000_s2_topology_integrity_constraints.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261124140000_s3_telemetry_ingestion_and_idempotency.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261124150000_s4_energy_modeling_and_intervals.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261124160000_s5_incidents_and_integrity_indexes.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

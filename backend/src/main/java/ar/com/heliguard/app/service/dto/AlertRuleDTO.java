@@ -27,7 +27,6 @@ public class AlertRuleDTO implements Serializable {
     @NotNull
     private Boolean enabled;
 
-    @NotNull
     private OrganizationDTO organization;
 
     private InstallationDTO installation;
