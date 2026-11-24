@@ -37,7 +37,6 @@ public class WeatherIngestionBatchDTO implements Serializable {
     @Size(max = 300)
     private String qualityNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

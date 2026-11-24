@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S4 energy interval results and modeling temporal constraints (expand-only).
+    -->
+    <changeSet id="20261124150000-1" author="helioguard-sdd">
+        <createTable tableName="energy_interval_result">
+            <column name="id" type="bigint" autoIncrement="true" startWith="1500">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="installation_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model_run_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interval_start" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="interval_end" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="irradiance_wm2" type="decimal(12, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ambient_temp_c" type="decimal(8, 2)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expected_wh" type="decimal(21, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expected_lower_wh" type="decimal(21, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expected_upper_wh" type="decimal(21, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="actual_wh" type="decimal(21, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="deficit_wh" type="decimal(21, 4)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="interval_status" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="soiling_evidence_eligible" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+            tableName="energy_interval_result"
+            columnNames="model_run_id, interval_start"
+            constraintName="uq_energy_interval_run_start"/>
+
+        <addForeignKeyConstraint
+            baseTableName="energy_interval_result"
+            baseColumnNames="organization_id"
+            constraintName="fk_energy_interval_result__organization_id"
+            referencedTableName="organization"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="energy_interval_result"
+            baseColumnNames="installation_id"
+            constraintName="fk_energy_interval_result__installation_id"
+            referencedTableName="installation"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="energy_interval_result"
+            baseColumnNames="model_run_id"
+            constraintName="fk_energy_interval_result__model_run_id"
+            referencedTableName="energy_model_run"
+            referencedColumnNames="id"/>
+
+        <sql dbms="postgresql">
+            ALTER TABLE energy_interval_result
+                ADD CONSTRAINT ck_energy_interval_window CHECK (interval_end > interval_start);
+
+            ALTER TABLE weather_ingestion_batch
+                ADD CONSTRAINT ck_weather_batch_period CHECK (period_end > period_start);
+
+            ALTER TABLE energy_model_configuration
+                ADD CONSTRAINT ck_energy_config_window CHECK (active_until IS NULL OR active_until > active_from);
+
+            ALTER TABLE energy_model_run
+                ADD CONSTRAINT ck_energy_run_period CHECK (period_end > period_start);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

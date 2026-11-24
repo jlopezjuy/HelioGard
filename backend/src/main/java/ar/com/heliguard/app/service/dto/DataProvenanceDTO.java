@@ -46,7 +46,6 @@ public class DataProvenanceDTO implements Serializable {
     @Size(max = 80)
     private String algorithmVersion;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

@@ -134,8 +134,39 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 5. Pendientes (Sprints S4–S8)
-- **S4:** Modelado energético y clima (`WeatherObservation`, `BaselineModel`, `ExpectedEnergyCalculation`, sin atribuir suciedad sin evidencia ni llamar «mapa térmico satelital» a Sentinel/GOES).
+## 5. Sprint S4 — Modelado Energético y Clima
+
+### Reglas de Negocio (`RB-*`) Implementadas
+
+| RB-ID | Regla | Clase / Método | Comportamiento implementado |
+|---|---|---|---|
+| `RB-ENE-001` | Cálculo físico versionado con trazabilidad y prohibición de falsos reclamos Sentinel/GOES | `EnergyModelingService.execute()`<br>`EnergyModelingResource.executeModel()`<br>`DataProvenanceServiceImpl.checkSatelliteThermographyClaim()` | `POST /api/energy-runs/execute` calcula energía esperada AC por intervalo con banda de incertidumbre (±8%), usando `EnergyModelConfiguration` y `WeatherIngestionBatch` del tenant. `DataProvenanceServiceImpl` rechaza con `400 INVALID_SATELLITE_THERMOGRAPHY_CLAIM` reclamos de termografía de módulo sobre productos Sentinel/GOES. |
+| `RB-ENE-002` | `INSUFFICIENT_DATA` sin reemplazar por cero | `EnergyModelingService.runCalculation()`<br>`EnergyModelRunServiceImpl.validateRunInvariants()` | Si falta irradiancia útil (<50% cobertura), configuración o batch meteorológico `VALIDATED`, persiste `EnergyModelRun(status=INSUFFICIENT_DATA, expectedWh=null)`. Nunca reemplaza `expectedWh` por `0`. |
+| `RB-ENE-003` | Distinción potencia vs energía, delta de medidor y detección de reset | `EnergyModelingService.resolveActualWh()` | Soporta `actualEnergyWh`, delta de contadores (`meterCounterEndWh - meterCounterStartWh`) con detección de reset (`METER_RESET_DETECTED` si `end < start`), o integración `actualPowerW * hours`; calcula `deficitWh = max(0, expectedWh - actualWh)` solo sobre intervalos `COMPARABLE`. |
+| `RB-ENE-004` | Nubosidad/frío y gating de hipótesis `SOILING` por evidencia | `EnergyModelingService.runCalculation()` | Intervalos con `cloudyOrCold = true` se marcan `WEATHER_LIMITED` (no pérdida evitable). `soilingHypothesisAllowed` solo se habilita si `hasSoilingTrendOrInspectionEvidence == true` y `deficitWh > 0`. |
+
+### Migración Liquibase S4
+
+- `backend/src/main/resources/config/liquibase/changelog/20261124150000_s4_energy_modeling_and_intervals.xml` (registrada en `master.xml`, expand-only):
+  - `energy_interval_result` con `uq_energy_interval_run_start` (`UNIQUE (model_run_id, interval_start)`), FKs a `organization`, `installation`, `energy_model_run`, y `ck_energy_interval_window`.
+  - Checks temporales en `weather_ingestion_batch`, `energy_model_configuration` y `energy_model_run`.
+
+### Pruebas y Resultados Reales (S1–S4)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="EnergyModelingSddIT,TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `EnergyModelingSddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/EnergyModelingSddIT.java`):**
+  - `T10`: irradiancia faltante → `EnergyModelRun.status == INSUFFICIENT_DATA` y `expectedWh == null`.
+  - Cálculo físico con banda de incertidumbre, detección de `METER_RESET_DETECTED`, marcado `WEATHER_LIMITED`, gating de `soilingHypothesisAllowed`, rechazo `400` a termografía Sentinel/GOES e IDOR `404`.
+
+---
+
+## 6. Pendientes (Sprints S5–S8)
 - **S5:** Incidentes, integridad y seguridad (`IntegrityAssessment`, `TelemetryIntegrityEvent`, `SecurityIncident`, sin confundir datos inconsistentes con ciberataque confirmado).
 - **S6:** Pérdidas económicas (`EconomicLossAssessment`, `TariffRule`, `EnergyLossSummary`).
 - **S7:** Auditorías y planes de mantenimiento (`MaintenancePlan`, `MaintenancePlanVersion`, `PlanBenefit`, `PlanEligibilityAssessment`).

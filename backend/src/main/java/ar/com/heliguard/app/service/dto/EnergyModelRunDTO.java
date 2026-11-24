@@ -53,7 +53,6 @@ public class EnergyModelRunDTO implements Serializable {
     @NotNull
     private Instant calculatedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

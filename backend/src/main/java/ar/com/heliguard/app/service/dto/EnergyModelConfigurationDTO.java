@@ -36,7 +36,6 @@ public class EnergyModelConfigurationDTO implements Serializable {
 
     private Instant activeUntil;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

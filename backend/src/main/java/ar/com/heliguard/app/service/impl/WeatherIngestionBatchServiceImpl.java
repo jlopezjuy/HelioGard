@@ -1,93 +1,156 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.WeatherIngestionBatch;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.WeatherIngestionBatchRepository;
 import ar.com.heliguard.app.service.WeatherIngestionBatchService;
 import ar.com.heliguard.app.service.dto.WeatherIngestionBatchDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.WeatherIngestionBatchMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.WeatherIngestionBatch}.
+ * Tenant-isolated service for {@link WeatherIngestionBatch}.
  */
 @Service
 @Transactional
 public class WeatherIngestionBatchServiceImpl implements WeatherIngestionBatchService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WeatherIngestionBatchServiceImpl.class);
-
-    private final WeatherIngestionBatchRepository weatherIngestionBatchRepository;
-
-    private final WeatherIngestionBatchMapper weatherIngestionBatchMapper;
+    private final WeatherIngestionBatchRepository repository;
+    private final WeatherIngestionBatchMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
     public WeatherIngestionBatchServiceImpl(
-        WeatherIngestionBatchRepository weatherIngestionBatchRepository,
-        WeatherIngestionBatchMapper weatherIngestionBatchMapper
+        WeatherIngestionBatchRepository repository,
+        WeatherIngestionBatchMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
     ) {
-        this.weatherIngestionBatchRepository = weatherIngestionBatchRepository;
-        this.weatherIngestionBatchMapper = weatherIngestionBatchMapper;
+        this.repository = repository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<WeatherIngestionBatchDTO> save(WeatherIngestionBatchDTO weatherIngestionBatchDTO) {
-        LOG.debug("Request to save WeatherIngestionBatch : {}", weatherIngestionBatchDTO);
-        return weatherIngestionBatchRepository
-            .save(weatherIngestionBatchMapper.toEntity(weatherIngestionBatchDTO))
-            .map(weatherIngestionBatchMapper::toDto);
+    public Mono<WeatherIngestionBatchDTO> save(WeatherIngestionBatchDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                permissionService
+                    .validateTemporalWindow(dto.getPeriodStart(), dto.getPeriodEnd())
+                    .then(
+                        dto.getInstallation() == null || dto.getInstallation().getId() == null
+                            ? Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "INSTALLATION_REQUIRED", "installation.id is required"))
+                            : permissionService.requireOwnedInstallation(dto.getInstallation().getId(), tenant.organizationId())
+                    )
+                    .flatMap(inst -> {
+                        WeatherIngestionBatch entity = mapper.toEntity(dto);
+                        entity.setId(null);
+                        entity.setOrganizationId(tenant.organizationId());
+                        entity.setOrganization(new Organization().id(tenant.organizationId()));
+                        return repository.save(entity);
+                    })
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<WeatherIngestionBatchDTO> update(WeatherIngestionBatchDTO weatherIngestionBatchDTO) {
-        LOG.debug("Request to update WeatherIngestionBatch : {}", weatherIngestionBatchDTO);
-        return weatherIngestionBatchRepository
-            .save(weatherIngestionBatchMapper.toEntity(weatherIngestionBatchDTO))
-            .map(weatherIngestionBatchMapper::toDto);
+    public Mono<WeatherIngestionBatchDTO> update(WeatherIngestionBatchDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(permissionService.validateTemporalWindow(dto.getPeriodStart(), dto.getPeriodEnd()))
+                            .then(permissionService.requireOwnedInstallation(dto.getInstallation().getId(), tenant.organizationId()))
+                            .flatMap(inst -> {
+                                WeatherIngestionBatch entity = mapper.toEntity(dto);
+                                entity.setOrganizationId(existing.getOrganizationId());
+                                entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                return repository.save(entity);
+                            })
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<WeatherIngestionBatchDTO> partialUpdate(WeatherIngestionBatchDTO weatherIngestionBatchDTO) {
-        LOG.debug("Request to partially update WeatherIngestionBatch : {}", weatherIngestionBatchDTO);
-
-        return weatherIngestionBatchRepository
-            .findById(weatherIngestionBatchDTO.getId())
-            .map(existingWeatherIngestionBatch -> {
-                weatherIngestionBatchMapper.partialUpdate(existingWeatherIngestionBatch, weatherIngestionBatchDTO);
-
-                return existingWeatherIngestionBatch;
-            })
-            .flatMap(weatherIngestionBatchRepository::save)
-            .map(weatherIngestionBatchMapper::toDto);
+    public Mono<WeatherIngestionBatchDTO> partialUpdate(WeatherIngestionBatchDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return permissionService
+                                        .validateTemporalWindow(existing.getPeriodStart(), existing.getPeriodEnd())
+                                        .then(repository.save(existing));
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<WeatherIngestionBatchDTO> findAll() {
-        LOG.debug("Request to get all WeatherIngestionBatches");
-        return weatherIngestionBatchRepository.findAll().map(weatherIngestionBatchMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<WeatherIngestionBatchDTO> findAllWithEagerRelationships() {
-        return weatherIngestionBatchRepository.findAllWithEagerRelationships().map(weatherIngestionBatchMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return weatherIngestionBatchRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<WeatherIngestionBatchDTO> findOne(Long id) {
-        LOG.debug("Request to get WeatherIngestionBatch : {}", id);
-        return weatherIngestionBatchRepository.findOneWithEagerRelationships(id).map(weatherIngestionBatchMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete WeatherIngestionBatch : {}", id);
-        return weatherIngestionBatchRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(b -> repository.deleteById(b.getId()));
+    }
+
+    private Mono<WeatherIngestionBatch> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(b -> orgId.equals(b.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "WEATHER_BATCH_NOT_FOUND", "WeatherIngestionBatch not found")));
     }
 }
