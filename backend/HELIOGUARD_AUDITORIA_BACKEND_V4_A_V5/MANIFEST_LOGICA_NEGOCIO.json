@@ -1,0 +1,53 @@
+{
+  "package": "HelioGuard backend v5 con especificacion de logica de negocio y tenant desde JWT",
+  "files": [
+    {
+      "path": "CHANGELOG_V5.md",
+      "sha256": "fb44ccf1f21f6dbdd1e55908747e290e9bbbf662292e2c828a116b77da9c1bad"
+    },
+    {
+      "path": "README.md",
+      "sha256": "42e99b3331d9eefd52b4cc0c1dc338c5e742552fc3a0c7ea70d0cadd7252ec1e"
+    },
+    {
+      "path": "database/01_telemetry_timeseries_template.sql",
+      "sha256": "32634199905c9eb34a0c32f1bc8f2902bd55859e2bb09f4c53935f7d123558f9"
+    },
+    {
+      "path": "database/02_integrity_constraints_template.sql",
+      "sha256": "b5a1679ff4103626e7922fa1757cc79ae27a9003f0a9e6abf431b7ffbd300d23"
+    },
+    {
+      "path": "docs/LOGICA_NEGOCIO_V5.md",
+      "sha256": "95d090ccc19b8c4510a00128e0dab072238c60c2ac2bc722f781a13b765f802b"
+    },
+    {
+      "path": "docs/NORMALIZACION_Y_CAMBIOS_V5.md",
+      "sha256": "c6869611549a1c266bfd9918ae5f80070131e59b76ef6f4a6dc23af53208bdfe"
+    },
+    {
+      "path": "docs/PRUEBAS_LOGICA_NEGOCIO_V5.md",
+      "sha256": "9572633ac4c3d267a57a7ae43db597b4695e4d3316949b3092b26e1cf6d5d69a"
+    },
+    {
+      "path": "docs/SPRINTS_BACKEND_V5.md",
+      "sha256": "0747adc437a2728754262ef390122e6ae446d447db2451489b79066885887e65"
+    },
+    {
+      "path": "docs/TENANT_RESUELTO_DESDE_JWT.md",
+      "sha256": "43da8e01a8c1b69ede2c17f0ac9c47df652ad50c657c403a1513b7ff9acaf100"
+    },
+    {
+      "path": "prompts/CODEX_IMPLEMENTAR_LOGICA_NEGOCIO_JWT_V5.md",
+      "sha256": "d53386004fb809ff50dda47eddede98993092bc41d1f53e9a0da4eaaeb7fe927"
+    },
+    {
+      "path": "prompts/CODEX_IMPORTAR_VALIDAR_JDL_V5.md",
+      "sha256": "926134d3951be945bc599d496895f26aa7b606e96208116e054542ccdaabda73"
+    },
+    {
+      "path": "specs/domain.v5.review.jdl",
+      "sha256": "944289d6dbb771fd52375612c328a19f2eeec54cba173248361de1c1e11d44bf"
+    }
+  ]
+}

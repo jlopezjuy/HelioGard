@@ -29,3 +29,13 @@ jhipster jdl /ruta/helioguard_backend_v5/specs/domain.v5.review.jdl --json-only
 Después generar/inspeccionar migraciones Liquibase en una base vacía de prueba y simular upgrade con una copia de v4 si existe. Confirmar versión CLI, PostgreSQL e invariantes multiempresa.
 
 **Estado real de validación:** control estructural Python pasa; **NO se ejecutaron** CLI JHipster, Spring Boot, PostgreSQL, RLS, Liquibase, pruebas de negocio ni contrastación con la carpeta privada `Idea Original`.
+
+## Anexo: lógica de negocio ejecutable y tenant por usuario/JWT (2026-11-24)
+
+Documentación nueva para resolver el hueco entre JDL y comportamientos:
+- `docs/LOGICA_NEGOCIO_V5.md`: reglas `RB-*` por bounded context, flujos, fórmulas, estados y permisos.
+- `docs/TENANT_RESUELTO_DESDE_JWT.md`: empresa actual desde token + memberships, con soporte de multiempresa y prestadores externos.
+- `docs/PRUEBAS_LOGICA_NEGOCIO_V5.md`: escenarios Given/When/Then que deben implementarse.
+- `prompts/CODEX_IMPLEMENTAR_LOGICA_NEGOCIO_JWT_V5.md`: instrucciones para implementar Sprint S1 y siguientes.
+
+**Regla esencial:** no enviar `empresaId` para decidir el tenant de operaciones CRUD; el backend resuelve contexto por usuario autenticado. El JWT de un gateway/ESP32 es un flujo de máquina distinto. Para usuarios con varias empresas se necesita selección explícita de contexto y token emitido tras validar membership; no se admite `findFirst()`.
