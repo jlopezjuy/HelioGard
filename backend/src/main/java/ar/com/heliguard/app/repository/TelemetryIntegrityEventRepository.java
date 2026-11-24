@@ -30,6 +30,12 @@ public interface TelemetryIntegrityEventRepository
     @Query("SELECT * FROM telemetry_integrity_event entity WHERE entity.organization_id = :id")
     Flux<TelemetryIntegrityEvent> findByOrganization(Long id);
 
+    @Query("SELECT * FROM telemetry_integrity_event entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<TelemetryIntegrityEvent> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM telemetry_integrity_event entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM telemetry_integrity_event entity WHERE entity.organization_id IS NULL")
     Flux<TelemetryIntegrityEvent> findAllWhereOrganizationIsNull();
 

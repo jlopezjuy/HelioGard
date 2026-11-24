@@ -26,6 +26,9 @@ public interface DeviceIdentityRepository extends ReactiveCrudRepository<DeviceI
     @Query("SELECT * FROM device_identity entity WHERE entity.organization_id = :id")
     Flux<DeviceIdentity> findByOrganization(Long id);
 
+    @Query("SELECT * FROM device_identity entity WHERE entity.device_uid = :deviceUid")
+    Mono<DeviceIdentity> findOneByDeviceUid(String deviceUid);
+
     @Query("SELECT * FROM device_identity entity WHERE entity.organization_id IS NULL")
     Flux<DeviceIdentity> findAllWhereOrganizationIsNull();
 

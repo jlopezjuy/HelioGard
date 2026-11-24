@@ -32,7 +32,6 @@ public class DeviceIdentityDTO implements Serializable {
 
     private Instant validUntil;
 
-    @NotNull
     private OrganizationDTO organization;
 
     private GatewayDTO gateway;

@@ -42,7 +42,6 @@ public class TelemetryIntegrityEventDTO implements Serializable {
     @Lob
     private String detail;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

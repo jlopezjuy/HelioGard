@@ -28,7 +28,6 @@ public class IntegrityAssessmentDTO implements Serializable {
     @Lob
     private String reason;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

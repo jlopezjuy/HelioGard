@@ -63,6 +63,7 @@ public class SecurityConfiguration {
                 // prettier-ignore
                 authz
                     .pathMatchers("/api/authenticate").permitAll()
+                    .pathMatchers("/api/ingest/telemetry").permitAll()
                     .pathMatchers("/api/register").permitAll()
                     .pathMatchers("/api/activate").permitAll()
                     .pathMatchers("/api/account/reset-password/init").permitAll()

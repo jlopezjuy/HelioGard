@@ -34,7 +34,6 @@ public class SecurityIncidentDTO implements Serializable {
     @Lob
     private String resolutionNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S3 telemetry ingestion, idempotency, and sequence checkpoint tables (expand-only).
+    -->
+    <changeSet id="20261124140000-1" author="helioguard-sdd">
+        <createTable tableName="telemetry_ingest_event">
+            <column name="id" type="bigint" autoIncrement="true" startWith="1500">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="installation_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gateway_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_identity_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="telemetry_channel_id" type="bigint">
+                <constraints nullable="true"/>
+            </column>
+            <column name="event_id" type="varchar(140)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="boot_id" type="varchar(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sequence_number" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="metric_code" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_code" type="varchar(24)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="numeric_value" type="decimal(21, 6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="observed_at" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="received_at" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload_sha256" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ingest_status" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quality_flags" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+            tableName="telemetry_ingest_event"
+            columnNames="gateway_id, event_id"
+            constraintName="uq_telemetry_ingest_gateway_event"/>
+
+        <addForeignKeyConstraint
+            baseTableName="telemetry_ingest_event"
+            baseColumnNames="organization_id"
+            constraintName="fk_telemetry_ingest_event__organization_id"
+            referencedTableName="organization"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="telemetry_ingest_event"
+            baseColumnNames="installation_id"
+            constraintName="fk_telemetry_ingest_event__installation_id"
+            referencedTableName="installation"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="telemetry_ingest_event"
+            baseColumnNames="gateway_id"
+            constraintName="fk_telemetry_ingest_event__gateway_id"
+            referencedTableName="gateway"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="telemetry_ingest_event"
+            baseColumnNames="device_identity_id"
+            constraintName="fk_telemetry_ingest_event__device_identity_id"
+            referencedTableName="device_identity"
+            referencedColumnNames="id"/>
+
+        <createTable tableName="device_sequence_checkpoint">
+            <column name="id" type="bigint" autoIncrement="true" startWith="1500">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gateway_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_identity_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="boot_id" type="varchar(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_sequence_number" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_observed_at" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="${datetimeType}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint
+            tableName="device_sequence_checkpoint"
+            columnNames="gateway_id, device_identity_id"
+            constraintName="uq_device_seq_checkpoint"/>
+
+        <addForeignKeyConstraint
+            baseTableName="device_sequence_checkpoint"
+            baseColumnNames="organization_id"
+            constraintName="fk_device_seq_checkpoint__organization_id"
+            referencedTableName="organization"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="device_sequence_checkpoint"
+            baseColumnNames="gateway_id"
+            constraintName="fk_device_seq_checkpoint__gateway_id"
+            referencedTableName="gateway"
+            referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+            baseTableName="device_sequence_checkpoint"
+            baseColumnNames="device_identity_id"
+            constraintName="fk_device_seq_checkpoint__device_identity_id"
+            referencedTableName="device_identity"
+            referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

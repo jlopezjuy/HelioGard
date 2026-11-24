@@ -28,6 +28,12 @@ public interface SecurityIncidentRepository extends ReactiveCrudRepository<Secur
     @Query("SELECT * FROM security_incident entity WHERE entity.organization_id = :id")
     Flux<SecurityIncident> findByOrganization(Long id);
 
+    @Query("SELECT * FROM security_incident entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<SecurityIncident> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM security_incident entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM security_incident entity WHERE entity.organization_id IS NULL")
     Flux<SecurityIncident> findAllWhereOrganizationIsNull();
 

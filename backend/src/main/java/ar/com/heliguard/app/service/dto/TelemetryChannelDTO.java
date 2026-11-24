@@ -22,7 +22,6 @@ public class TelemetryChannelDTO implements Serializable {
     @Min(value = 1)
     private Integer samplePeriodSeconds;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull
