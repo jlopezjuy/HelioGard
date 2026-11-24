@@ -6,6 +6,7 @@ import ar.com.heliguard.app.domain.enumeration.MembershipRole;
 import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.InstallationAccessGrantRepository;
 import ar.com.heliguard.app.repository.InstallationRepository;
+import ar.com.heliguard.app.service.dto.OrganizationDTO;
 import ar.com.heliguard.app.service.error.DomainRuleException;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -90,6 +91,35 @@ public class PermissionService {
                     )
                     .flatMap(installation -> checkInstallationAccess(tenant, installation, requiredScope))
             );
+    }
+
+    public Mono<Installation> requireOwnedInstallation(Long installationId, Long organizationId) {
+        return installationRepository
+            .findById(installationId)
+            .filter(inst -> organizationId.equals(inst.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "INSTALLATION_NOT_FOUND", "Installation not found")));
+    }
+
+    public Mono<Void> validateTemporalWindow(Instant validFrom, Instant validUntil) {
+        if (validFrom == null || (validUntil != null && !validUntil.isAfter(validFrom))) {
+            return Mono.error(
+                new DomainRuleException(HttpStatus.BAD_REQUEST, "INVALID_TEMPORAL_INTERVAL", "validUntil must be strictly after validFrom")
+            );
+        }
+        return Mono.empty();
+    }
+
+    public Mono<Void> assertNoOrgReassignment(OrganizationDTO dtoOrg, Long currentOrgId) {
+        if (dtoOrg != null && dtoOrg.getId() != null && !currentOrgId.equals(dtoOrg.getId())) {
+            return Mono.error(
+                new DomainRuleException(
+                    HttpStatus.FORBIDDEN,
+                    "ORGANIZATION_REASSIGNMENT_FORBIDDEN",
+                    "Reassigning organization is forbidden"
+                )
+            );
+        }
+        return Mono.empty();
     }
 
     public Mono<Boolean> hasValidGrant(Long installationId, Long granteeOrgId, PermissionScope requiredScope, Instant now) {

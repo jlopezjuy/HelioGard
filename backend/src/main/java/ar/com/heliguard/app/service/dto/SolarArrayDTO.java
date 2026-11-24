@@ -28,7 +28,6 @@ public class SolarArrayDTO implements Serializable {
 
     private LocalDate commissionedOn;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

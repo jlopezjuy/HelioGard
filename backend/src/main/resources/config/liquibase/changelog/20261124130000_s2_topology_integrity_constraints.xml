@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S2 incremental topology & temporal integrity constraints (expand-only, no DROP).
+    -->
+    <changeSet id="20261124130000-1" author="helioguard-sdd">
+        <sql dbms="postgresql">
+            CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+            ALTER TABLE solar_sector
+                ADD CONSTRAINT uq_solar_sector_pk_tenant UNIQUE (id, organization_id);
+
+            ALTER TABLE solar_sector
+                ADD CONSTRAINT fk_sector_installation_same_tenant
+                FOREIGN KEY (installation_id, organization_id)
+                REFERENCES installation (id, organization_id);
+
+            ALTER TABLE solar_sector
+                ADD CONSTRAINT ck_sector_interval
+                CHECK (valid_until IS NULL OR valid_until > valid_from);
+
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_sector_install_code_period
+                ON solar_sector (organization_id, installation_id, sector_code, valid_from);
+
+            ALTER TABLE equipment
+                ADD CONSTRAINT uq_equipment_pk_tenant UNIQUE (id, organization_id);
+
+            ALTER TABLE equipment_connection
+                ADD CONSTRAINT fk_connection_from_same_tenant
+                FOREIGN KEY (from_equipment_id, organization_id)
+                REFERENCES equipment (id, organization_id);
+
+            ALTER TABLE equipment_connection
+                ADD CONSTRAINT fk_connection_to_same_tenant
+                FOREIGN KEY (to_equipment_id, organization_id)
+                REFERENCES equipment (id, organization_id);
+
+            ALTER TABLE equipment_connection
+                ADD CONSTRAINT ck_connection_interval
+                CHECK (valid_until IS NULL OR valid_until > valid_from);
+
+            ALTER TABLE inverter_mppt_input
+                ADD CONSTRAINT ck_mppt_input_interval
+                CHECK (valid_until IS NULL OR valid_until > valid_from);
+
+            ALTER TABLE string_input_assignment
+                ADD CONSTRAINT ck_assignment_interval
+                CHECK (valid_until IS NULL OR valid_until > valid_from);
+
+            ALTER TABLE string_input_assignment
+                ADD CONSTRAINT ex_string_single_active_input
+                EXCLUDE USING gist (
+                    solar_string_id WITH =,
+                    tsrange(valid_from, COALESCE(valid_until, 'infinity'::timestamp), '[)') WITH &amp;&amp;
+                );
+
+            ALTER TABLE telemetry_channel_binding
+                ADD CONSTRAINT ck_channel_binding_interval
+                CHECK (valid_until IS NULL OR valid_until > valid_from);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

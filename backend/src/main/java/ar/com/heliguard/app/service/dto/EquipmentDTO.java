@@ -28,7 +28,6 @@ public class EquipmentDTO implements Serializable {
 
     private LocalDate removedOn;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

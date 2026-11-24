@@ -28,7 +28,6 @@ public class GatewayDTO implements Serializable {
 
     private Instant provisionedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

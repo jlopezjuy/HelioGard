@@ -21,7 +21,6 @@ public class StringInputAssignmentDTO implements Serializable {
     @Size(max = 240)
     private String notes;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

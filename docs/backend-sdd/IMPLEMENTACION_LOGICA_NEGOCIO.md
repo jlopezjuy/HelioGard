@@ -62,9 +62,46 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 3. Pendientes (Sprints S2–S8)
+## 3. Sprint S2 — Topología Eléctrica y Binding Edge
 
-- **S2:** Topología eléctrica (`SolarSector`, `Equipment`, `EquipmentConnection`, `SolarString`, `StringInputAssignment`, anti-solapamiento `btree_gist`).
+### Reglas de Negocio (`RB-*`) Implementadas
+
+| RB-ID | Regla | Clase / Método | Comportamiento implementado |
+|---|---|---|---|
+| `RB-ASSET-001` | Separación entre catálogo (`EquipmentModel`) e instancia física/lógica (`Equipment`, `SolarString`, `InverterMpptInput`) | `EquipmentModelServiceImpl`<br>`SolarStringServiceImpl`<br>`InverterMpptInputServiceImpl` | `EquipmentModel` queda como catálogo global (lectura con tenant activo, escritura con `MANAGE`). `SolarString` exige `EquipmentModel.kind == MODULE` (`INVALID_MODULE_MODEL_KIND`). `InverterMpptInput` exige `Equipment` del tenant cuyo modelo sea `INVERTER` (`EQUIPMENT_NOT_IN_TENANT` / `EQUIPMENT_NOT_INVERTER`). |
+| `RB-ASSET-002` | Jerarquía `sector → array → string → MPPT/inversor`, ventanas temporales y prohibición de cruces entre tenants/instalaciones | `SolarSectorServiceImpl`<br>`SolarArrayServiceImpl`<br>`StringInputAssignmentServiceImpl`<br>`EquipmentServiceImpl`<br>`EquipmentConnectionServiceImpl`<br>`GatewayServiceImpl`<br>`TelemetryChannelBindingServiceImpl` | Valida que `SolarArray.solarSector` pertenezca a la misma instalación y tenant (`SECTOR_INSTALLATION_MISMATCH`), que `StringInputAssignment` conecte `SolarString` e `InverterMpptInput` de la misma instalación (`CROSS_INSTALLATION_WIRING_FORBIDDEN`) sin solapamiento temporal (`409 OVERLAPPING_STRING_ASSIGNMENT` + `EXCLUDE USING gist` en DB), y que `EquipmentConnection` no sea autoreferencial (`SELF_CONNECTION_FORBIDDEN`) ni cruce instalaciones (`CROSS_INSTALLATION_CONNECTION_FORBIDDEN`). |
+| `RB-ID-003` | Prohibición de reasignación genérica de organización | `PermissionService.assertNoOrgReassignment()` y servicios S2 | Rechaza con `403 ORGANIZATION_REASSIGNMENT_FORBIDDEN` y preserva `organizationId` en servidor. |
+| `RB-LOC-001` | Precisión de localización según evidencia disponible | `TopologyLocalizationService.resolvePrecision()` / `resolvePrecisionForString()` | Resuelve `MODULE`, `STRING`, `INVERTER`, `SECTOR`, `INSTALLATION` o `UNKNOWN` estrictamente según telemetría y topología activa disponible, sin fabricar precisión de módulo/string. |
+
+### Migración Liquibase S2
+
+- `backend/src/main/resources/config/liquibase/changelog/20261124130000_s2_topology_integrity_constraints.xml` (registrada en `master.xml`, expand-only):
+  - `CREATE EXTENSION IF NOT EXISTS btree_gist;`
+  - `uq_solar_sector_pk_tenant`, `fk_sector_installation_same_tenant`, `ck_sector_interval`, `uq_sector_install_code_period`
+  - `uq_equipment_pk_tenant`, `fk_connection_from_same_tenant`, `fk_connection_to_same_tenant`, `ck_connection_interval`
+  - `ck_mppt_input_interval`, `ck_assignment_interval`, `ex_string_single_active_input` (`EXCLUDE USING gist` con `tsrange` inmutable sobre `solar_string_id` y `[valid_from, valid_until)`), `ck_channel_binding_interval`.
+
+### Pruebas y Resultados Reales (S1 + S2)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `TopologySddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/TopologySddIT.java`):**
+  - Asignación server-side de `organization` ignorando spoofing en DTO.
+  - Rechazo de `SolarArray` con sector de otra instalación (`400`).
+  - Validación de `EquipmentModel.kind` (`MODULE` en `SolarString`, `INVERTER` en `InverterMpptInput`).
+  - Rechazo de cableado `StringInputAssignment` entre instalaciones distintas (`400`), rechazo de intervalos solapados (`409` + `ex_string_single_active_input`), y aceptación de ventana secuencial contigua (`201`).
+  - Rechazo de `EquipmentConnection` autoreferencial y cross-installation (`400`).
+  - Denegación uniforme anti-IDOR (`404`) entre tenants sobre `SolarSector` y `Equipment`.
+  - Verificación de niveles `RB-LOC-001` en `TopologyLocalizationService`.
+
+---
+
+## 4. Pendientes (Sprints S3–S8)
 - **S3:** Telemetría/edge e idempotencia (`DeviceIdentity` con autenticación máquina-a-máquina sin JWT humano, `TelemetryPoint`, `TelemetryReading`, `TelemetryChannelBinding`).
 - **S4:** Modelado energético y clima (`WeatherObservation`, `BaselineModel`, `ExpectedEnergyCalculation`, sin atribuir suciedad sin evidencia ni llamar «mapa térmico satelital» a Sentinel/GOES).
 - **S5:** Incidentes, integridad y seguridad (`IntegrityAssessment`, `TelemetryIntegrityEvent`, `SecurityIncident`, sin confundir datos inconsistentes con ciberataque confirmado).

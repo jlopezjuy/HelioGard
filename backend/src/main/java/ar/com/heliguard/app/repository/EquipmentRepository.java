@@ -28,6 +28,12 @@ public interface EquipmentRepository extends ReactiveCrudRepository<Equipment, L
     @Query("SELECT * FROM equipment entity WHERE entity.organization_id = :id")
     Flux<Equipment> findByOrganization(Long id);
 
+    @Query("SELECT * FROM equipment entity WHERE entity.organization_id = :orgId ORDER BY entity.id ASC LIMIT :limit OFFSET :offset")
+    Flux<Equipment> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM equipment entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM equipment entity WHERE entity.organization_id IS NULL")
     Flux<Equipment> findAllWhereOrganizationIsNull();
 

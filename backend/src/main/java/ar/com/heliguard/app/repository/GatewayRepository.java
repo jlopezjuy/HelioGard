@@ -28,6 +28,12 @@ public interface GatewayRepository extends ReactiveCrudRepository<Gateway, Long>
     @Query("SELECT * FROM gateway entity WHERE entity.organization_id = :id")
     Flux<Gateway> findByOrganization(Long id);
 
+    @Query("SELECT * FROM gateway entity WHERE entity.organization_id = :orgId ORDER BY entity.id ASC LIMIT :limit OFFSET :offset")
+    Flux<Gateway> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM gateway entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM gateway entity WHERE entity.organization_id IS NULL")
     Flux<Gateway> findAllWhereOrganizationIsNull();
 

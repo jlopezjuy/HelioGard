@@ -23,7 +23,6 @@ public class SolarStringDTO implements Serializable {
     @NotNull
     private Boolean active;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

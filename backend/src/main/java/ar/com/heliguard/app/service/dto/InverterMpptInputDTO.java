@@ -25,7 +25,6 @@ public class InverterMpptInputDTO implements Serializable {
 
     private Instant validUntil;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

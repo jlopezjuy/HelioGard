@@ -22,7 +22,6 @@ public class TelemetryChannelBindingDTO implements Serializable {
 
     private Instant validUntil;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull
