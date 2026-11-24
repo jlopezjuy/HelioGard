@@ -23,7 +23,6 @@ public class TariffPlanDTO implements Serializable {
     @Size(max = 160)
     private String distributor;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

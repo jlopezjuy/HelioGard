@@ -198,8 +198,37 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 7. Pendientes (Sprints S6–S8)
-- **S6:** Pérdidas económicas (`EconomicLossAssessment`, `TariffRule`, `EnergyLossSummary`).
+## 7. Sprint S6 — Pérdidas Económicas y Tarifas
+
+### Reglas de Negocio (`RB-*`) Implementadas
+
+| RB-ID | Regla | Clase / Método | Comportamiento implementado |
+|---|---|---|---|
+| `RB-ECO-001` | Sin doble conteo de causas y déficit residual `UNKNOWN` visible | `EconomicEvaluationService.persistAndCompute()`<br>`LossCauseEstimateServiceImpl.validateNoDoubleCounting()` | Rechaza con `409 LOSS_DOUBLE_COUNTING_FORBIDDEN` si la suma de causas atribuidas supera `totalLossWh`. Persiste explícitamente una entrada `LossCause.UNKNOWN` (`RESIDUAL_UNATTRIBUTED`) con el déficit no atribuido. |
+| `RB-ECO-002` | Tarifa por vigencia y escenarios con supuestos sin curva de autoconsumo | `EconomicEvaluationService.evaluate()`<br>`EconomicEvaluationService.saveEconomic()`<br>`EconomicEvaluationResource.evaluate()` | `POST /api/economic-assessments/evaluate` selecciona `TariffRate` vigente en `assessedAt`. Con curva (`selfConsumptionLostWh` + `exportedLostWh`) calcula monto exacto; sin curva devuelve `exactAmountAvailable = false` y 3 escenarios con supuestos (`ALL_EXPORTED`, `MIXED_50_50`, `ALL_SELF_CONSUMED`). |
+| `RB-ECO-003` | No prometer recuperación financiera por limpieza sin evidencia y seguridad | `EconomicEvaluationService.saveEconomic()` | `cleaningRecoveryPromised = true` solo si existen costo estimado, duración esperada del beneficio (> 0 días), `safetyCheckPassed == true` y `hasComparablePostRecoveryEvidence == true`. |
+
+### Migración Liquibase S6
+
+- `backend/src/main/resources/config/liquibase/changelog/20261124170000_s6_economy_and_tariff_constraints.xml` (registrada en `master.xml`, expand-only): checks de vigencia de tarifa (`ck_tariff_rate_window`), precios no negativos (`ck_tariff_rate_prices`) y montos/energías perdidas no negativas (`ck_loss_assessment_non_negative`, `ck_loss_cause_non_negative`, `ck_economic_assessment_non_negative`).
+
+### Pruebas y Resultados Reales (S1–S6)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="EconomicLossSddIT,IncidentDiagnosticSddIT,EnergyModelingSddIT,TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `EconomicLossSddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/EconomicLossSddIT.java`):**
+  - `T14`: déficit 4000 Wh con atribuciones 3000 + 2000 Wh → `409 Conflict` (`LOSS_DOUBLE_COUNTING_FORBIDDEN`).
+  - `T15`: sin curva de autoconsumo → `exactAmountAvailable == false`, `estimatedLossAmount == null`, 3 escenarios con supuestos y residual `UNKNOWN` visible (1500 Wh).
+  - Con curva de autoconsumo y evidencia post-recuperación → monto exacto (`0.70 USD`) y `cleaningRecoveryPromised == true`; IDOR cross-tenant → `404`.
+
+---
+
+## 8. Pendientes (Sprints S7–S8)
 - **S7:** Auditorías y planes de mantenimiento (`MaintenancePlan`, `MaintenancePlanVersion`, `PlanBenefit`, `PlanEligibilityAssessment`).
 - **S8:** Mantenimiento y misiones (`WorkOrder`, `DroneMission` simulada/controlada con drones físicos deshabilitados).
 - **Nota:** La suite completa de CRUD autogenerados por JHipster (`*ResourceIT` de las 67 entidades) no se ejecutó en este corte; solo se ejecutaron `TenantSddIT`, `TechnicalStructureTest`, `AuthenticateControllerIT` y `SecurityUtilsUnitTest`.

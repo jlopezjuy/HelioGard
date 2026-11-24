@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S6 tariff validity and non-negative loss/economic constraints (expand-only).
+    -->
+    <changeSet id="20261124170000-1" author="helioguard-sdd">
+        <sql dbms="postgresql">
+            ALTER TABLE tariff_rate
+                ADD CONSTRAINT ck_tariff_rate_window
+                CHECK (valid_to IS NULL OR valid_to &gt; valid_from);
+
+            ALTER TABLE tariff_rate
+                ADD CONSTRAINT ck_tariff_rate_prices
+                CHECK (purchase_price_per_kwh &gt;= 0 AND (export_price_per_kwh IS NULL OR export_price_per_kwh &gt;= 0));
+
+            ALTER TABLE loss_assessment
+                ADD CONSTRAINT ck_loss_assessment_non_negative
+                CHECK (total_loss_wh &gt;= 0);
+
+            ALTER TABLE loss_cause_estimate
+                ADD CONSTRAINT ck_loss_cause_non_negative
+                CHECK (estimated_wh &gt;= 0);
+
+            ALTER TABLE economic_assessment
+                ADD CONSTRAINT ck_economic_assessment_non_negative
+                CHECK (estimated_loss_amount &gt;= 0);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

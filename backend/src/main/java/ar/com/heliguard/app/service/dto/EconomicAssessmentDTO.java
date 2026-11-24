@@ -31,7 +31,6 @@ public class EconomicAssessmentDTO implements Serializable {
     @Size(max = 300)
     private String tariffSnapshotNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

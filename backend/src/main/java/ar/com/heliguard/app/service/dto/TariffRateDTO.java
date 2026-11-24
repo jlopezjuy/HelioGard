@@ -24,7 +24,6 @@ public class TariffRateDTO implements Serializable {
 
     private BigDecimal exportPricePerKwh;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

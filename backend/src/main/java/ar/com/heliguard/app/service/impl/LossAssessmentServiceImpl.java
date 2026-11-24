@@ -1,86 +1,179 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.LossAssessment;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
+import ar.com.heliguard.app.repository.EnergyModelRunRepository;
 import ar.com.heliguard.app.repository.LossAssessmentRepository;
 import ar.com.heliguard.app.service.LossAssessmentService;
 import ar.com.heliguard.app.service.dto.LossAssessmentDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.LossAssessmentMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import java.math.BigDecimal;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.LossAssessment}.
+ * Tenant-isolated service for {@link LossAssessment}.
  */
 @Service
 @Transactional
 public class LossAssessmentServiceImpl implements LossAssessmentService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LossAssessmentServiceImpl.class);
+    private final LossAssessmentRepository repository;
+    private final EnergyModelRunRepository modelRunRepository;
+    private final LossAssessmentMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final LossAssessmentRepository lossAssessmentRepository;
-
-    private final LossAssessmentMapper lossAssessmentMapper;
-
-    public LossAssessmentServiceImpl(LossAssessmentRepository lossAssessmentRepository, LossAssessmentMapper lossAssessmentMapper) {
-        this.lossAssessmentRepository = lossAssessmentRepository;
-        this.lossAssessmentMapper = lossAssessmentMapper;
+    public LossAssessmentServiceImpl(
+        LossAssessmentRepository repository,
+        EnergyModelRunRepository modelRunRepository,
+        LossAssessmentMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.modelRunRepository = modelRunRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<LossAssessmentDTO> save(LossAssessmentDTO lossAssessmentDTO) {
-        LOG.debug("Request to save LossAssessment : {}", lossAssessmentDTO);
-        return lossAssessmentRepository.save(lossAssessmentMapper.toEntity(lossAssessmentDTO)).map(lossAssessmentMapper::toDto);
+    public Mono<LossAssessmentDTO> save(LossAssessmentDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                validateLoss(dto.getTotalLossWh(), dto.getModelRun() != null ? dto.getModelRun().getId() : null, tenant.organizationId())
+                    .then(
+                        Mono.defer(() -> {
+                            LossAssessment entity = mapper.toEntity(dto);
+                            entity.setId(null);
+                            entity.setOrganizationId(tenant.organizationId());
+                            entity.setOrganization(new Organization().id(tenant.organizationId()));
+                            return repository.save(entity);
+                        })
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<LossAssessmentDTO> update(LossAssessmentDTO lossAssessmentDTO) {
-        LOG.debug("Request to update LossAssessment : {}", lossAssessmentDTO);
-        return lossAssessmentRepository.save(lossAssessmentMapper.toEntity(lossAssessmentDTO)).map(lossAssessmentMapper::toDto);
+    public Mono<LossAssessmentDTO> update(LossAssessmentDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                validateLoss(
+                                    dto.getTotalLossWh(),
+                                    dto.getModelRun() != null ? dto.getModelRun().getId() : null,
+                                    tenant.organizationId()
+                                )
+                            )
+                            .then(
+                                Mono.defer(() -> {
+                                    LossAssessment entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<LossAssessmentDTO> partialUpdate(LossAssessmentDTO lossAssessmentDTO) {
-        LOG.debug("Request to partially update LossAssessment : {}", lossAssessmentDTO);
-
-        return lossAssessmentRepository
-            .findById(lossAssessmentDTO.getId())
-            .map(existingLossAssessment -> {
-                lossAssessmentMapper.partialUpdate(existingLossAssessment, lossAssessmentDTO);
-
-                return existingLossAssessment;
-            })
-            .flatMap(lossAssessmentRepository::save)
-            .map(lossAssessmentMapper::toDto);
+    public Mono<LossAssessmentDTO> partialUpdate(LossAssessmentDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return validateLoss(existing.getTotalLossWh(), existing.getModelRunId(), tenant.organizationId())
+                                        .then(repository.save(existing));
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<LossAssessmentDTO> findAll() {
-        LOG.debug("Request to get all LossAssessments");
-        return lossAssessmentRepository.findAll().map(lossAssessmentMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<LossAssessmentDTO> findAllWithEagerRelationships() {
-        return lossAssessmentRepository.findAllWithEagerRelationships().map(lossAssessmentMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return lossAssessmentRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<LossAssessmentDTO> findOne(Long id) {
-        LOG.debug("Request to get LossAssessment : {}", id);
-        return lossAssessmentRepository.findOneWithEagerRelationships(id).map(lossAssessmentMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete LossAssessment : {}", id);
-        return lossAssessmentRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(a -> repository.deleteById(a.getId()));
+    }
+
+    private Mono<Void> validateLoss(BigDecimal totalLossWh, Long modelRunId, Long orgId) {
+        if (totalLossWh == null || totalLossWh.compareTo(BigDecimal.ZERO) < 0) {
+            return Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "INVALID_LOSS_WH", "totalLossWh must be >= 0"));
+        }
+        if (modelRunId == null) {
+            return Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "MODEL_RUN_REQUIRED", "modelRun.id is required"));
+        }
+        return modelRunRepository
+            .findById(modelRunId)
+            .filter(r -> orgId.equals(r.getOrganizationId()))
+            .switchIfEmpty(
+                Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "MODEL_RUN_NOT_IN_TENANT", "EnergyModelRun not found in tenant"))
+            )
+            .then();
+    }
+
+    private Mono<LossAssessment> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(a -> orgId.equals(a.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "LOSS_ASSESSMENT_NOT_FOUND", "LossAssessment not found")));
     }
 }

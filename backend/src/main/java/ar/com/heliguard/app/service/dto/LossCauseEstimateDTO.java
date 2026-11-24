@@ -28,7 +28,6 @@ public class LossCauseEstimateDTO implements Serializable {
     @Lob
     private String evidenceNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

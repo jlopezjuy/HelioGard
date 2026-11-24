@@ -30,7 +30,6 @@ public class LossAssessmentDTO implements Serializable {
     @NotNull
     private LossAssessmentStatus validationStatus;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull
