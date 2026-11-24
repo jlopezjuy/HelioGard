@@ -101,8 +101,40 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 4. Pendientes (Sprints S3–S8)
-- **S3:** Telemetría/edge e idempotencia (`DeviceIdentity` con autenticación máquina-a-máquina sin JWT humano, `TelemetryPoint`, `TelemetryReading`, `TelemetryChannelBinding`).
+## 4. Sprint S3 — Telemetría, Edge M2M Auth e Idempotencia
+
+### Reglas de Negocio (`RB-*`) Implementadas
+
+| RB-ID | Regla | Clase / Método | Comportamiento implementado |
+|---|---|---|---|
+| `RB-TEL-001`<br>`RB-SEC-003` | Autenticación M2M sin JWT humano y resolución de tenant/instalación desde dispositivo registrado | `DeviceAuthService.authenticateDevice()`<br>`SecurityConfiguration.springSecurityFilterChain()` | `POST /api/ingest/telemetry` autentica `X-Device-Uid` + `X-Device-Secret` comparando en tiempo constante el SHA-256 contra `DeviceIdentity.keyFingerprint` (`ACTIVE`, no vencida) y `Gateway` (no `REVOKED`), resolviendo `organizationId` e `installationId` desde DB. Fallos generan `TelemetryIntegrityEvent` (`AUTH_FAILURE`) sin loguear ni persistir secretos. |
+| `RB-TEL-002`<br>`RB-TEL-003`<br>`RB-SEC-001` | Normalización, deduplicación idempotente por `(gateway_id, event_id)` y cuarentena ante hash distinto | `EdgeIngestionService.ingest()`<br>`EdgeIngestionService.processSingleEvent()`<br>`EdgeTelemetryResource.ingestTelemetry()` | Rechaza `403 FOREIGN_INSTALLATION_FORBIDDEN` si el payload declara otra instalación y persiste `TelemetryIntegrityEvent` (`AUTH_FAILURE`) fuera del rollback transaccional. Mismo `(gateway_id, event_id)` con igual `payloadSha256` → `DUPLICATE_IDEMPOTENT` (sin falsa acusación). Mismo `eventId` con `payloadSha256` distinto → `QUARANTINED` + `TelemetryIntegrityEvent` (`REPLAY`, `QUARANTINED`) preservando el evento original intacto. |
+| `RB-TEL-004`<br>`RB-TEL-005` | Secuencia `bootId + sequenceNumber`, reboots, gaps, clock skew y sincronización batch offline | `EdgeIngestionService.evaluateSequenceAndSave()`<br>`EdgeIngestionService.evaluateClockSkew()` | Mantiene `DeviceSequenceCheckpoint` por `(gateway_id, device_identity_id)`; detecta `REBOOT_DETECTED`, `SEQUENCE_GAP`, `OUT_OF_ORDER` y `CLOCK_SKEW` (> 5 min), y soporta lotes de sincronización offline idempotente. |
+| `RB-SEC-004` | Aislamiento tenant y máquina de estados en seguridad/integridad | `DeviceIdentityServiceImpl`<br>`TelemetryChannelServiceImpl`<br>`TelemetryIntegrityEventServiceImpl`<br>`IntegrityAssessmentServiceImpl`<br>`SecurityIncidentServiceImpl` | Aislamiento por tenant, asignación server-side de `organization` y transiciones explícitas en `SecurityIncident` (`OPEN → TRIAGE → INVESTIGATING → MITIGATED → CLOSED`). |
+
+### Migración Liquibase S3
+
+- `backend/src/main/resources/config/liquibase/changelog/20261124140000_s3_telemetry_ingestion_and_idempotency.xml` (registrada en `master.xml`, expand-only):
+  - `telemetry_ingest_event` con `uq_telemetry_ingest_gateway_event` (`UNIQUE (gateway_id, event_id)`).
+  - `device_sequence_checkpoint` con `uq_device_seq_checkpoint` (`UNIQUE (gateway_id, device_identity_id)`).
+
+### Pruebas y Resultados Reales (S1 + S2 + S3)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `TelemetryEdgeSddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/TelemetryEdgeSddIT.java`):**
+  - `T06` (`t06_foreignInstallationRejectedAndSecurityEventRecorded`): gateway A declara `installationId` de B → `403 Forbidden` y persiste `TelemetryIntegrityEvent` (`AUTH_FAILURE`).
+  - `T07` (`t07_offline100EventsRetriedThreeTimesPersistExactly100UniqueEvents`): lote de 100 eventos offline reenviado 3 veces → 100 `ACCEPTED` en el primer envío, 100 `DUPLICATE_IDEMPOTENT` en los 2 reintentos, y exactamente 100 filas en `telemetry_ingest_event`.
+  - `T08` + `T09` (`t08_t09_idempotentDuplicateVsHashMismatchQuarantineAndInvalidAuth`): secreto inválido → `401 Unauthorized`; reintento exacto → `DUPLICATE_IDEMPOTENT`; mismo `eventId` con valor alterado → `QUARANTINED` + `TelemetryIntegrityEvent` (`REPLAY`, `QUARANTINED`) con el valor original intacto.
+
+---
+
+## 5. Pendientes (Sprints S4–S8)
 - **S4:** Modelado energético y clima (`WeatherObservation`, `BaselineModel`, `ExpectedEnergyCalculation`, sin atribuir suciedad sin evidencia ni llamar «mapa térmico satelital» a Sentinel/GOES).
 - **S5:** Incidentes, integridad y seguridad (`IntegrityAssessment`, `TelemetryIntegrityEvent`, `SecurityIncident`, sin confundir datos inconsistentes con ciberataque confirmado).
 - **S6:** Pérdidas económicas (`EconomicLossAssessment`, `TariffRule`, `EnergyLossSummary`).

@@ -13,7 +13,7 @@ Scope: Implement Sprint S3 SDD rules (`RB-TEL-001`..`005`, `RB-SEC-001`..`004`, 
 
 ## Tasks
 
-- [ ] `T1` (`S3.1`): Add S3 Liquibase migration, domain entities, and repositories (`TelemetryIngestEvent`, `DeviceSequenceCheckpoint`) | commit: pending
-- [ ] `T2` (`S3.2`, `S3.3`): Implement M2M `DeviceAuthService`, `EdgeIngestionService`, and `EdgeTelemetryResource` (`POST /api/ingest/telemetry`) + `SecurityConfiguration` matcher | commit: pending
-- [ ] `T3` (`S3.4`): Protect `DeviceIdentity`, `TelemetryChannel`, `TelemetryIntegrityEvent`, `IntegrityAssessment`, and `SecurityIncident` services/DTOs with tenant isolation & state transitions | commit: pending
-- [ ] `T4` (`S3.5`): Write and run `TelemetryEdgeSddIT` (`T06`–`T09`) against PostgreSQL Testcontainers and update `docs/backend-sdd/IMPLEMENTACION_LOGICA_NEGOCIO.md` | commit: pending
+- [x] `T1` (`S3.1`): Add S3 Liquibase migration, domain entities, and repositories (`TelemetryIngestEvent`, `DeviceSequenceCheckpoint`) | commit: pending
+- [x] `T2` (`S3.2`, `S3.3`): Implement M2M `DeviceAuthService`, `EdgeIngestionService`, and `EdgeTelemetryResource` (`POST /api/ingest/telemetry`) + `SecurityConfiguration` matcher | commit: pending
+- [x] `T3` (`S3.4`): Protect `DeviceIdentity`, `TelemetryChannel`, `TelemetryIntegrityEvent`, `IntegrityAssessment`, and `SecurityIncident` services/DTOs with tenant isolation & state transitions | commit: pending
+- [x] `T4` (`S3.5`): Write and run `TelemetryEdgeSddIT` (`T06`–`T09`) against PostgreSQL Testcontainers and update `docs/backend-sdd/IMPLEMENTACION_LOGICA_NEGOCIO.md` | commit: pending
