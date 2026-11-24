@@ -1,75 +1,120 @@
-@if (phase() === 'loading') {
-  <p role="status">Trazando la vista cenital…</p>
-} @else if (view(); as state) {
-  @if (!state.focus) {
-    <p>Esta sesión no tiene un parque visible.</p>
-  } @else {
-    <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <p class="text-xs tracking-[0.14em] text-q-slate uppercase">Vista cenital simulada</p>
-        <h1 class="text-3xl">{{ state.focus.name }}</h1>
-      </div>
-      <p class="max-w-sm text-sm text-q-muted">No es una ortofoto ni una termografía. El color va acompañado de texto.</p>
-    </div>
-    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <div class="relative border border-dashed border-q-slate bg-[#efe7d8] p-4">
-        <p class="mb-3 text-sm text-q-slate">Norte</p>
-        <div class="grid grid-cols-2 gap-3">
-          @for (block of state.blocks; track block.id) {
-            <button
-              type="button"
-              class="min-h-24 border border-q-ink/20 bg-q-surface p-3 text-left"
-              [class.hatch]="stateOf(block.id) !== 'Operativo'"
-              [attr.aria-pressed]="isSelected(block.id)"
-              (click)="select(block.id)"
-            >
-              <span class="block text-lg">Bloque {{ block.name }}</span>
-              <span class="mt-1 block text-sm">{{ stateOf(block.id) }}</span>
-              @if (block.id === 'arr-b2' && state.actualWh !== null) {
-                <span class="mono mt-2 block text-xs">{{ formatWh(state.actualWh) }} / {{ formatWh(state.expectedWh) }} esperados</span>
-              }
-            </button>
-          }
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Trazando la vista cenital…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    @if (!state.focus) {
+      <hg-empty
+        title="Sin parque visible"
+        detail="Esta sesión no tiene un parque visible."
+      />
+    } @else {
+      <header class="hg-page-head">
+        <div>
+          <p class="hg-kicker">Monitoreo cenital · {{ state.focus.code }}</p>
+          <h1>{{ state.focus.name }}</h1>
         </div>
-        @if (state.mission?.status === 'IN_FLIGHT') {
-          <p
-            class="absolute z-10 border border-q-ink bg-q-sand px-2 py-1 text-xs"
-            [style.left.%]="droneLeft()"
-            [style.top.%]="droneTop()"
-          >
-            Dron simulado {{ (state.progress * 100) | number:'1.0-0' }} %. No es una aeronave real.
-          </p>
-        }
+        <div class="hg-row">
+          <hg-sensor
+            [tone]="state.mission?.status === 'IN_FLIGHT' ? 'watch' : 'ok'"
+            [label]="state.mission ? 'Misión ' + state.mission.missionCode + ': ' + state.mission.status : 'Sin misión activa'"
+          />
+          <a class="hg-btn hg-btn-ghost" [routerLink]="['/instalaciones', state.focus.id]">Ficha de la instalación</a>
+        </div>
+      </header>
+
+      <div class="hg-split">
+        <hg-map-frame [title]="'Vista cenital · ' + state.focus.name">
+          <span hgMapAction class="hg-badge is-solar">Norte ↑</span>
+
+          <div class="hg-park-grid">
+            @for (block of state.blocks; track block.id) {
+              @let blockState = stateOf(block.id);
+              @let hasIssue = blockState !== 'Operativo';
+              <button
+                type="button"
+                class="hg-park-block"
+                [class.is-alert]="hasIssue"
+                [attr.aria-pressed]="isSelected(block.id)"
+                (click)="select(block.id)"
+              >
+                <div class="hg-row" style="justify-content: space-between; width: 100%">
+                  <span style="font-size: 1.05rem; font-weight: 700">Bloque {{ block.name }}</span>
+                  <span class="hg-note" style="color: var(--color-hg-ink)">{{ blockState }}</span>
+                </div>
+                <div class="hg-row" style="justify-content: space-between; width: 100%">
+                  @if (block.id === 'arr-b2' && state.actualWh !== null) {
+                    <span class="hg-mono hg-note">{{ formatWh(state.actualWh) }} / {{ formatWh(state.expectedWh) }} esperados</span>
+                  } @else {
+                    <span class="hg-mono hg-note">Azimut {{ block.azimuthDegrees }}° · inclinación {{ block.tiltDegrees }}°</span>
+                  }
+                  <hg-badge [tone]="hasIssue ? 'amber' : 'mint'">{{ hasIssue ? 'Atención' : 'OK' }}</hg-badge>
+                </div>
+              </button>
+            }
+          </div>
+
+          @if (state.mission?.status === 'IN_FLIGHT') {
+            <p
+              class="hg-drone-pin"
+              [style.left.%]="droneLeft()"
+              [style.top.%]="droneTop()"
+            >
+              Dron simulado {{ (state.progress * 100) | number:'1.0-0' }} %. No es una aeronave real.
+            </p>
+          }
+        </hg-map-frame>
+
+        <div class="hg-stack">
+          <hg-card title="Bloque elegido">
+            @if (state.selected; as selected) {
+              @let selectedState = stateOf(selected.id);
+              <div class="hg-stack" style="gap: 0.75rem">
+                <div class="hg-row" style="justify-content: space-between">
+                  <strong style="font-size: 1.35rem; letter-spacing: -0.02em">{{ selected.name }}</strong>
+                  <hg-sensor
+                    [tone]="selectedState === 'Operativo' ? 'ok' : 'watch'"
+                    [label]="selectedState"
+                  />
+                </div>
+                <p class="hg-note">Azimut {{ selected.azimuthDegrees }}° · inclinación {{ selected.tiltDegrees }}°</p>
+                @if (selected.id === 'arr-b2' && state.actualWh !== null && state.expectedWh > 0) {
+                  <hg-progress
+                    label="Intervalo actual B2"
+                    [value]="(state.actualWh / state.expectedWh) * 100"
+                  />
+                }
+                @if (selectedState !== 'Operativo') {
+                  <a class="hg-btn hg-btn-primary" routerLink="/energia">Ver por qué rinde menos</a>
+                }
+              </div>
+            }
+
+            <ul class="hg-list" style="margin-top: 1rem">
+              @for (row of state.strings; track row.id) {
+                <li class="hg-list-row">
+                  <span class="hg-mono">{{ row.stringCode }} · {{ row.modulesInSeries }} módulos</span>
+                  <hg-badge [tone]="row.active ? 'mint' : 'coral'">{{ row.active ? 'activo' : 'fuera de servicio' }}</hg-badge>
+                </li>
+              }
+              @for (item of state.equipment; track item.id) {
+                <li class="hg-list-row">
+                  <span>{{ item.tag }} · {{ item.kind }}</span>
+                  <hg-badge [tone]="item.status === 'FAILED' ? 'coral' : 'neutral'">{{ item.status }}</hg-badge>
+                </li>
+              }
+            </ul>
+          </hg-card>
+
+          <hg-card title="Leyenda">
+            <ul class="hg-list">
+              <li class="hg-list-row">Trazo continuo: operativo</li>
+              <li class="hg-list-row">Trama diagonal: suciedad sospechada o falla, siempre con rótulo</li>
+              <li class="hg-list-row">Dron: solo si la misión simulada está en vuelo</li>
+            </ul>
+          </hg-card>
+        </div>
       </div>
-      <aside class="sheet">
-        @if (state.selected; as selected) {
-          <p class="kicker">Bloque elegido</p>
-          <h2 class="mt-1 text-2xl">{{ selected.name }}</h2>
-          <p class="mt-2 text-sm">{{ stateOf(selected.id) }}</p>
-          <p class="mt-1 text-sm text-q-muted">Azimut {{ selected.azimuthDegrees }}° · inclinación {{ selected.tiltDegrees }}°</p>
-          @if (stateOf(selected.id) !== 'Operativo') {
-            <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" routerLink="/energia">Ver por qué rinde menos</a>
-          }
-        }
-        <ul class="mt-4 space-y-2 text-sm">
-          @for (row of state.strings; track row.id) {
-            <li class="mono">{{ row.stringCode }} · {{ row.modulesInSeries }} módulos · {{ row.active ? 'activo' : 'fuera de servicio' }}</li>
-          }
-          @for (item of state.equipment; track item.id) {
-            <li>{{ item.tag }} · {{ item.kind }} · {{ item.status }}</li>
-          }
-        </ul>
-        <h3 class="mt-5 text-sm font-semibold">Leyenda</h3>
-        <ul class="mt-2 space-y-1 text-sm">
-          <li>Trazo continuo: operativo</li>
-          <li>Trama diagonal: suciedad sospechada o falla, siempre con rótulo</li>
-          <li>Dron: solo si la misión simulada está en vuelo</li>
-        </ul>
-        @if (state.mission) {
-          <p class="mt-4 text-sm">Misión {{ state.mission.missionCode }}: {{ state.mission.status }}</p>
-        }
-        <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" [routerLink]="['/instalaciones', state.focus.id]">Ficha de la instalación</a>
-      </aside>
-    </div>
+    }
   }
-}
+</div>

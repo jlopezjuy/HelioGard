@@ -1,33 +1,64 @@
-@if (phase() === 'loading') {
-  <p role="status">Abriendo el catálogo de fuentes…</p>
-} @else if (view(); as state) {
-  <p class="kicker">¿De dónde sale el número?</p>
-  <h1 class="mt-2 text-3xl">Fuentes</h1>
-  <p class="lede">La fuente meteorológica estima recurso solar. No ve un panel ni certifica un ataque. Ninguna fila está criptográficamente verificada.</p>
-  <ul class="mt-4 space-y-3">
-    @for (source of state.sources; track source.id) {
-      <li class="border border-q-line bg-q-surface p-3 text-sm">
-        <span class="font-semibold">{{ source.providerName }}</span> · {{ source.kind }} · {{ source.code }}
-        <span class="mt-1 block text-q-muted">{{ source.licenseReference }}</span>
-      </li>
-    }
-  </ul>
-  <h2 class="mt-6 text-lg">Procedencia del intervalo</h2>
-  @if (state.rows.length === 0) {
-    <p class="text-sm">Sin filas de procedencia en este alcance.</p>
-  } @else {
-    <table class="mt-2 w-full text-left text-sm">
-      <thead><tr class="border-b border-q-line text-q-muted"><th class="py-2">Clave</th><th>Confianza</th><th>Marcas</th><th>Algoritmo</th></tr></thead>
-      <tbody>
-        @for (row of state.rows; track row.id) {
-          <tr class="border-b border-q-line align-top">
-            <td class="mono py-2">{{ row.sourceRecordKey }}</td>
-            <td>{{ row.trustLevel }}</td>
-            <td>{{ row.qualityFlags }}</td>
-            <td class="mono">{{ row.algorithmVersion }}</td>
-          </tr>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Abriendo el catálogo de fuentes…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿De dónde sale el número?</p>
+        <h1>Fuentes</h1>
+      </div>
+      <hg-badge tone="neutral">{{ state.sources.length }} fuente(s)</hg-badge>
+    </header>
+
+    <hg-alert tone="info" title="Límite de procedencia">
+      La fuente meteorológica estima recurso solar. No ve un panel ni certifica un ataque. Ninguna fila está criptográficamente verificada.
+    </hg-alert>
+
+    <hg-card title="Fuentes registradas">
+      <ul class="hg-list">
+        @for (source of state.sources; track source.id) {
+          <li class="hg-list-row" style="flex-direction: column; align-items: flex-start">
+            <div class="hg-row" style="justify-content: space-between; width: 100%">
+              <strong style="color: var(--color-hg-ink)">{{ source.providerName }}</strong>
+              <hg-badge tone="solar">{{ source.kind }} · {{ source.code }}</hg-badge>
+            </div>
+            <span class="hg-note">{{ source.licenseReference }}</span>
+          </li>
         }
-      </tbody>
-    </table>
+      </ul>
+    </hg-card>
+
+    <hg-card title="Procedencia del intervalo">
+      @if (state.rows.length === 0) {
+        <hg-empty
+          title="Sin filas de procedencia"
+          detail="Sin filas de procedencia en este alcance."
+        />
+      } @else {
+        <hg-table>
+          <table>
+            <thead>
+              <tr>
+                <th>Clave</th>
+                <th>Confianza</th>
+                <th>Marcas</th>
+                <th>Algoritmo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of state.rows; track row.id) {
+                <tr>
+                  <td class="hg-mono">{{ row.sourceRecordKey }}</td>
+                  <td><hg-badge tone="neutral">{{ row.trustLevel }}</hg-badge></td>
+                  <td>{{ row.qualityFlags }}</td>
+                  <td class="hg-mono">{{ row.algorithmVersion }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </hg-table>
+      }
+    </hg-card>
   }
-}
+</div>

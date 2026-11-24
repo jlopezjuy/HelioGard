@@ -1,6 +1,5 @@
 import { Component, ElementRef, input, model, viewChildren } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideShield } from '@lucide/angular';
 
 export interface HgNavItem {
   id: string;
@@ -15,10 +14,10 @@ export interface HgTab {
 
 @Component({
   selector: 'hg-brand',
-  imports: [RouterLink, LucideShield],
+  imports: [RouterLink],
   template: `
     <a class="hg-brand" routerLink="/inicio">
-      <svg lucideShield [size]="22" aria-hidden="true"></svg>
+      <img class="hg-brand-logo" src="logo/Logo01.png" alt="" width="34" height="34" aria-hidden="true" />
       <span>Helio<em>Guard</em></span>
     </a>
   `,

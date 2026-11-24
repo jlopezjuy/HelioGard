@@ -1,22 +1,43 @@
-@if (phase() === 'loading') {
-  <p role="status">Listando instalaciones visibles…</p>
-} @else {
-  <p class="kicker">¿Qué planta puedo abrir?</p>
-  <h1 class="mt-2 text-3xl">Instalaciones</h1>
-  <p class="lede">Cada fila respeta el tenant y los grants. Salta no aparece en la sesión de Jujuy.</p>
-  @if (rows().length === 0) {
-    <p class="mt-6" role="status">No hay sitios para esta sesión.</p>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Listando instalaciones visibles…</p>
+    <hg-skeleton />
   } @else {
-    <ul class="mt-6 divide-y divide-q-line border-y border-q-line">
-      @for (row of rows(); track row.installation.id) {
-        <li class="flex flex-wrap items-baseline justify-between gap-3 py-4">
-          <div>
-            <a class="text-lg font-semibold text-q-cactus" [routerLink]="['/instalaciones', row.installation.id]">{{ row.installation.name }}</a>
-            <p class="text-sm text-q-muted">{{ row.site?.address }} · {{ row.site?.climateZone }} · {{ row.installation.nominalDcKw }} kW DC · {{ row.installation.gridMode }}</p>
-          </div>
-          <p class="mono text-sm">{{ row.installation.code }} · {{ row.gateways[0]?.status }}</p>
-        </li>
-      }
-    </ul>
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Qué planta puedo abrir?</p>
+        <h1>Instalaciones</h1>
+      </div>
+      <hg-badge tone="solar">{{ rows().length }} visible(s)</hg-badge>
+    </header>
+
+    <p class="hg-note">Cada fila respeta el tenant y los grants. Salta no aparece en la sesión de Jujuy.</p>
+
+    @if (rows().length === 0) {
+      <hg-empty
+        title="Sin instalaciones visibles"
+        detail="No hay sitios para esta sesión."
+      />
+    } @else {
+      <div class="hg-grid-cards">
+        @for (row of rows(); track row.installation.id) {
+          <hg-card [title]="row.installation.name">
+            <div class="hg-stack" style="gap: 0.75rem">
+              <div class="hg-row" style="justify-content: space-between">
+                <span class="hg-mono hg-note">{{ row.installation.code }}</span>
+                <hg-sensor
+                  [tone]="row.gateways[0]?.status === 'ONLINE' ? 'ok' : 'watch'"
+                  [label]="row.gateways[0]?.status ?? 'Sin gateway'"
+                />
+              </div>
+              <p class="hg-note">{{ row.site?.address }} · {{ row.site?.climateZone }} · {{ row.installation.nominalDcKw }} kW DC · {{ row.installation.gridMode }}</p>
+              <div>
+                <a class="hg-btn hg-btn-primary" [routerLink]="['/instalaciones', row.installation.id]">Abrir ficha</a>
+              </div>
+            </div>
+          </hg-card>
+        }
+      </div>
+    }
   }
-}
+</div>

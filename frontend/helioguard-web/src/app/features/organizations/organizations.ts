@@ -2,9 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { installationAccess } from '../../core/domain/access';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgAlert, HgBadge, HgButton, HgCard, HgSkeleton, HgTable } from '../../shared/ui';
 
 @Component({
   selector: 'app-organizations',
+  imports: [HgAlert, HgBadge, HgButton, HgCard, HgSkeleton, HgTable],
   templateUrl: './organizations.html',
 })
 export class OrganizationsPage {

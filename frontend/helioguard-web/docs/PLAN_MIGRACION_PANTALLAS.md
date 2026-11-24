@@ -18,7 +18,11 @@ Chrome Stitch en `src/app/features/shell/`. Escritorio: marca y herramientas en 
 
 Se conserva el guion, los nombres accesibles, el aviso `role="status"`, la alerta WAN `role="alert"`, persona, organización, rol y reloj. No hay buscador inerte. Capturas: `docs/screenshots/shell-1440.png` y `docs/screenshots/shell-390.png`.
 
-Pendiente en este sprint: `/parque`.
+Pendiente en este sprint: ninguno (`/parque` completado).
+
+### `/parque` — Hecho
+
+Lienzo oscuro `.hg-page` con `hg-map-frame` («Vista cenital simulada»), grilla 2×2 de bloques desde 768px (1 columna bajo 768px), sello «Norte ↑», `hg-sensor`, `hg-badge`, `hg-progress` para B2, inspector de bloque con strings/equipos y pin del dron simulado («Dron simulado X %. No es una aeronave real.»). Capturas: `docs/screenshots/parque-1440.png` y `parque-390.png`.
 
 ### `/inicio` — Hecho
 
@@ -36,7 +40,9 @@ Lienzo oscuro dentro del shell. La frase de régimen o de B2 sigue siendo el tí
 
 El shell (`hg-nav-pill` o el lateral actual) se decide en este sprint. Si el lateral se mantiene, no hace falta la píldora de cinco ítems de la maqueta: la app tiene catorce rutas con roles.
 
-## Sprint 2 — Telemetría, energía, integridad
+## Sprint 2 — Telemetría, energía, integridad — Hecho
+
+Migradas `/telemetria` (`hg-flow-steps`, `hg-sensor`, `hg-button`, `hg-error`, `hg-card`, `hg-table`, `hg-empty`), `/energia` (`hg-tabs`, `hg-chart-frame` con barras en Wh y hora local, `hg-table`, `hg-badge`, `hg-button`) e `/integridad` (`hg-alert`, `hg-search`, `hg-table`, `hg-badge`, `hg-empty`). Capturas: `docs/screenshots/{telemetria,energia,integridad}-{1440,390}.png`.
 
 | | `/telemetria` | `/energia` | `/integridad` |
 |---|---|---|---|
@@ -48,7 +54,9 @@ El shell (`hg-nav-pill` o el lateral actual) se decide en este sprint. Si el lat
 | Prioridad | P0 | P0 | P0 |
 | Aceptación | Replay y boot siguen escribiendo el mock. El fallo no borra el ledger | Cambiar el escenario actualiza el gráfico con unidad y tiempo | La tabla vacía usa `hg-empty`. Sigue sin aparecer «ataque confirmado» |
 
-## Sprint 3 — Incidentes, misiones, mantenimiento
+## Sprint 3 — Incidentes, misiones, mantenimiento — Hecho
+
+Migradas `/incidentes` (`hg-card`, `hg-badge`, `hg-button`, `hg-alert`, `hg-empty`), `/misiones` (`hg-map-frame`, `hg-sensor`, `hg-badge`, `hg-button`, `hg-alert`, checklist de seguridad) y `/mantenimiento` (`hg-card`, `hg-badge`, `hg-button`, `hg-empty`, esquemas antes/después en tema oscuro). Capturas: `docs/screenshots/{incidentes,misiones,mantenimiento}-{1440,390}.png`.
 
 | | `/incidentes` | `/misiones` | `/mantenimiento` |
 |---|---|---|---|
@@ -60,7 +68,9 @@ El shell (`hg-nav-pill` o el lateral actual) se decide en este sprint. Si el lat
 | Prioridad | P0 | P0 | P0 |
 | Aceptación | Crear la orden desde el incidente sigue abriendo la misión | Con helada o viento el despacho no se salta. El dron no arranca solo | La orden viva cambia de estado y la nota queda en el mock |
 
-## Sprint 4 — Instalaciones, auditoría, fuentes
+## Sprint 4 — Instalaciones, auditoría, fuentes — Hecho
+
+Migradas `/instalaciones`, `/instalaciones/:id` (`hg-card`, `hg-drawer`, `hg-sensor`, `hg-badge`, `hg-alert`, `hg-button`), `/auditorias` (`hg-card`, `hg-field`, `hgControl`, `hg-button`, `hg-badge`) y `/fuentes` (`hg-alert`, `hg-card`, `hg-table`, `hg-badge`, `hg-empty`). Capturas: `docs/screenshots/{instalaciones,instalacion-detalle,auditorias,fuentes}-{1440,390}.png`.
 
 | | `/instalaciones` y `/instalaciones/:id` | `/auditorias` | `/fuentes` |
 |---|---|---|---|
@@ -71,7 +81,9 @@ El shell (`hg-nav-pill` o el lateral actual) se decide en este sprint. Si el lat
 | Prioridad | P1 | P1 | P1 |
 | Aceptación | Abrir Salta con la persona que no tiene acceso sigue en el rechazo. El string cambia de estado | Cada respuesta persiste al recargar | Ninguna fila nueva afirma un satélite que no está en el mock |
 
-## Sprint 5 — Economía, planes, organizaciones, configuración
+## Sprint 5 — Economía, planes, organizaciones, configuración — Hecho
+
+Migradas `/economia` (`hg-kpi` en ARS, `hg-field`, `hgControl`, `hg-button`, `hg-alert`), `/planes` (`hg-card`, `hg-badge`, `hg-button`), `/organizaciones` (`hg-table`, `hg-alert`, `hg-card`, `hg-badge`, `hg-button`) y `/configuracion` (`hg-card`, `hg-button`, `hg-alert`). Capturas: `docs/screenshots/{economia,planes,organizaciones,configuracion}-{1440,390}.png`.
 
 | Ruta | Maqueta | Componentes | Se conserva | Prioridad |
 |---|---|---|---|---|

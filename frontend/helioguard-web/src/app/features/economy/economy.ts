@@ -4,10 +4,11 @@ import { canSeeEconomics, visibleInstallations } from '../../core/domain/access'
 import { formatArs, formatWh } from '../../core/domain/rules';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgAlert, HgBadge, HgButton, HgCard, HgControl, HgField, HgKpi, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-economy',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, HgAlert, HgBadge, HgButton, HgCard, HgControl, HgField, HgKpi, HgSkeleton],
   templateUrl: './economy.html',
 })
 export class EconomyPage {

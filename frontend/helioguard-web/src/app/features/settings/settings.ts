@@ -1,9 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgAlert, HgButton, HgCard, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-settings',
+  imports: [HgAlert, HgButton, HgCard, HgSkeleton],
   templateUrl: './settings.html',
 })
 export class SettingsPage {

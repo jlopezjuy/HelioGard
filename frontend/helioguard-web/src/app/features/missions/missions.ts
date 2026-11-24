@@ -4,9 +4,11 @@ import { LIVE } from '../../core/domain/model';
 import { safetyBlockReasons } from '../../core/domain/rules';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgAlert, HgBadge, HgButton, HgCard, HgEmpty, HgMapFrame, HgSensor, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-missions',
+  imports: [HgAlert, HgBadge, HgButton, HgCard, HgEmpty, HgMapFrame, HgSensor, HgSkeleton],
   templateUrl: './missions.html',
 })
 export class MissionsPage {

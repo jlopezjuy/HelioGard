@@ -1,50 +1,93 @@
-@if (phase() === 'loading') {
-  <p role="status">Reuniendo evidencias…</p>
-} @else if (view(); as state) {
-  <p class="kicker">¿El dato se puede usar?</p>
-  <h1 class="mt-2 text-3xl">Integridad</h1>
-  <p class="lede">Una repetición se retiene. Un valor imposible abre investigación. Ninguna de las dos cosas demuestra un ataque.</p>
-  @if (state.proof) {
-    <section class="sheet mt-6 max-w-3xl">
-      <h2 class="text-lg">Última lectura de esta sesión</h2>
-      <p class="mt-2">{{ state.proof.reason }}</p>
-      <p class="mt-2 text-sm text-q-muted">Criptográficamente verificada: no.</p>
-    </section>
-  }
-  <h2 class="mt-8 text-lg">Eventos</h2>
-  @if (state.events.length === 0) {
-    <p class="mt-2 text-sm">Todavía no hay eventos de integridad en el alcance.</p>
-  } @else {
-    <table class="mt-2 w-full text-left text-sm">
-      <thead><tr class="border-b border-q-line text-q-muted"><th class="py-2">Tipo</th><th>Estado</th><th>Secuencia</th><th>Detalle</th></tr></thead>
-      <tbody>
-        @for (event of state.events; track event.id) {
-          <tr class="border-b border-q-line align-top">
-            <td class="py-2">{{ event.eventType }}</td>
-            <td>{{ event.status }}</td>
-            <td class="mono">{{ event.deviceId }} / {{ event.bootId }} / {{ event.sequenceNumber }}</td>
-            <td>{{ event.detail }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
-  <details class="mt-6 max-w-3xl">
-    <summary class="min-h-11 cursor-pointer text-sm font-semibold">Identidad, valoraciones y casos</summary>
-    <dl>
-      @for (device of state.devices; track device.id) {
-        <div class="fact"><dt>Equipo</dt><dd class="mono">{{ device.deviceUid }} · {{ device.protocolName }} · {{ device.trustStatus }} · huella {{ device.keyFingerprint }}</dd></div>
-      }
-      @for (item of state.assessments; track item.id) {
-        <div class="fact"><dt>Regla</dt><dd>{{ item.trustLevel }} · {{ item.ruleVersion }} · {{ item.reason }}</dd></div>
-      }
-      @for (item of state.security; track item.id) {
-        <div class="fact"><dt>Caso</dt><dd>{{ item.title }} · {{ item.status }} · {{ item.resolutionNote }}</dd></div>
-      }
-    </dl>
-    @if (state.security.length === 0) {
-      <p class="mt-2 text-sm">Sin casos en este alcance.</p>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Reuniendo evidencias…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿El dato se puede usar?</p>
+        <h1>Integridad</h1>
+      </div>
+      <a class="hg-btn hg-btn-ghost" routerLink="/fuentes">Ver de dónde sale el dato</a>
+    </header>
+
+    <p class="hg-note">Una repetición se retiene. Un valor imposible abre investigación. Ninguna de las dos cosas demuestra un ataque.</p>
+
+    @if (state.proof) {
+      <hg-alert tone="warning" title="Última lectura de esta sesión">
+        {{ state.proof.reason }} · Criptográficamente verificada: no.
+      </hg-alert>
     }
-  </details>
-  <a class="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-q-cactus" routerLink="/fuentes">Ver de dónde sale el dato</a>
-}
+
+    <hg-card title="Eventos de integridad">
+      <div style="margin-bottom: 1rem">
+        <hg-search
+          label="Filtrar eventos"
+          placeholder="Buscar por tipo, estado o dispositivo…"
+          [value]="query()"
+          (valueChange)="query.set($event)"
+        />
+      </div>
+      @if (state.events.length === 0) {
+        <hg-empty
+          title="Sin eventos en el alcance"
+          detail="Todavía no hay eventos de integridad en el alcance o con este filtro."
+        />
+      } @else {
+        <hg-table>
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Secuencia</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (event of state.events; track event.id) {
+                <tr>
+                  <td>{{ event.eventType }}</td>
+                  <td>
+                    <hg-badge [tone]="event.status === 'QUARANTINED' ? 'amber' : 'neutral'">{{ event.status }}</hg-badge>
+                  </td>
+                  <td class="hg-mono">{{ event.deviceId }} / {{ event.bootId }} / {{ event.sequenceNumber }}</td>
+                  <td>{{ event.detail }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </hg-table>
+      }
+    </hg-card>
+
+    <hg-card title="Identidad, valoraciones y casos">
+      <details class="hg-details">
+        <summary>Ver detalle técnico ({{ state.devices.length }} equipos · {{ state.assessments.length }} reglas)</summary>
+        <dl class="hg-dl" style="margin-top: 1rem">
+          @for (device of state.devices; track device.id) {
+            <div class="hg-dl-row">
+              <dt>Equipo</dt>
+              <dd>{{ device.deviceUid }} · {{ device.protocolName }} · {{ device.trustStatus }} · huella {{ device.keyFingerprint }}</dd>
+            </div>
+          }
+          @for (item of state.assessments; track item.id) {
+            <div class="hg-dl-row">
+              <dt>Regla</dt>
+              <dd>{{ item.trustLevel }} · {{ item.ruleVersion }} · {{ item.reason }}</dd>
+            </div>
+          }
+          @for (item of state.security; track item.id) {
+            <div class="hg-dl-row">
+              <dt>Caso</dt>
+              <dd>{{ item.title }} · {{ item.status }} · {{ item.resolutionNote }}</dd>
+            </div>
+          }
+        </dl>
+        @if (state.security.length === 0) {
+          <p class="hg-note" style="margin-top: 0.75rem">Sin casos en este alcance.</p>
+        }
+      </details>
+    </hg-card>
+  }
+</div>

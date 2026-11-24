@@ -1,70 +1,141 @@
-@if (phase() === 'loading') {
-  <p role="status">Revisando la flota simulada…</p>
-} @else if (view(); as state) {
-  <p class="kicker">¿Puede salir el dron simulado?</p>
-  <h1 class="mt-2 text-3xl">Misiones</h1>
-  <p class="lede">La aprobación de esta pantalla no es un permiso operativo real y no controla una aeronave.</p>
-  @if (state.live; as mission) {
-    <ol class="mt-6 flex flex-wrap gap-2 text-sm" aria-label="Estados de la misión">
-      @for (step of steps; track step.code) {
-        <li class="min-h-11 border px-3 py-2" [class.border-q-ink]="mission.status === step.code" [class.bg-q-sand]="mission.status === step.code" [class.border-q-line]="mission.status !== step.code">
-          {{ mission.status === step.code ? 'Ahora: ' : '' }}{{ step.label }}
-        </li>
-      }
-    </ol>
-    <p class="mt-3 max-w-2xl text-sm">{{ mission.missionCode }} · {{ mission.safetyChecklistSummary }}</p>
-  } @else {
-    <p class="mt-6 text-sm">Todavía no hay misión en este alcance. El guion crea la cadena del bloque B2.</p>
-  }
-  <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <fieldset class="grid gap-2 text-sm">
-      <legend class="text-lg">Checklist antes de autorizar</legend>
-      <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.windBlocked" (change)="store.flag('windBlocked', $any($event.target).checked)" /> Viento fuera de límite</label>
-      <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.frostBlocked" (change)="store.flag('frostBlocked', $any($event.target).checked)" /> Helada</label>
-      <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.roofWorkBlocked" (change)="store.flag('roofWorkBlocked', $any($event.target).checked)" /> Trabajo en techo</label>
-      <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.manufacturerOk" (change)="store.flag('manufacturerOk', $any($event.target).checked)" /> Fabricante conforme</label>
-      <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.operatorOk" (change)="store.flag('operatorOk', $any($event.target).checked)" /> Operador identificado</label>
-      <label class="min-h-11"><input type="checkbox" [checked]="state.scenario.siteOk" (change)="store.flag('siteOk', $any($event.target).checked)" /> Sitio habilitado</label>
-    </fieldset>
-    <aside class="sheet h-fit">
-      <h2 class="text-sm font-semibold">Acción de esta pantalla</h2>
-      <div class="mt-3 flex flex-col items-start gap-2">
-        <button type="button" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="store.safety()">Correr checklist</button>
-        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.approve()">Registrar aprobación demo</button>
-        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.dispatch()">Despachar</button>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Revisando la flota simulada…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Puede salir el dron simulado?</p>
+        <h1>Misiones</h1>
       </div>
-      @if (state.blocks.length) {
-        <ul class="mt-3 text-sm" role="status">
-          @for (reason of state.blocks; track reason) {
-            <li>{{ reason }}</li>
+      <hg-sensor
+        [tone]="state.blocks.length ? 'alert' : 'ok'"
+        [label]="state.blocks.length ? state.blocks.length + ' bloqueo(s) de seguridad' : 'Checklist sin bloqueos'"
+      />
+    </header>
+
+    <p class="hg-note">La aprobación de esta pantalla no es un permiso operativo real y no controla una aeronave.</p>
+
+    @if (state.live; as mission) {
+      <hg-map-frame [title]="'Misión ' + mission.missionCode">
+        <hg-badge hgMapAction [tone]="mission.status === 'IN_FLIGHT' ? 'solar' : 'mint'">{{ mission.status }}</hg-badge>
+        <ol class="hg-row" style="list-style: none; margin: 0; padding: 0; gap: 0.5rem" aria-label="Estados de la misión">
+          @for (step of steps; track step.code) {
+            <li>
+              <hg-badge [tone]="mission.status === step.code ? 'solar' : 'neutral'">
+                {{ mission.status === step.code ? 'Ahora: ' : '' }}{{ step.label }}
+              </hg-badge>
+            </li>
+          }
+        </ol>
+        <p class="hg-note" style="margin-top: 0.75rem; color: var(--color-hg-ink)">{{ mission.missionCode }} · {{ mission.safetyChecklistSummary }}</p>
+      </hg-map-frame>
+    } @else {
+      <hg-empty
+        title="Sin misión activa"
+        detail="Todavía no hay misión en este alcance. El guion crea la cadena del bloque B2."
+      />
+    }
+
+    <div class="hg-split">
+      <hg-card title="Checklist antes de autorizar">
+        <fieldset style="border: 0; margin: 0; padding: 0">
+          <legend class="hg-note" style="margin-bottom: 0.75rem">Condiciones operativas y de seguridad (simuladas)</legend>
+          <ul class="hg-list">
+            <li class="hg-list-row">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; width: 100%">
+                <input type="checkbox" [checked]="state.scenario.windBlocked" (change)="store.flag('windBlocked', $any($event.target).checked)" />
+                <span>Viento fuera de límite</span>
+              </label>
+            </li>
+            <li class="hg-list-row">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; width: 100%">
+                <input type="checkbox" [checked]="state.scenario.frostBlocked" (change)="store.flag('frostBlocked', $any($event.target).checked)" />
+                <span>Helada</span>
+              </label>
+            </li>
+            <li class="hg-list-row">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; width: 100%">
+                <input type="checkbox" [checked]="state.scenario.roofWorkBlocked" (change)="store.flag('roofWorkBlocked', $any($event.target).checked)" />
+                <span>Trabajo en techo</span>
+              </label>
+            </li>
+            <li class="hg-list-row">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; width: 100%">
+                <input type="checkbox" [checked]="state.scenario.manufacturerOk" (change)="store.flag('manufacturerOk', $any($event.target).checked)" />
+                <span>Fabricante conforme</span>
+              </label>
+            </li>
+            <li class="hg-list-row">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; width: 100%">
+                <input type="checkbox" [checked]="state.scenario.operatorOk" (change)="store.flag('operatorOk', $any($event.target).checked)" />
+                <span>Operador identificado</span>
+              </label>
+            </li>
+            <li class="hg-list-row">
+              <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; width: 100%">
+                <input type="checkbox" [checked]="state.scenario.siteOk" (change)="store.flag('siteOk', $any($event.target).checked)" />
+                <span>Sitio habilitado</span>
+              </label>
+            </li>
+          </ul>
+        </fieldset>
+      </hg-card>
+
+      <hg-card title="Acción de esta pantalla">
+        <div class="hg-stack" style="gap: 0.6rem">
+          <hg-button variant="primary" (click)="store.safety()">Correr checklist</hg-button>
+          <hg-button variant="secondary" (click)="store.approve()">Registrar aprobación demo</hg-button>
+          <hg-button variant="secondary" (click)="store.dispatch()">Despachar</hg-button>
+        </div>
+        @if (state.blocks.length) {
+          <div style="margin-top: 1rem" role="status">
+            <hg-alert tone="warning" title="Bloqueos activos">
+              <ul class="hg-list" style="margin-top: 0.5rem">
+                @for (reason of state.blocks; track reason) {
+                  <li>{{ reason }}</li>
+                }
+              </ul>
+            </hg-alert>
+          </div>
+        }
+      </hg-card>
+    </div>
+
+    <hg-card title="Flota y verificación">
+      <dl class="hg-dl">
+        @for (drone of state.drones; track drone.id) {
+          <div class="hg-dl-row">
+            <dt>Aeronave</dt>
+            <dd>{{ drone.assetCode }} · {{ drone.modelName }} · {{ drone.status }} · viento máximo {{ drone.maximumWindMs }} m/s</dd>
+          </div>
+        }
+        @for (item of state.authorizations; track item.id) {
+          <div class="hg-dl-row">
+            <dt>Permiso</dt>
+            <dd>{{ item.status }} · {{ item.decisionNote }}</dd>
+          </div>
+        }
+        @for (item of state.verifications; track item.id) {
+          <div class="hg-dl-row">
+            <dt>Después</dt>
+            <dd>{{ item.status }} · {{ item.evidenceSummary }}</dd>
+          </div>
+        }
+      </dl>
+      @if (state.drones.length === 0) {
+        <p class="hg-note" style="margin-top: 0.5rem">No hay aeronaves de esta organización.</p>
+      }
+      @if (state.missions.length > 1 || (state.missions.length === 1 && !state.live)) {
+        <h3 style="margin: 1rem 0 0.5rem; font-size: 0.9rem">Otras misiones del alcance</h3>
+        <ul class="hg-list">
+          @for (mission of state.missions; track mission.id) {
+            @if (mission.id !== state.live?.id) {
+              <li class="hg-list-row">{{ mission.missionCode }} · {{ mission.kind }} · {{ mission.status }} · {{ mission.safetyChecklistSummary }}</li>
+            }
           }
         </ul>
       }
-    </aside>
-  </div>
-  <h2 class="mt-8 text-lg">Flota y verificación</h2>
-  <dl class="mt-2 max-w-3xl">
-    @for (drone of state.drones; track drone.id) {
-      <div class="fact"><dt>Aeronave</dt><dd>{{ drone.assetCode }} · {{ drone.modelName }} · {{ drone.status }} · viento máximo {{ drone.maximumWindMs }} m/s</dd></div>
-    }
-    @for (item of state.authorizations; track item.id) {
-      <div class="fact"><dt>Permiso</dt><dd>{{ item.status }} · {{ item.decisionNote }}</dd></div>
-    }
-    @for (item of state.verifications; track item.id) {
-      <div class="fact"><dt>Después</dt><dd>{{ item.status }} · {{ item.evidenceSummary }}</dd></div>
-    }
-  </dl>
-  @if (state.drones.length === 0) {
-    <p class="text-sm">No hay aeronaves de esta organización.</p>
+    </hg-card>
   }
-  @if (state.missions.length > 1 || (state.missions.length === 1 && !state.live)) {
-    <h2 class="mt-6 text-lg">Otras misiones del alcance</h2>
-    <ul class="mt-2 space-y-2 text-sm">
-      @for (mission of state.missions; track mission.id) {
-        @if (mission.id !== state.live?.id) {
-          <li>{{ mission.missionCode }} · {{ mission.kind }} · {{ mission.status }} · {{ mission.safetyChecklistSummary }}</li>
-        }
-      }
-    </ul>
-  }
-}
+</div>

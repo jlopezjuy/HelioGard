@@ -1,63 +1,110 @@
-@if (phase() === 'loading') {
-  <p role="status">Abriendo la ficha…</p>
-} @else if (view(); as state) {
-  @if (state.missing) {
-    <p role="alert">Esta instalación no está en el alcance de la sesión. Otro tenant no se muestra.</p>
-    <a class="mt-3 inline-flex min-h-11 items-center text-q-cactus" routerLink="/instalaciones">Volver al listado</a>
-  } @else {
-    <p class="kicker">{{ state.installation.code }} · acceso simulado {{ state.level }}</p>
-    <h1 class="mt-2 text-3xl">{{ state.installation.name }}</h1>
-    <p class="lede">{{ state.site?.address }} · {{ state.site?.climateZone }} · huso {{ state.site?.timeZone }} · {{ state.site?.altitudeM }} m</p>
-    @if (state.level === 'MAINTENANCE') {
-      <p class="mt-3 text-sm">El grant permite mantenimiento. La economía de este hogar queda fuera de alcance.</p>
-    }
-    <div class="mt-6 grid gap-6 lg:grid-cols-2">
-      <section>
-        <h2 class="text-lg">Bloques y strings</h2>
-        <ul class="mt-2 space-y-2 text-sm">
-          @for (row of state.strings; track row.id) {
-            <li class="flex items-center justify-between gap-3 border-b border-q-line py-2">
-              <span class="mono">{{ row.stringCode }} · {{ row.active ? 'activo' : 'fuera de servicio' }}</span>
-              <button type="button" class="min-h-11 rounded-ui border border-q-line px-3" (click)="toggle(row.id)">Cambiar estado</button>
-            </li>
-          }
-        </ul>
-      </section>
-      <section>
-        <h2 class="text-lg">Equipos y gateways</h2>
-        <ul class="mt-2 space-y-1 text-sm">
-          @for (item of state.equipment; track item.id) {
-            <li>{{ item.tag }} · {{ item.kind }} · {{ item.status }} · serie {{ item.serialNumber }}</li>
-          }
-          @for (gateway of state.gateways; track gateway.id) {
-            <li class="mono">{{ gateway.hardwareId }} · {{ gateway.status }} · {{ gateway.firmwareVersion }}</li>
-          }
-        </ul>
-      </section>
-      <details class="lg:col-span-2">
-        <summary class="min-h-11 cursor-pointer text-lg">Canales, catálogo y accesos</summary>
-        <ul class="mt-2 space-y-1 text-sm">
-          @for (channel of state.channels; track channel.id) {
-            <li class="mono">{{ channel.externalChannelCode }} · cada {{ channel.samplePeriodSeconds }} s</li>
-          }
-          @for (metric of state.metrics; track metric.id) {
-            <li>Solo lectura: {{ metric.code }} ({{ metric.unitCode }}) {{ metric.counter ? 'contador' : 'instantánea' }}</li>
-          }
-          @for (model of state.models; track model.id) {
-            <li>Catálogo: {{ model.manufacturer }} {{ model.modelCode }} · {{ model.nominalPowerW }} W</li>
-          }
-        </ul>
-      <h2 class="mt-4 text-lg">Accesos externos</h2>
-        @if (state.grants.length === 0) {
-          <p class="mt-2 text-sm text-q-muted">Sin grants sobre esta instalación.</p>
-        } @else {
-          <ul class="mt-2 space-y-2 text-sm">
-            @for (grant of state.grants; track grant.id) {
-              <li>{{ grant.scope }} para {{ grant.granteeOrganizationId }}. {{ grant.reason }}</li>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Abriendo la ficha…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    @if (state.missing) {
+      <hg-alert tone="danger" title="Acceso denegado o fuera de alcance">
+        Esta instalación no está en el alcance de la sesión. Otro tenant no se muestra.
+      </hg-alert>
+      <div>
+        <a class="hg-btn hg-btn-secondary" routerLink="/instalaciones">Volver al listado</a>
+      </div>
+    } @else {
+      <header class="hg-page-head">
+        <div>
+          <p class="hg-kicker">{{ state.installation.code }} · acceso simulado {{ state.level }}</p>
+          <h1>{{ state.installation.name }}</h1>
+        </div>
+        <a class="hg-btn hg-btn-ghost" routerLink="/instalaciones">Volver al listado</a>
+      </header>
+
+      <p class="hg-note">{{ state.site?.address }} · {{ state.site?.climateZone }} · huso {{ state.site?.timeZone }} · {{ state.site?.altitudeM }} m</p>
+
+      @if (state.level === 'MAINTENANCE') {
+        <hg-alert tone="info" title="Alcance de mantenimiento">
+          El grant permite mantenimiento. La economía de este hogar queda fuera de alcance.
+        </hg-alert>
+      }
+
+      <div class="hg-grid-cards">
+        <hg-card title="Bloques y strings">
+          <ul class="hg-list">
+            @for (row of state.strings; track row.id) {
+              <li class="hg-list-row">
+                <div>
+                  <span class="hg-mono">{{ row.stringCode }}</span>
+                  <span style="margin-left: 0.5rem">
+                    <hg-badge [tone]="row.active ? 'mint' : 'coral'">{{ row.active ? 'activo' : 'fuera de servicio' }}</hg-badge>
+                  </span>
+                </div>
+                <hg-button variant="secondary" (click)="toggle(row.id)">Cambiar estado</hg-button>
+              </li>
             }
           </ul>
+        </hg-card>
+
+        <hg-card title="Equipos y gateways">
+          <ul class="hg-list">
+            @for (item of state.equipment; track item.id) {
+              <li class="hg-list-row">
+                <div>
+                  <strong>{{ item.tag }}</strong> · {{ item.kind }}
+                  <span class="hg-mono hg-note" style="display: block">serie {{ item.serialNumber }}</span>
+                </div>
+                <div class="hg-row">
+                  <hg-sensor [tone]="item.status === 'FAILED' ? 'alert' : 'ok'" [label]="item.status" />
+                  <hg-button variant="ghost" (click)="inspectEquipment(item)">Detalle</hg-button>
+                </div>
+              </li>
+            }
+            @for (gateway of state.gateways; track gateway.id) {
+              <li class="hg-list-row">
+                <span class="hg-mono">{{ gateway.hardwareId }} · {{ gateway.firmwareVersion }}</span>
+                <hg-badge [tone]="gateway.status === 'ONLINE' ? 'mint' : 'amber'">{{ gateway.status }}</hg-badge>
+              </li>
+            }
+          </ul>
+        </hg-card>
+      </div>
+
+      <hg-card title="Canales, catálogo y accesos">
+        <details class="hg-details">
+          <summary>Ver canales, métricas y grants</summary>
+          <ul class="hg-list" style="margin-top: 0.85rem">
+            @for (channel of state.channels; track channel.id) {
+              <li class="hg-list-row"><span class="hg-mono">{{ channel.externalChannelCode }}</span><span>cada {{ channel.samplePeriodSeconds }} s</span></li>
+            }
+            @for (metric of state.metrics; track metric.id) {
+              <li class="hg-list-row"><span>Solo lectura: {{ metric.code }} ({{ metric.unitCode }})</span><hg-badge tone="neutral">{{ metric.counter ? 'contador' : 'instantánea' }}</hg-badge></li>
+            }
+            @for (model of state.models; track model.id) {
+              <li class="hg-list-row"><span>Catálogo: {{ model.manufacturer }} {{ model.modelCode }}</span><span class="hg-mono">{{ model.nominalPowerW }} W</span></li>
+            }
+          </ul>
+          <h3 style="margin: 1rem 0 0.5rem; font-size: 0.9rem">Accesos externos</h3>
+          @if (state.grants.length === 0) {
+            <p class="hg-note">Sin grants sobre esta instalación.</p>
+          } @else {
+            <ul class="hg-list">
+              @for (grant of state.grants; track grant.id) {
+                <li class="hg-list-row">{{ grant.scope }} para {{ grant.granteeOrganizationId }}. {{ grant.reason }}</li>
+              }
+            </ul>
+          }
+        </details>
+      </hg-card>
+
+      <hg-drawer [title]="activeEquipment()?.tag ?? 'Equipo'" [(open)]="drawerOpen">
+        @if (activeEquipment(); as eq) {
+          <dl class="hg-dl">
+            <div class="hg-dl-row"><dt>Tag</dt><dd>{{ eq.tag }}</dd></div>
+            <div class="hg-dl-row"><dt>Tipo</dt><dd>{{ eq.kind }}</dd></div>
+            <div class="hg-dl-row"><dt>Estado</dt><dd>{{ eq.status }}</dd></div>
+            <div class="hg-dl-row"><dt>Serie</dt><dd>{{ eq.serialNumber }}</dd></div>
+          </dl>
         }
-      </details>
-    </div>
+      </hg-drawer>
+    }
   }
-}
+</div>

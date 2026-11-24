@@ -1,9 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgBadge, HgButton, HgCard, HgEmpty, HgError, HgSensor, HgSkeleton, HgTable } from '../../shared/ui';
 
 @Component({
   selector: 'app-telemetry',
+  imports: [HgBadge, HgButton, HgCard, HgEmpty, HgError, HgSensor, HgSkeleton, HgTable],
   templateUrl: './telemetry.html',
 })
 export class TelemetryPage {

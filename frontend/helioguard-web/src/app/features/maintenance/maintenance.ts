@@ -2,9 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { visibleInstallations } from '../../core/domain/access';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgBadge, HgButton, HgCard, HgEmpty, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-maintenance',
+  imports: [HgBadge, HgButton, HgCard, HgEmpty, HgSkeleton],
   templateUrl: './maintenance.html',
 })
 export class MaintenancePage {

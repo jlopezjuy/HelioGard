@@ -1,59 +1,231 @@
-@if (phase() === 'loading') {
-  <p role="status">Calculando intervalos…</p>
-} @else if (view(); as state) {
-  <p class="kicker">¿Cuánto falta y por qué?</p>
-  <h1 class="mt-2 text-3xl">Energía del bloque B2</h1>
-  <p class="lede">Wh = potencia en W × segundos / 3600. El largo de la barra es la cantidad. El color no indica magnitud.</p>
-  <section class="sheet mt-6 max-w-3xl">
-    <h2 class="text-lg">Intervalo 10:30</h2>
-    @if (state.loss?.validationStatus === 'sin estimación confiable') {
-      <p class="mt-2">sin estimación confiable</p>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Calculando intervalos…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Cuánto falta y por qué?</p>
+        <h1>Energía del bloque B2</h1>
+      </div>
+      <hg-badge tone="solar">Wh · hora local</hg-badge>
+    </header>
+
+    <p class="hg-note">Wh = potencia en W × segundos / 3600. El largo de la barra es la cantidad. El color no indica magnitud.</p>
+
+    <hg-card title="Intervalo 10:30">
+      @if (state.loss?.validationStatus === 'sin estimación confiable') {
+        <p class="hg-note" style="color: var(--color-hg-ink)">sin estimación confiable</p>
+      } @else {
+        <ul class="hg-list">
+          @for (cause of state.causes; track cause.id) {
+            <li class="hg-list-row">
+              <span>{{ cause.cause }} · {{ cause.evidenceNote }}</span>
+              <hg-badge tone="amber">{{ formatWh(cause.estimatedWh) }}</hg-badge>
+            </li>
+          }
+        </ul>
+        @if (state.showMoney && state.economy) {
+          <p class="hg-note" style="margin-top: 0.75rem; color: var(--color-hg-ink)">
+            Monto demostrativo {{ formatArs(state.economy.estimatedLossAmount) }}. {{ state.economy.tariffSnapshotNote }}
+          </p>
+        }
+      }
+    </hg-card>
+
+    <div class="hg-row" style="justify-content: space-between">
+      <hg-tabs [tabs]="tabs" [(selected)]="tab" label="Vista de energía" />
+      @if (tab() !== 'diurna') {
+        <hg-button variant="secondary" (click)="toggleComparable()">Marcar 10:15 como no comparable</hg-button>
+      }
+    </div>
+
+    @if (tab() === 'grafico') {
+      <hg-chart-frame
+        title="Esperado y real por intervalo"
+        unit="Wh"
+        rangeLabel="10:00 a 10:45 (hora local)"
+        note="Esperado (lima) vs. Real (menta). No se cierra la causa de pérdida sin verificación."
+      >
+        <svg viewBox="0 0 560 240" style="width: 100%; max-width: 48rem; height: auto" role="img" aria-label="Esperado y real en Wh por intervalo">
+          <title>Esperado y real, 10:00 a 10:45</title>
+          <line x1="40" y1="20" x2="40" y2="190" stroke="#223027" />
+          <line x1="40" y1="190" x2="530" y2="190" stroke="#223027" />
+          <text x="8" y="24" font-size="11" fill="#8ea192">Wh</text>
+          <text x="455" y="214" font-size="11" fill="#8ea192">hora local</text>
+          @for (point of state.points; track point.interval.id) {
+            <text [attr.x]="point.x" y="208" font-size="12" fill="#f3f6f2">{{ point.interval.label }}</text>
+            <rect [attr.x]="point.x" [attr.y]="190 - point.expected / 80" width="18" [attr.height]="point.expected / 80" rx="3" fill="#d8fb1c" />
+            @if (point.actual !== null) {
+              <rect [attr.x]="point.x + 22" [attr.y]="190 - point.actual / 80" width="18" [attr.height]="point.actual / 80" rx="3" fill="#19c37d" />
+            }
+          }
+        </svg>
+        <div class="hg-row" style="margin-top: 0.5rem">
+          <hg-badge tone="solar">Esperado</hg-badge>
+          <hg-badge tone="mint">Real</hg-badge>
+        </div>
+      </hg-chart-frame>
+    } @else if (tab() === 'tabla') {
+      <hg-card title="Detalle de intervalos">
+        <hg-table>
+          <table>
+            <thead>
+              <tr>
+                <th>Intervalo</th>
+                <th>Esperado</th>
+                <th>Real</th>
+                <th>Déficit</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (point of state.points; track point.interval.id) {
+                <tr>
+                  <td>{{ point.interval.label }}</td>
+                  <td class="hg-mono">{{ formatWh(point.expected) }}</td>
+                  <td class="hg-mono">{{ point.actual === null ? 'sin dato' : formatWh(point.actual) }}</td>
+                  <td>{{ point.deficit.kind === 'value' ? formatWh(point.deficit.deficitWh) : point.deficit.label }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </hg-table>
+      </hg-card>
     } @else {
-      <ul class="mt-3 space-y-2 text-sm">
-        @for (cause of state.causes; track cause.id) {
-          <li>{{ cause.cause }} · {{ formatWh(cause.estimatedWh) }} · {{ cause.evidenceNote }}</li>
+      @let s = sim.state();
+      @let chart = diurnalChart();
+      <div class="hg-stack">
+        <hg-card title="Simulación diurna en vivo (modelo físico Idea Original)">
+          <div class="hg-row" style="justify-content: space-between; margin-bottom: 0.85rem">
+            <div class="hg-row">
+              <hg-sensor [tone]="sensorTone(s.estado)" [label]="statusLabel(s.estado)" />
+              <hg-badge tone="solar">{{ s.lectura?.reloj ?? '07:00' }} · {{ s.modo }}</hg-badge>
+              <hg-badge tone="neutral">Suciedad {{ (s.suciedad * 100) | number:'1.0-0' }} %</hg-badge>
+            </div>
+            <div class="hg-row">
+              <hg-button variant="primary" (click)="sim.togglePlay()">
+                {{ sim.running() ? 'Pausar' : 'Reproducir' }}
+              </hg-button>
+              <hg-button variant="secondary" (click)="sim.step(1)">+5 min</hg-button>
+              <hg-button variant="secondary" (click)="sim.step(6)">+30 min</hg-button>
+              <hg-button variant="ghost" (click)="sim.reset()">Reiniciar día</hg-button>
+            </div>
+          </div>
+
+          <div class="hg-row" style="margin-bottom: 1rem">
+            @for (mode of modes; track mode.id) {
+              <hg-button
+                [variant]="s.modo === mode.id ? 'primary' : 'secondary'"
+                (click)="sim.setMode(mode.id)"
+              >
+                {{ mode.label }}
+              </hg-button>
+            }
+          </div>
+
+          <div class="hg-grid-cards">
+            <hg-field label="Potencia pico instalada (kWp)" hint="Default prototipo original: 5 kWp · Bloque B2: 48 kWp">
+              <input
+                hgControl
+                type="number"
+                min="0.5"
+                step="0.5"
+                [value]="s.peakKw"
+                (change)="onPeakChange($any($event.target).value)"
+              />
+            </hg-field>
+            <hg-field label="Tarifa de referencia (ARS/kWh)" hint="Default original: 120 ARS/kWh">
+              <input
+                hgControl
+                type="number"
+                min="0"
+                step="10"
+                [value]="s.tariffArsPerKwh"
+                (change)="onTariffChange($any($event.target).value)"
+              />
+            </hg-field>
+          </div>
+        </hg-card>
+
+        @for (alerta of s.alertas; track alerta.titulo) {
+          <hg-alert
+            [tone]="alerta.nivel === 'rojo' ? 'danger' : 'warning'"
+            [title]="alerta.titulo"
+          >
+            {{ alerta.detalle }}
+            @if (alerta.nivel === 'rojo') {
+              La acumulación de pérdida económica permanece congelada mientras el dato sea sospechoso.
+            }
+          </hg-alert>
+        }
+
+        <hg-chart-frame
+          title="Curva diurna: potencia real vs. esperada"
+          unit="kW"
+          rangeLabel="07:00 a 19:00 (pasos de 5 min)"
+          note="Esperada con derating térmico -0,4 %/°C (punteada lima) vs. Real informada (sólida menta/coral)."
+        >
+          <svg viewBox="0 0 560 220" style="width: 100%; max-width: 48rem; height: auto" role="img" aria-label="Curva diurna de potencia real contra esperada">
+            <title>Curva diurna 07:00 a 19:00</title>
+            <line x1="42" y1="20" x2="42" y2="185" stroke="#223027" />
+            <line x1="42" y1="185" x2="532" y2="185" stroke="#223027" />
+            <text x="8" y="24" font-size="10" fill="#8ea192">{{ chart.yMax | number:'1.1-1' }} kW</text>
+            <text x="42" y="204" font-size="11" fill="#8ea192">07:00</text>
+            <text x="274" y="204" font-size="11" fill="#8ea192">13:00</text>
+            <text x="502" y="204" font-size="11" fill="#8ea192">19:00</text>
+            @if (chart.expectedLine) {
+              <polyline
+                fill="none"
+                stroke="#d8fb1c"
+                stroke-width="2"
+                stroke-dasharray="5 4"
+                [attr.points]="chart.expectedLine"
+              />
+            }
+            @if (chart.actualLine) {
+              <polyline
+                fill="none"
+                [attr.stroke]="s.estado === 'rojo' ? '#ff6b6b' : s.estado === 'amarillo' ? '#ffc247' : '#19c37d'"
+                stroke-width="2.5"
+                [attr.points]="chart.actualLine"
+              />
+            }
+          </svg>
+        </hg-chart-frame>
+
+        <div class="hg-grid-cards">
+          <hg-kpi
+            label="Pérdida acumulada del día"
+            [value]="(s.perdidaKwh | number:'1.2-2') ?? '0'"
+            unit="kWh"
+            [note]="formatArs(s.perdidaPesos) + (s.estado === 'rojo' ? ' · congelada por alerta roja' : ' · banda muerta < 97 %')"
+          />
+
+          <hg-card title="Última lectura eléctrica">
+            @if (s.lectura; as r) {
+              <dl class="hg-dl">
+                <div class="hg-dl-row"><dt>Potencia real / esperada</dt><dd>{{ r.potenciaKw }} kW / {{ r.esperadaKw }} kW</dd></div>
+                <div class="hg-dl-row"><dt>Tensión / Corriente</dt><dd>{{ r.tensionV }} V · {{ r.corrienteA }} A (V×I = {{ ((r.tensionV * r.corrienteA) / 1000) | number:'1.2-2' }} kW)</dd></div>
+                <div class="hg-dl-row"><dt>Irradiancia / Temp. panel</dt><dd>{{ r.irradianciaWm2 }} W/m² · {{ r.temperaturaC }} °C</dd></div>
+                <div class="hg-dl-row"><dt>Muestras en ventana / ciclos</dt><dd>{{ s.hist.length }}/12 · reinicios {{ s.dayRollovers }}</dd></div>
+              </dl>
+            } @else {
+              <p class="hg-note">Pulsá Reproducir o +5 min para iniciar el día solar.</p>
+            }
+          </hg-card>
+        </div>
+      </div>
+    }
+
+    <hg-card title="Clima usado por el modelo">
+      <ul class="hg-list">
+        @for (zone of zones; track zone) {
+          <li class="hg-list-row">
+            <span>{{ zone }}{{ state.present.includes(zone) ? '' : ' — sin instalación en esta demo' }}</span>
+            <hg-badge [tone]="state.present.includes(zone) ? 'mint' : 'neutral'">{{ state.present.includes(zone) ? 'Activa' : 'Sin demo' }}</hg-badge>
+          </li>
         }
       </ul>
-      @if (state.showMoney && state.economy) {
-        <p class="mt-3 text-sm">Monto demostrativo {{ formatArs(state.economy.estimatedLossAmount) }}. {{ state.economy.tariffSnapshotNote }}</p>
-      }
-    }
-  </section>
-  <svg viewBox="0 0 560 240" class="mt-6 w-full max-w-3xl border border-q-line bg-q-surface" role="img" aria-label="Esperado y real en Wh por intervalo">
-    <title>Esperado y real, 10:00 a 10:45</title>
-    <line x1="40" y1="20" x2="40" y2="190" stroke="#24302D" />
-    <line x1="40" y1="190" x2="530" y2="190" stroke="#24302D" />
-    <text x="8" y="24" font-size="11" fill="#4B5A57">Wh</text>
-    <text x="470" y="214" font-size="11" fill="#4B5A57">hora local</text>
-    @for (point of state.points; track point.interval.id) {
-      <text [attr.x]="point.x" y="208" font-size="12" fill="#24302D">{{ point.interval.label }}</text>
-      <rect [attr.x]="point.x" [attr.y]="190 - point.expected / 80" width="18" [attr.height]="point.expected / 80" fill="#315D57" />
-      @if (point.actual !== null) {
-        <rect [attr.x]="point.x + 22" [attr.y]="190 - point.actual / 80" width="18" [attr.height]="point.actual / 80" fill="#8F432E" />
-      }
-    }
-  </svg>
-  <p class="mt-2 text-sm"><span class="inline-block h-3 w-3 bg-q-cactus align-middle"></span> Esperado <span class="ml-3 inline-block h-3 w-3 bg-q-terracotta align-middle"></span> Real</p>
-  <table class="mt-4 w-full max-w-3xl text-left text-sm">
-    <thead>
-      <tr class="border-b border-q-line text-q-muted"><th class="py-2">Intervalo</th><th>Esperado</th><th>Real</th><th>Déficit</th></tr>
-    </thead>
-    <tbody>
-      @for (point of state.points; track point.interval.id) {
-        <tr class="border-b border-q-line">
-          <td class="py-2">{{ point.interval.label }}</td>
-          <td class="mono">{{ formatWh(point.expected) }}</td>
-          <td class="mono">{{ point.actual === null ? 'sin dato' : formatWh(point.actual) }}</td>
-          <td>{{ point.deficit.kind === 'value' ? formatWh(point.deficit.deficitWh) : point.deficit.label }}</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-  <button type="button" class="mt-4 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="toggleComparable()">Marcar 10:15 como no comparable</button>
-  <h2 class="mt-8 text-lg">Clima usado por el modelo</h2>
-  <ul class="mt-2 text-sm">
-    @for (zone of zones; track zone) {
-      <li>{{ zone }}{{ state.present.includes(zone) ? '' : ' — sin instalación en esta demo' }}</li>
-    }
-  </ul>
-}
+    </hg-card>
+  }
+</div>

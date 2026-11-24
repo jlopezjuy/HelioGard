@@ -6,10 +6,11 @@ import { LIVE } from '../../core/domain/model';
 import { formatWh, wattHoursFromPower } from '../../core/domain/rules';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgBadge, HgCard, HgEmpty, HgMapFrame, HgProgress, HgSensor, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-park',
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, HgBadge, HgCard, HgEmpty, HgMapFrame, HgProgress, HgSensor, HgSkeleton],
   templateUrl: './park.html',
 })
 export class ParkPage {

@@ -1,10 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { visibleInstallations } from '../../core/domain/access';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgAlert, HgBadge, HgButton, HgCard, HgEmpty, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-incidents',
+  imports: [RouterLink, HgAlert, HgBadge, HgButton, HgCard, HgEmpty, HgSkeleton],
   templateUrl: './incidents.html',
 })
 export class IncidentsPage {

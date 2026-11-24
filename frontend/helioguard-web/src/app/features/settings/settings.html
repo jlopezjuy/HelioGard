@@ -1,21 +1,35 @@
-@if (phase() === 'loading') {
-  <p role="status">Abriendo la configuración local…</p>
-} @else {
-  <p class="kicker">¿Cómo se guarda esta copia?</p>
-  <h1 class="mt-2 text-3xl">Configuración</h1>
-  <p class="lede">
-    Semilla helioguard-hackaton-v4. Reloj guardado en UTC y mostrado en America/Argentina/Jujuy.
-    La persistencia es localStorage de esta copia. No hay API.
-  </p>
-  <div class="mt-4 flex flex-wrap gap-2">
-    <button type="button" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="download()">Exportar JSON</button>
-    <label class="inline-flex min-h-11 cursor-pointer items-center rounded-ui border border-q-line px-3 text-sm">
-      Importar JSON
-      <input class="sr-only" type="file" accept="application/json" (change)="onFile($event)" />
-    </label>
-    <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.reset()">Restablecer demo</button>
-  </div>
-  @if (message()) {
-    <p class="mt-3 text-sm" role="status">{{ message() }}</p>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Abriendo la configuración local…</p>
+    <hg-skeleton />
+  } @else {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Cómo se guarda esta copia?</p>
+        <h1>Configuración</h1>
+      </div>
+    </header>
+
+    <p class="hg-note">
+      Semilla helioguard-hackaton-v4. Reloj guardado en UTC y mostrado en America/Argentina/Jujuy.
+      La persistencia es localStorage de esta copia. No hay API.
+    </p>
+
+    <hg-card title="Estado de la demo">
+      <div class="hg-row">
+        <hg-button variant="primary" (click)="download()">Exportar JSON</hg-button>
+        <label class="hg-btn hg-btn-secondary" style="cursor: pointer">
+          Importar JSON
+          <input class="sr-only" type="file" accept="application/json" (change)="onFile($event)" />
+        </label>
+        <hg-button variant="danger" (click)="store.reset()">Restablecer demo</hg-button>
+      </div>
+    </hg-card>
+
+    @if (message()) {
+      <div role="status">
+        <hg-alert tone="success" title="Operación local">{{ message() }}</hg-alert>
+      </div>
+    }
   }
-}
+</div>

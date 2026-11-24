@@ -2,9 +2,11 @@ import { Component, computed, inject } from '@angular/core';
 import { formatArs } from '../../core/domain/rules';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgBadge, HgButton, HgCard, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-plans',
+  imports: [HgBadge, HgButton, HgCard, HgSkeleton],
   templateUrl: './plans.html',
 })
 export class PlansPage {

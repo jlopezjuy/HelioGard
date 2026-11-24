@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { visibleInstallations } from '../../core/domain/access';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgBadge, HgCard, HgEmpty, HgSensor, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-installations',
-  imports: [RouterLink],
+  imports: [RouterLink, HgBadge, HgCard, HgEmpty, HgSensor, HgSkeleton],
   templateUrl: './installations.html',
 })
 export class InstallationsPage {

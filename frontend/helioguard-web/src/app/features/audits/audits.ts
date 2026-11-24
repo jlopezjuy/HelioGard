@@ -3,10 +3,11 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { visibleInstallations } from '../../core/domain/access';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgBadge, HgButton, HgCard, HgControl, HgEmpty, HgField, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-audits',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, HgBadge, HgButton, HgCard, HgControl, HgEmpty, HgField, HgSkeleton],
   templateUrl: './audits.html',
 })
 export class AuditsPage {

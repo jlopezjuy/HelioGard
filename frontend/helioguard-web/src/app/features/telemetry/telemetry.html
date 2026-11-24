@@ -1,64 +1,122 @@
-@if (phase() === 'loading') {
-  <p role="status">Leyendo el camino del dato…</p>
-} @else if (view(); as state) {
-  <p class="kicker">¿Llegó la lectura?</p>
-  <h1 class="mt-2 text-3xl">Telemetría</h1>
-  <p class="lede">INV-03 y ESP-03 entregan a la Raspberry. De ahí sale el outbox, la WAN y la copia de demo. Nada de esto sale de la máquina.</p>
-  <ol class="mt-6 grid gap-3 md:grid-cols-4">
-    <li class="border border-q-line bg-q-surface p-3"><span class="block text-xs text-q-muted">1</span>Inversor / ESP32<br /><span class="mono text-xs">{{ state.channel?.externalChannelCode }}</span></li>
-    <li class="border border-q-line bg-q-surface p-3"><span class="block text-xs text-q-muted">2</span>Raspberry {{ state.gateway?.hardwareId }}<br />{{ state.gateway?.status }}</li>
-    <li class="border border-q-line bg-q-surface p-3"><span class="block text-xs text-q-muted">3</span>Outbox local<br />{{ state.buffer.length }} en cola</li>
-    <li class="border border-q-line p-3" [class.bg-q-sand]="state.offline" [class.bg-q-surface]="!state.offline"><span class="block text-xs text-q-muted">4</span>{{ state.offline ? 'WAN cortada' : 'WAN simulada disponible' }}<br />sync {{ state.syncCount }}</li>
-  </ol>
-  <div class="mt-4 flex flex-wrap items-center gap-2">
-    <button type="button" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="store.original()">Publicar original</button>
-    <details>
-      <summary class="min-h-11 cursor-pointer px-1 text-sm">Otras lecturas de prueba</summary>
-      <div class="mt-2 flex flex-wrap gap-2">
-        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.replay()">Reinyectar el mismo evento</button>
-        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.sameSequence()">Misma secuencia, otro eventId</button>
-        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.newBoot()">Reinicio con bootId nuevo</button>
-        <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="store.flag('readFailure', true)">Simular fallo de lectura</button>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Leyendo el camino del dato…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Llegó la lectura?</p>
+        <h1>Telemetría</h1>
       </div>
-    </details>
-  </div>
-  @if (state.failure) {
-    <p class="mt-4 border border-q-danger bg-white p-3 text-sm" role="alert">No se pudo leer el canal en esta pasada simulada. El último ledger no se borra.</p>
-    <button type="button" class="mt-2 min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white" (click)="retry()">Reintentar lectura</button>
+      <div class="hg-row">
+        <hg-sensor
+          [tone]="state.offline ? 'watch' : 'ok'"
+          [label]="state.offline ? 'WAN cortada' : 'WAN simulada disponible'"
+        />
+        <hg-badge tone="solar">sync {{ state.syncCount }}</hg-badge>
+      </div>
+    </header>
+
+    <p class="hg-note">INV-03 y ESP-03 entregan a la Raspberry. De ahí sale el outbox, la WAN y la copia de demo. Nada de esto sale de la máquina.</p>
+
+    <ol class="hg-flow-steps">
+      <li class="hg-flow-step">
+        <span class="hg-kicker">Paso 1</span>
+        <strong>Inversor / ESP32</strong>
+        <span class="hg-mono hg-note">{{ state.channel?.externalChannelCode }}</span>
+      </li>
+      <li class="hg-flow-step">
+        <span class="hg-kicker">Paso 2</span>
+        <strong>Raspberry {{ state.gateway?.hardwareId }}</strong>
+        <hg-badge tone="mint">{{ state.gateway?.status }}</hg-badge>
+      </li>
+      <li class="hg-flow-step">
+        <span class="hg-kicker">Paso 3</span>
+        <strong>Outbox local</strong>
+        <span class="hg-mono hg-note">{{ state.buffer.length }} en cola</span>
+      </li>
+      <li class="hg-flow-step" [class.is-offline]="state.offline">
+        <span class="hg-kicker">Paso 4</span>
+        <strong>{{ state.offline ? 'WAN cortada' : 'WAN simulada disponible' }}</strong>
+        <span class="hg-mono hg-note">sync {{ state.syncCount }}</span>
+      </li>
+    </ol>
+
+    <hg-card title="Pruebas de ingestión">
+      <div class="hg-row">
+        <hg-button variant="primary" (click)="store.original()">Publicar original</hg-button>
+        <details class="hg-details">
+          <summary>Otras lecturas de prueba</summary>
+          <div class="hg-row" style="margin-top: 0.75rem">
+            <hg-button variant="secondary" (click)="store.replay()">Reinyectar el mismo evento</hg-button>
+            <hg-button variant="secondary" (click)="store.sameSequence()">Misma secuencia, otro eventId</hg-button>
+            <hg-button variant="secondary" (click)="store.newBoot()">Reinicio con bootId nuevo</hg-button>
+            <hg-button variant="secondary" (click)="store.electricalInjection()">Inyección V×I inconsistente</hg-button>
+            <hg-button variant="secondary" (click)="store.frozenStream()">Stream congelado 5×</hg-button>
+            <hg-button variant="ghost" (click)="store.flag('readFailure', true)">Simular fallo de lectura</hg-button>
+          </div>
+        </details>
+      </div>
+    </hg-card>
+
+    @if (state.failure) {
+      <hg-error
+        title="Fallo de lectura del canal"
+        detail="No se pudo leer el canal en esta pasada simulada. El último ledger no se borra."
+        retryLabel="Reintentar lectura"
+        (retry)="retry()"
+      />
+    }
+
+    @if (state.proof) {
+      <hg-card title="Prueba de la última ingestión">
+        <p class="hg-note" style="color: var(--color-hg-ink); margin-bottom: 0.75rem">{{ state.proof.reason }}</p>
+        <dl class="hg-dl">
+          <div class="hg-dl-row"><dt>eventId</dt><dd>{{ state.proof.message.eventId }}</dd></div>
+          <div class="hg-dl-row"><dt>Origen</dt><dd>deviceId {{ state.proof.message.deviceId }} · bootId {{ state.proof.message.bootId }} · seq {{ state.proof.message.sequenceNumber }}</dd></div>
+          <div class="hg-dl-row"><dt>Potencia / Energía</dt><dd>{{ state.proof.message.powerW }} W · {{ state.proof.useInEnergy ? 'entra al cálculo' : 'no entra al cálculo' }}</dd></div>
+          <div class="hg-dl-row"><dt>Claves / Confianza</dt><dd>{{ state.proof.matchedKeys.join(', ') || 'ninguna' }} · {{ state.proof.trustLevel }}</dd></div>
+          <div class="hg-dl-row"><dt>Verificación</dt><dd>criptográficamente verificada: no</dd></div>
+        </dl>
+      </hg-card>
+    }
+
+    <hg-card title="Ledger local">
+      @if (state.ledger.length === 0) {
+        <hg-empty
+          title="Sin eventos en esta sesión"
+          detail="Todavía no ingresó un evento de esta sesión. El histórico explicado está en Integridad."
+        />
+      } @else {
+        <hg-table>
+          <table>
+            <thead>
+              <tr>
+                <th>eventId</th>
+                <th>boot</th>
+                <th>seq</th>
+                <th>W</th>
+                <th>energía</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of state.ledger; track row.eventId) {
+                <tr>
+                  <td class="hg-mono">{{ row.eventId }}</td>
+                  <td class="hg-mono">{{ row.bootId }}</td>
+                  <td class="hg-mono">{{ row.sequenceNumber }}</td>
+                  <td class="hg-mono">{{ row.powerW }}</td>
+                  <td>
+                    <hg-badge [tone]="row.acceptedForEnergy ? 'mint' : 'amber'">{{ row.acceptedForEnergy ? 'sí' : 'retenida' }}</hg-badge>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </hg-table>
+      }
+    </hg-card>
+
+    <p class="hg-note">Unidad del canal: {{ state.metric?.unitCode }}. No se resta kW para obtener kWh.</p>
   }
-  @if (state.proof) {
-    <section class="mt-6 border border-q-line bg-q-surface p-4">
-      <h2 class="text-lg">Prueba de la última ingestión</h2>
-      <p class="mt-2 text-sm">{{ state.proof.reason }}</p>
-      <dl class="mono mt-3 grid gap-1 text-xs">
-        <div>eventId {{ state.proof.message.eventId }}</div>
-        <div>deviceId {{ state.proof.message.deviceId }} · bootId {{ state.proof.message.bootId }} · seq {{ state.proof.message.sequenceNumber }}</div>
-        <div>potencia {{ state.proof.message.powerW }} W · energía {{ state.proof.useInEnergy ? 'entra al cálculo' : 'no entra al cálculo' }}</div>
-        <div>claves {{ state.proof.matchedKeys.join(', ') || 'ninguna' }} · confianza {{ state.proof.trustLevel }}</div>
-        <div>criptográficamente verificada: no</div>
-      </dl>
-    </section>
-  }
-  <h2 class="mt-6 text-lg">Ledger local</h2>
-  @if (state.ledger.length === 0) {
-    <p class="mt-2 text-sm text-q-muted">Todavía no ingresó un evento de esta sesión. El histórico explicado está en Integridad.</p>
-  } @else {
-    <table class="mt-2 w-full text-left text-sm">
-      <thead>
-        <tr class="border-b border-q-line text-q-muted"><th class="py-2">eventId</th><th>boot</th><th>seq</th><th>W</th><th>energía</th></tr>
-      </thead>
-      <tbody>
-        @for (row of state.ledger; track row.eventId) {
-          <tr class="border-b border-q-line">
-            <td class="mono py-2">{{ row.eventId }}</td>
-            <td class="mono">{{ row.bootId }}</td>
-            <td class="mono">{{ row.sequenceNumber }}</td>
-            <td class="mono">{{ row.powerW }}</td>
-            <td>{{ row.acceptedForEnergy ? 'sí' : 'retenida' }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
-  <p class="mt-4 text-xs text-q-muted">Unidad del canal: {{ state.metric?.unitCode }}. No se resta kW para obtener kWh.</p>
-}
+</div>

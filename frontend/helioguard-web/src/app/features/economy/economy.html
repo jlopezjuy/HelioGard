@@ -1,24 +1,55 @@
-@if (phase() === 'loading') {
-  <p role="status">Valorizando el intervalo…</p>
-} @else if (view(); as state) {
-  @if (!state.installation || !state.plan || !state.rate || !state.economy) {
-    <h1 class="text-3xl">Economía</h1>
-    <p class="mt-2">Solo lectura de esta sesión: la economía queda en la organización dueña. Un grant de mantenimiento no abre estos montos.</p>
-  } @else {
-    <p class="kicker">¿Cuánto cuesta el déficit?</p>
-    <h1 class="mt-2 text-3xl">{{ state.plan.name }}</h1>
-    <p class="lede">{{ state.plan.distributor }}. Compra evitada e inyección se monetizan por separado. No es una factura.</p>
-    <p class="mt-4 text-2xl">{{ formatArs(state.economy.estimatedLossAmount) }}</p>
-    <p class="text-sm text-q-muted">Autoconsumo no entregado {{ formatWh(state.economy.selfConsumptionLostWh) }} · inyección no realizada {{ formatWh(state.economy.exportedLostWh) }}</p>
-    <form class="mt-4 flex flex-wrap items-end gap-3" [formGroup]="form" (ngSubmit)="save()">
-      <label class="text-sm">Compra evitada ARS/kWh
-        <input class="mt-1 block min-h-11 w-32 border border-q-line bg-q-bg px-2" type="number" min="0" formControlName="purchase" />
-      </label>
-      <label class="text-sm">Inyección ARS/kWh
-        <input class="mt-1 block min-h-11 w-32 border border-q-line bg-q-bg px-2" type="number" min="0" formControlName="exported" />
-      </label>
-      <button type="submit" class="min-h-11 rounded-ui bg-q-terracotta px-3 text-sm font-semibold text-white">Guardar tarifa demo</button>
-    </form>
-    <p class="mt-3 text-sm">{{ state.economy.tariffSnapshotNote }}</p>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Valorizando el intervalo…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    @if (!state.installation || !state.plan || !state.rate || !state.economy) {
+      <header class="hg-page-head">
+        <div>
+          <p class="hg-kicker">Valorización</p>
+          <h1>Economía</h1>
+        </div>
+      </header>
+      <hg-alert tone="info" title="Acceso restringido a la organización dueña">
+        Solo lectura de esta sesión: la economía queda en la organización dueña. Un grant de mantenimiento no abre estos montos.
+      </hg-alert>
+    } @else {
+      <header class="hg-page-head">
+        <div>
+          <p class="hg-kicker">¿Cuánto cuesta el déficit?</p>
+          <h1>{{ state.plan.name }}</h1>
+        </div>
+        <hg-badge tone="solar">ARS · Demostrativo</hg-badge>
+      </header>
+
+      <p class="hg-note">{{ state.plan.distributor }}. Compra evitada e inyección se monetizan por separado. No es una factura.</p>
+
+      <div class="hg-grid-cards">
+        <hg-kpi
+          label="Pérdida estimada del intervalo"
+          [value]="formatArs(state.economy.estimatedLossAmount)"
+          unit="ARS"
+          [note]="'Autoconsumo no entregado ' + formatWh(state.economy.selfConsumptionLostWh) + ' · inyección no realizada ' + formatWh(state.economy.exportedLostWh)"
+        />
+
+        <hg-card title="Tarifa de referencia (ARS/kWh)">
+          <form class="hg-stack" [formGroup]="form" (ngSubmit)="save()">
+            <div class="hg-grid-cards">
+              <hg-field label="Compra evitada ARS/kWh">
+                <input hgControl type="number" min="0" formControlName="purchase" />
+              </hg-field>
+              <hg-field label="Inyección ARS/kWh">
+                <input hgControl type="number" min="0" formControlName="exported" />
+              </hg-field>
+            </div>
+            <div>
+              <hg-button type="submit" variant="primary">Guardar tarifa demo</hg-button>
+            </div>
+          </form>
+        </hg-card>
+      </div>
+
+      <p class="hg-note">{{ state.economy.tariffSnapshotNote }}</p>
+    }
   }
-}
+</div>

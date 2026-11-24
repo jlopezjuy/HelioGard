@@ -1,29 +1,78 @@
-@if (phase() === 'loading') {
-  <p role="status">Separando organizaciones…</p>
-} @else if (view(); as state) {
-  <p class="kicker">¿Quién está mirando?</p>
-  <h1 class="mt-2 text-3xl">Organizaciones</h1>
-  <p class="lede">Tres tenants. El cambio de usuario está en la barra. Esto simula permisos y no reemplaza un backend.</p>
-  <ul class="mt-4 space-y-2">
-    @for (org of state.organizations; track org.id) {
-      <li class="border border-q-line px-3 py-2" [class.bg-q-sand]="org.id === state.current">
-        {{ org.name }} · {{ org.kind }} · {{ org.status }}
-        @if (org.id === state.current) { <span> · tenant activo</span> }
-      </li>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Separando organizaciones…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Quién está mirando?</p>
+        <h1>Organizaciones</h1>
+      </div>
+      <hg-button variant="secondary" (click)="probe()">Probar lectura de Salta</hg-button>
+    </header>
+
+    <p class="hg-note">Tres tenants. El cambio de usuario está en la barra. Esto simula permisos y no reemplaza un backend.</p>
+
+    @if (denied()) {
+      <hg-alert tone="info" title="Aislamiento multi-tenant">
+        El resultado esperado para Jujuy o la familia es denegado.
+      </hg-alert>
     }
-  </ul>
-  <h2 class="mt-6 text-lg">Miembros de la organización activa</h2>
-  <ul class="mt-2 text-sm">
-    @for (member of state.memberships; track member.id) {
-      <li>{{ nameOf(member.userId) }} · {{ member.role }} · {{ member.status }}</li>
-    }
-  </ul>
-  <h2 class="mt-6 text-lg">Grants</h2>
-  @for (grant of state.grants; track grant.id) {
-    <p class="mt-2 text-sm">{{ grant.scope }} sobre {{ grant.installationId }}. {{ grant.reason }}</p>
+
+    <hg-card title="Tenants registrados">
+      <hg-table>
+        <table>
+          <thead>
+            <tr>
+              <th>Organización</th>
+              <th>Tipo</th>
+              <th>Estado</th>
+              <th>Sesión</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (org of state.organizations; track org.id) {
+              <tr>
+                <td><strong>{{ org.name }}</strong></td>
+                <td>{{ org.kind }}</td>
+                <td><hg-badge tone="neutral">{{ org.status }}</hg-badge></td>
+                <td>
+                  @if (org.id === state.current) {
+                    <hg-badge tone="solar">tenant activo</hg-badge>
+                  } @else {
+                    <span class="hg-note">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </hg-table>
+    </hg-card>
+
+    <div class="hg-grid-cards">
+      <hg-card title="Miembros de la organización activa">
+        <ul class="hg-list">
+          @for (member of state.memberships; track member.id) {
+            <li class="hg-list-row">
+              <span>{{ nameOf(member.userId) }}</span>
+              <hg-badge tone="mint">{{ member.role }} · {{ member.status }}</hg-badge>
+            </li>
+          }
+        </ul>
+      </hg-card>
+
+      <hg-card title="Grants">
+        @if (state.grants.length === 0) {
+          <p class="hg-note">Sin grants activos para esta organización.</p>
+        } @else {
+          <ul class="hg-list">
+            @for (grant of state.grants; track grant.id) {
+              <li class="hg-list-row">{{ grant.scope }} sobre {{ grant.installationId }}. {{ grant.reason }}</li>
+            }
+          </ul>
+        }
+      </hg-card>
+    </div>
   }
-  <button type="button" class="mt-4 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="probe()">Probar lectura de Salta</button>
-  @if (denied()) {
-    <p class="mt-2 text-sm">El resultado esperado para Jujuy o la familia es denegado.</p>
-  }
-}
+</div>

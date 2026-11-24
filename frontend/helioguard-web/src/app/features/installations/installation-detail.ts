@@ -1,19 +1,23 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { installationAccess } from '../../core/domain/access';
+import { Equipment } from '../../core/domain/model';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
 import { readyPhase } from '../../shared/load';
+import { HgAlert, HgBadge, HgButton, HgCard, HgDrawer, HgSensor, HgSkeleton } from '../../shared/ui';
 
 @Component({
   selector: 'app-installation-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, HgAlert, HgBadge, HgButton, HgCard, HgDrawer, HgSensor, HgSkeleton],
   templateUrl: './installation-detail.html',
 })
 export class InstallationDetailPage {
   private readonly store = inject(DEMO_REPOSITORY);
   private readonly route = inject(ActivatedRoute);
   protected readonly phase = readyPhase();
+  protected readonly drawerOpen = signal(false);
+  protected readonly activeEquipment = signal<Equipment | null>(null);
   private readonly params = toSignal(this.route.paramMap);
   protected readonly view = computed(() => {
     const id = this.params()?.get('id') ?? '';
@@ -45,5 +49,10 @@ export class InstallationDetailPage {
 
   protected toggle(id: string): void {
     this.store.toggleString(id);
+  }
+
+  protected inspectEquipment(item: Equipment): void {
+    this.activeEquipment.set(item);
+    this.drawerOpen.set(true);
   }
 }

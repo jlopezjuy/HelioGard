@@ -1,51 +1,79 @@
-@if (phase() === 'loading') {
-  <p role="status">Armando la bandeja…</p>
-} @else if (view(); as state) {
-  <div class="flex flex-wrap items-end justify-between gap-3">
-    <div>
-      <p class="kicker">¿Qué hay que reconocer?</p>
-      <h1 class="mt-2 text-3xl">Incidentes</h1>
-    </div>
-    <button type="button" class="min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="onlyOpen.set(!onlyOpen())">{{ onlyOpen() ? 'Ver también cerrados' : 'Solo abiertos' }}</button>
-  </div>
-  <div class="mt-6 grid gap-6 lg:grid-cols-2">
-    <section>
-      <h2 class="text-lg">Energía</h2>
-      @if (state.energy.length === 0) {
-        <p class="mt-2 text-sm text-q-muted">No hay incidentes energéticos con este filtro. Creá la misión desde el parque para abrir el de B2.</p>
-      } @else {
-        <ul class="mt-2 space-y-3">
-          @for (item of state.energy; track item.id) {
-            <li class="border border-q-line bg-q-surface p-3">
-              <p class="font-semibold">{{ item.title }}</p>
-              <p class="text-sm text-q-muted">{{ item.severity }} · {{ item.status }} · clave {{ item.dedupKey }}</p>
-              @if (item.status === 'OPEN') {
-                <button type="button" class="mt-2 min-h-11 rounded-ui border border-q-line px-3 text-sm" (click)="acknowledge(item.id)">Reconocer</button>
+<div class="hg-page">
+  @if (phase() === 'loading') {
+    <p class="hg-note" role="status">Armando la bandeja…</p>
+    <hg-skeleton />
+  } @else if (view(); as state) {
+    <header class="hg-page-head">
+      <div>
+        <p class="hg-kicker">¿Qué hay que reconocer?</p>
+        <h1>Incidentes</h1>
+      </div>
+      <div class="hg-row">
+        <hg-button variant="secondary" (click)="onlyOpen.set(!onlyOpen())">
+          {{ onlyOpen() ? 'Ver también cerrados' : 'Solo abiertos' }}
+        </hg-button>
+        <a class="hg-btn hg-btn-ghost" routerLink="/parque">Ir al parque</a>
+      </div>
+    </header>
+
+    <div class="hg-grid-cards">
+      <hg-card title="Energía">
+        @if (state.energy.length === 0) {
+          <hg-empty
+            title="Sin incidentes energéticos"
+            detail="No hay incidentes energéticos con este filtro. Creá la misión desde el parque para abrir el de B2."
+          />
+        } @else {
+          <ul class="hg-list">
+            @for (item of state.energy; track item.id) {
+              <li class="hg-list-row" style="align-items: flex-start; flex-direction: column; gap: 0.6rem">
+                <div class="hg-row" style="justify-content: space-between; width: 100%">
+                  <strong style="color: var(--color-hg-ink)">{{ item.title }}</strong>
+                  <hg-badge [tone]="item.severity === 'HIGH' ? 'coral' : 'amber'">{{ item.severity }}</hg-badge>
+                </div>
+                <span class="hg-mono hg-note">{{ item.status }} · clave {{ item.dedupKey }}</span>
+                @if (item.status === 'OPEN') {
+                  <hg-button variant="primary" (click)="acknowledge(item.id)">Reconocer</hg-button>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </hg-card>
+
+      <div class="hg-stack">
+        <hg-card title="Seguridad">
+          <hg-alert tone="info" title="Dominio separado">
+            Separados de la pérdida energética. Investigar no es confirmar intrusión.
+          </hg-alert>
+          @if (state.security.length === 0) {
+            <p class="hg-note" style="margin-top: 0.75rem">Sin casos de seguridad en el alcance.</p>
+          } @else {
+            <ul class="hg-list" style="margin-top: 0.75rem">
+              @for (item of state.security; track item.id) {
+                <li class="hg-list-row" style="flex-direction: column; align-items: flex-start">
+                  <div class="hg-row" style="justify-content: space-between; width: 100%">
+                    <strong style="color: var(--color-hg-ink)">{{ item.title }}</strong>
+                    <hg-badge tone="amber">{{ item.status }}</hg-badge>
+                  </div>
+                  <span class="hg-note">{{ item.resolutionNote }}</span>
+                </li>
               }
-            </li>
+            </ul>
           }
-        </ul>
-      }
-    </section>
-    <section>
-      <h2 class="text-lg">Seguridad</h2>
-      <p class="mt-1 text-sm text-q-muted">Separados de la pérdida energética. Investigar no es confirmar intrusión.</p>
-      @if (state.security.length === 0) {
-        <p class="mt-2 text-sm">Sin casos de seguridad en el alcance.</p>
-      } @else {
-        <ul class="mt-2 space-y-3">
-          @for (item of state.security; track item.id) {
-            <li class="border border-q-line p-3 text-sm">
-              <span class="font-semibold">{{ item.title }}</span> · {{ item.status }}
-              <span class="mt-1 block">{{ item.resolutionNote }}</span>
-            </li>
-          }
-        </ul>
-      }
-      <h3 class="mt-4 text-sm font-semibold">Regla asociada</h3>
-      @for (rule of state.rules; track rule.id) {
-        <p class="text-sm">{{ rule.name }} · umbral {{ rule.thresholdValue }} · {{ rule.enabled ? 'activa' : 'apagada' }}</p>
-      }
-    </section>
-  </div>
-}
+        </hg-card>
+
+        <hg-card title="Reglas asociadas">
+          <ul class="hg-list">
+            @for (rule of state.rules; track rule.id) {
+              <li class="hg-list-row">
+                <span>{{ rule.name }} · umbral {{ rule.thresholdValue }}</span>
+                <hg-badge [tone]="rule.enabled ? 'mint' : 'neutral'">{{ rule.enabled ? 'activa' : 'apagada' }}</hg-badge>
+              </li>
+            }
+          </ul>
+        </hg-card>
+      </div>
+    </div>
+  }
+</div>
