@@ -1,6 +1,7 @@
 package ar.com.heliguard.app.repository;
 
 import ar.com.heliguard.app.domain.Installation;
+import java.time.Instant;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -27,6 +28,28 @@ public interface InstallationRepository extends ReactiveCrudRepository<Installat
 
     @Query("SELECT * FROM installation entity WHERE entity.organization_id = :id")
     Flux<Installation> findByOrganization(Long id);
+
+    @Query("SELECT * FROM installation entity WHERE entity.organization_id = :organizationId AND entity.code = :code")
+    Mono<Installation> findByOrganizationIdAndCode(Long organizationId, String code);
+
+    @Query(
+        "SELECT DISTINCT i.* FROM installation i " +
+        "LEFT JOIN installation_access_grant g ON g.installation_id = i.id " +
+        "AND g.grantee_organization_id = :orgId AND g.revoked_at IS NULL " +
+        "AND g.valid_from <= :now AND (g.valid_until IS NULL OR g.valid_until > :now) " +
+        "WHERE i.organization_id = :orgId OR g.id IS NOT NULL " +
+        "ORDER BY i.id ASC LIMIT :limit OFFSET :offset"
+    )
+    Flux<Installation> findAllAccessibleByOrganization(Long orgId, Instant now, int limit, long offset);
+
+    @Query(
+        "SELECT COUNT(DISTINCT i.id) FROM installation i " +
+        "LEFT JOIN installation_access_grant g ON g.installation_id = i.id " +
+        "AND g.grantee_organization_id = :orgId AND g.revoked_at IS NULL " +
+        "AND g.valid_from <= :now AND (g.valid_until IS NULL OR g.valid_until > :now) " +
+        "WHERE i.organization_id = :orgId OR g.id IS NOT NULL"
+    )
+    Mono<Long> countAccessibleByOrganization(Long orgId, Instant now);
 
     @Query("SELECT * FROM installation entity WHERE entity.organization_id IS NULL")
     Flux<Installation> findAllWhereOrganizationIsNull();

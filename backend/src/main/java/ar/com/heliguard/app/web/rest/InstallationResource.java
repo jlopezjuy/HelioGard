@@ -98,20 +98,14 @@ public class InstallationResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        return installationRepository.existsById(id).flatMap(exists -> {
-            if (!exists) {
-                return Mono.error(new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-            }
-
-            return installationService
-                .update(installationDTO)
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-                .map(result ->
-                    ResponseEntity.ok()
-                        .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-                        .body(result)
-                );
-        });
+        return installationService
+            .update(installationDTO)
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+            .map(result ->
+                ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+                    .body(result)
+            );
     }
 
     /**
@@ -138,19 +132,13 @@ public class InstallationResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        return installationRepository.existsById(id).flatMap(exists -> {
-            if (!exists) {
-                return Mono.error(new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-            }
+        Mono<InstallationDTO> result = installationService.partialUpdate(installationDTO);
 
-            Mono<InstallationDTO> result = installationService.partialUpdate(installationDTO);
-
-            return result.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))).map(res ->
-                ResponseEntity.ok()
-                    .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, res.getId().toString()))
-                    .body(res)
-            );
-        });
+        return result.switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND))).map(res ->
+            ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, res.getId().toString()))
+                .body(res)
+        );
     }
 
     /**

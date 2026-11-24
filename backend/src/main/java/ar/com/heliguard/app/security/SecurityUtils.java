@@ -23,6 +23,8 @@ public final class SecurityUtils {
 
     public static final String USER_ID_CLAIM = "userId";
 
+    public static final String ACTIVE_ORG_CLAIM = "active_org";
+
     private SecurityUtils() {}
 
     /**
@@ -81,6 +83,33 @@ public final class SecurityUtils {
             .filter(authentication -> authentication.getPrincipal() instanceof ClaimAccessor)
             .map(authentication -> (ClaimAccessor) authentication.getPrincipal())
             .map(principal -> principal.getClaim(USER_ID_CLAIM));
+    }
+
+    /**
+     * Get the active organization id from the verified JWT {@code active_org} claim.
+     *
+     * @return the active organization id, or empty if absent or not a valid positive number.
+     */
+    public static Mono<Long> getCurrentActiveOrgId() {
+        return ReactiveSecurityContextHolder.getContext()
+            .map(SecurityContext::getAuthentication)
+            .filter(authentication -> authentication.getPrincipal() instanceof ClaimAccessor)
+            .map(authentication -> (ClaimAccessor) authentication.getPrincipal())
+            .flatMap(principal -> Mono.justOrEmpty(parseLongClaim(principal.getClaim(ACTIVE_ORG_CLAIM))));
+    }
+
+    private static Long parseLongClaim(Object claim) {
+        if (claim instanceof Number number) {
+            return number.longValue();
+        }
+        if (claim instanceof String s && !s.isBlank()) {
+            try {
+                return Long.parseLong(s.trim());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
     }
 
     /**

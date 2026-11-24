@@ -27,7 +27,6 @@ public class InstallationDTO implements Serializable {
     @NotNull
     private GridMode gridMode;
 
-    @NotNull
     private InstallationStatus status;
 
     @NotNull
@@ -36,7 +35,6 @@ public class InstallationDTO implements Serializable {
 
     private LocalDate commissionedOn;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

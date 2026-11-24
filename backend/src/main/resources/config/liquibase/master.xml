@@ -144,4 +144,5 @@
     <include file="config/liquibase/changelog/20261124024028_added_entity_constraints_MissionSafetyCheck.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
+    <include file="config/liquibase/changelog/20261124120000_s1_tenant_integrity_constraints.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

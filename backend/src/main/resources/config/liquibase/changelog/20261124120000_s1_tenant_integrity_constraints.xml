@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S1 incremental tenant integrity constraints (expand-only, no DROP).
+    -->
+    <changeSet id="20261124120000-1" author="helioguard-sdd">
+        <sql dbms="postgresql">
+            ALTER TABLE site
+                ADD CONSTRAINT uq_site_pk_tenant UNIQUE (id, organization_id);
+
+            ALTER TABLE installation
+                ADD CONSTRAINT uq_installation_pk_tenant UNIQUE (id, organization_id);
+
+            ALTER TABLE installation
+                ADD CONSTRAINT fk_installation_site_same_tenant
+                FOREIGN KEY (site_id, organization_id)
+                REFERENCES site (id, organization_id);
+
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_installation_tenant_code
+                ON installation (organization_id, code);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -27,7 +27,6 @@ public class InstallationAccessGrantDTO implements Serializable {
     @Size(max = 250)
     private String reason;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

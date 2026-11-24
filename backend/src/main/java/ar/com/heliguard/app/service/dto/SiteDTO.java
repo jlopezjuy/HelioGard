@@ -34,7 +34,6 @@ public class SiteDTO implements Serializable {
     @Size(max = 64)
     private String timeZone;
 
-    @NotNull
     private OrganizationDTO organization;
 
     public Long getId() {
