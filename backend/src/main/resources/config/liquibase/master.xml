@@ -151,4 +151,5 @@
     <include file="config/liquibase/changelog/20261124160000_s5_incidents_and_integrity_indexes.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261124170000_s6_economy_and_tariff_constraints.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261124180000_s7_audits_and_plans_constraints.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261124190000_s8_workorders_and_drones_constraints.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

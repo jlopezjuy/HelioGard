@@ -1,93 +1,155 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.InterventionEvidence;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.InterventionEvidenceRepository;
+import ar.com.heliguard.app.repository.MaintenanceInterventionRepository;
 import ar.com.heliguard.app.service.InterventionEvidenceService;
 import ar.com.heliguard.app.service.dto.InterventionEvidenceDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.InterventionEvidenceMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.InterventionEvidence}.
+ * Tenant-isolated service for {@link InterventionEvidence}.
  */
 @Service
 @Transactional
 public class InterventionEvidenceServiceImpl implements InterventionEvidenceService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterventionEvidenceServiceImpl.class);
-
-    private final InterventionEvidenceRepository interventionEvidenceRepository;
-
-    private final InterventionEvidenceMapper interventionEvidenceMapper;
+    private final InterventionEvidenceRepository repository;
+    private final MaintenanceInterventionRepository interventionRepository;
+    private final InterventionEvidenceMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
     public InterventionEvidenceServiceImpl(
-        InterventionEvidenceRepository interventionEvidenceRepository,
-        InterventionEvidenceMapper interventionEvidenceMapper
+        InterventionEvidenceRepository repository,
+        MaintenanceInterventionRepository interventionRepository,
+        InterventionEvidenceMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
     ) {
-        this.interventionEvidenceRepository = interventionEvidenceRepository;
-        this.interventionEvidenceMapper = interventionEvidenceMapper;
+        this.repository = repository;
+        this.interventionRepository = interventionRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<InterventionEvidenceDTO> save(InterventionEvidenceDTO interventionEvidenceDTO) {
-        LOG.debug("Request to save InterventionEvidence : {}", interventionEvidenceDTO);
-        return interventionEvidenceRepository
-            .save(interventionEvidenceMapper.toEntity(interventionEvidenceDTO))
-            .map(interventionEvidenceMapper::toDto);
+    public Mono<InterventionEvidenceDTO> save(InterventionEvidenceDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                interventionRepository
+                    .findById(dto.getIntervention().getId())
+                    .filter(i -> tenant.organizationId().equals(i.getOrganizationId()))
+                    .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "INTERVENTION_NOT_FOUND", "Not found")))
+                    .flatMap(i -> {
+                        InterventionEvidence entity = mapper.toEntity(dto);
+                        entity.setId(null);
+                        entity.setOrganizationId(tenant.organizationId());
+                        entity.setOrganization(new Organization().id(tenant.organizationId()));
+                        return repository.save(entity);
+                    })
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<InterventionEvidenceDTO> update(InterventionEvidenceDTO interventionEvidenceDTO) {
-        LOG.debug("Request to update InterventionEvidence : {}", interventionEvidenceDTO);
-        return interventionEvidenceRepository
-            .save(interventionEvidenceMapper.toEntity(interventionEvidenceDTO))
-            .map(interventionEvidenceMapper::toDto);
+    public Mono<InterventionEvidenceDTO> update(InterventionEvidenceDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    InterventionEvidence entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<InterventionEvidenceDTO> partialUpdate(InterventionEvidenceDTO interventionEvidenceDTO) {
-        LOG.debug("Request to partially update InterventionEvidence : {}", interventionEvidenceDTO);
-
-        return interventionEvidenceRepository
-            .findById(interventionEvidenceDTO.getId())
-            .map(existingInterventionEvidence -> {
-                interventionEvidenceMapper.partialUpdate(existingInterventionEvidence, interventionEvidenceDTO);
-
-                return existingInterventionEvidence;
-            })
-            .flatMap(interventionEvidenceRepository::save)
-            .map(interventionEvidenceMapper::toDto);
+    public Mono<InterventionEvidenceDTO> partialUpdate(InterventionEvidenceDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<InterventionEvidenceDTO> findAll() {
-        LOG.debug("Request to get all InterventionEvidences");
-        return interventionEvidenceRepository.findAll().map(interventionEvidenceMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<InterventionEvidenceDTO> findAllWithEagerRelationships() {
-        return interventionEvidenceRepository.findAllWithEagerRelationships().map(interventionEvidenceMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return interventionEvidenceRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<InterventionEvidenceDTO> findOne(Long id) {
-        LOG.debug("Request to get InterventionEvidence : {}", id);
-        return interventionEvidenceRepository.findOneWithEagerRelationships(id).map(interventionEvidenceMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete InterventionEvidence : {}", id);
-        return interventionEvidenceRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(e -> repository.deleteById(e.getId()));
+    }
+
+    private Mono<InterventionEvidence> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(e -> orgId.equals(e.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "INTERVENTION_EVIDENCE_NOT_FOUND", "Not found")));
     }
 }

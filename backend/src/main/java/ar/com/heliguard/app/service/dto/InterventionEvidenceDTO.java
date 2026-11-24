@@ -26,7 +26,6 @@ public class InterventionEvidenceDTO implements Serializable {
 
     private Instant capturedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

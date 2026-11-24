@@ -28,7 +28,6 @@ public class MissionAuthorizationDTO implements Serializable {
     @Lob
     private String decisionNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

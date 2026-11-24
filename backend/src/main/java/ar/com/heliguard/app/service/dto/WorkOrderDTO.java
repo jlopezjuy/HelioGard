@@ -36,7 +36,6 @@ public class WorkOrderDTO implements Serializable {
 
     private Instant closedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

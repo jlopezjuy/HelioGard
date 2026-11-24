@@ -28,6 +28,12 @@ public interface DroneMissionRepository extends ReactiveCrudRepository<DroneMiss
     @Query("SELECT * FROM drone_mission entity WHERE entity.organization_id = :id")
     Flux<DroneMission> findByOrganization(Long id);
 
+    @Query("SELECT * FROM drone_mission entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<DroneMission> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM drone_mission entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM drone_mission entity WHERE entity.organization_id IS NULL")
     Flux<DroneMission> findAllWhereOrganizationIsNull();
 

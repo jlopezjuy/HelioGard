@@ -259,6 +259,49 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 9. Pendientes (Sprint S8)
-- **S8:** Mantenimiento y misiones (`WorkOrder`, `DroneMission` simulada/controlada con drones físicos deshabilitados).
-- **Nota:** La suite completa de CRUD autogenerados por JHipster (`*ResourceIT` de las 67 entidades) no se ejecutó en este corte; solo se ejecutaron `TenantSddIT`, `TechnicalStructureTest`, `AuthenticateControllerIT` y `SecurityUtilsUnitTest`.
+## 9. Sprint S8 — Mantenimiento, Órdenes de Trabajo y Misiones de Dron (Completado)
+
+### Reglas de Negocio Implementadas (`RB-*`)
+
+| RB-ID | Regla | Clase / Método |
+|---|---|---|
+| `RB-WO-001` | Creación/edición tenant-scoped de `WorkOrder`, `WorkOrderApproval`, `WorkOrderAssignment`, `WorkOrderTask`, `MaintenanceIntervention`, `InterventionEvidence`, `RecoveryAssessment`, `VerificationResult`, `DroneAsset`, `DroneMission`, `MissionAuthorization`, `DroneMissionTarget`, `DroneMissionEvent`, `MissionSafetyCheck`; asignación interna de `organization` y sincronización `@Transient` | 14 `*ServiceImpl` en `ar.com.heliguard.app.service.impl.*` |
+| `RB-WO-002` | Validación de ownership del padre (`WorkOrder`, `MaintenanceIntervention`, `RecoveryAssessment`, `DroneMission`, `DroneAsset`, `Installation`) dentro del tenant activo antes de persistir o consultar | 14 `*ServiceImpl` y `MaintenanceAndDroneWorkflowService` |
+| `RB-WO-003` | Aceptación controlada de `WorkOrder`: requiere `WorkOrderStatus` válido (`DRAFT`/`OPEN`/`APPROVED`/`ASSIGNED`), verifica permiso tenant o `InstallationAccessGrant` (`WORK_ORDER_EXECUTION`) del usuario autenticado, registra `WorkOrderApproval` y transiciona la orden a `IN_PROGRESS` | `MaintenanceAndDroneWorkflowService.acceptWorkOrder` |
+| `RB-DRONE-001` | Drones físicos deshabilitados en MVP: la solicitud/despacho de misión de dron opera exclusivamente en modo simulado/controlado (`simulatedOnly = true`, `physicalHardwareInvoked = false`) y registra evento `SIMULATED_DISPATCH` | `MaintenanceAndDroneWorkflowService.dispatchSimulatedMission` |
+| `RB-DRONE-002` | Guardas de seguridad previas al despacho: `DroneAsset` debe estar `AVAILABLE`/`ACTIVE` (`409` si está `MAINTENANCE`/`RETIRED`), requiere `MissionAuthorization` aprobada (`409` si falta), al menos un `MissionSafetyCheck` aprobado (`passed = true`) y viento dentro de `maxWindMs` (`409` si excede) | `MaintenanceAndDroneWorkflowService.dispatchSimulatedMission` |
+| `RB-DRONE-003` | Máquinas de estado estrictas para `WorkOrderStatus` y `DroneMissionStatus` (bloqueo de transiciones inválidas o mutación tras estados terminales con `409`) | `WorkOrderServiceImpl`, `DroneMissionServiceImpl`, `MaintenanceAndDroneWorkflowService` |
+| `RB-REC-001` | Evaluación de recuperación (`verifyRecovery`): cuando `baselineSamples < minRequiredSamples` o `postSamples < minRequiredSamples`, el resultado queda marcado como `INCONCLUSIVE` (`recoveryPct = null`, `verified = false`) sin fabricar porcentajes | `MaintenanceAndDroneWorkflowService.verifyRecovery` |
+
+### Endpoints de Dominio S8
+
+- `POST /api/work-orders/{id}/accept` — `MaintenanceAndDroneWorkflowResource.acceptWorkOrder`
+- `POST /api/drone-missions/{id}/dispatch` — `MaintenanceAndDroneWorkflowResource.dispatchSimulatedMission`
+- `POST /api/recovery-assessments/verify` — `MaintenanceAndDroneWorkflowResource.verifyRecovery`
+
+### Migración Liquibase S8
+
+- [`20261124190000_s8_workorders_and_drones_constraints.xml`](file:///Users/juanlopez/Proyectos/Solar/backend/src/main/resources/config/liquibase/changelog/20261124190000_s8_workorders_and_drones_constraints.xml) (registrada en `master.xml`):
+  - `ck_work_order_dates` (`due_at >= opened_at` cuando ambos existen)
+  - `ck_drone_asset_max_wind` (`max_wind_ms > 0` cuando existe)
+  - `ck_intervention_cost` (`cost_amount >= 0` cuando existe)
+
+### Pruebas y Resultados Reales (S1–S8)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="MaintenanceDroneSddIT,AuditAndPlanSddIT,EconomicLossSddIT,IncidentDiagnosticSddIT,EnergyModelingSddIT,TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `MaintenanceDroneSddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/MaintenanceDroneSddIT.java`):**
+  - `T18`: aceptación de `WorkOrder` por colaborador externo con `InstallationAccessGrant` (`WORK_ORDER_EXECUTION`) → `200 IN_PROGRESS` y registro de `WorkOrderApproval`; intento sin grant / cross-tenant → `403`/`404`.
+  - `T19`: despacho de `DroneMission` bloqueado (`409`) sin `MissionAuthorization` o sin `MissionSafetyCheck` aprobado; tras autorización + safety check → `200` con `simulatedOnly == true`, `physicalHardwareInvoked == false` y evento `SIMULATED_DISPATCH`.
+  - `T20`: `verifyRecovery` con muestras insuficientes (`baselineSamples < minRequiredSamples`) → `200 INCONCLUSIVE` (`verified == false`, `recoveryPct == null`).
+
+---
+
+## 10. Alcance de Verificación y Notas
+- **Estado de Sprints S0.5–S8:** Todos los sprints S0.5–S8 están implementados, documentados y verificados con la suite SDD (`T01`–`T20`), `TechnicalStructureTest`, `AuthenticateControllerIT` y `SecurityUtilsUnitTest`.
+- **Nota:** La suite completa de CRUD autogenerados por JHipster (`*ResourceIT` de las 67 entidades) no se ejecutó en este corte; solo se ejecutaron las suites SDD (`TenantSddIT`, `TopologySddIT`, `TelemetryEdgeSddIT`, `EnergyModelingSddIT`, `IncidentDiagnosticSddIT`, `EconomicLossSddIT`, `AuditAndPlanSddIT`, `MaintenanceDroneSddIT`), `TechnicalStructureTest`, `AuthenticateControllerIT` y `SecurityUtilsUnitTest`.

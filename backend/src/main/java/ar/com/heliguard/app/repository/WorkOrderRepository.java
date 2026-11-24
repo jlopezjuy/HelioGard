@@ -28,6 +28,12 @@ public interface WorkOrderRepository extends ReactiveCrudRepository<WorkOrder, L
     @Query("SELECT * FROM work_order entity WHERE entity.organization_id = :id")
     Flux<WorkOrder> findByOrganization(Long id);
 
+    @Query("SELECT * FROM work_order entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<WorkOrder> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM work_order entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM work_order entity WHERE entity.organization_id IS NULL")
     Flux<WorkOrder> findAllWhereOrganizationIsNull();
 

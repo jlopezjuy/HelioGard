@@ -29,7 +29,6 @@ public class RecoveryAssessmentDTO implements Serializable {
     @Lob
     private String confidenceNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

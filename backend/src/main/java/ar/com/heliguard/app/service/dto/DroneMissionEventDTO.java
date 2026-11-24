@@ -24,7 +24,6 @@ public class DroneMissionEventDTO implements Serializable {
     @Lob
     private String description;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

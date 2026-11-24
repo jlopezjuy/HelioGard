@@ -36,7 +36,6 @@ public class DroneMissionDTO implements Serializable {
     @Lob
     private String safetyChecklistSummary;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

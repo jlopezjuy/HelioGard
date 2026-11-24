@@ -31,7 +31,6 @@ public class VerificationResultDTO implements Serializable {
     @Lob
     private String evidenceSummary;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

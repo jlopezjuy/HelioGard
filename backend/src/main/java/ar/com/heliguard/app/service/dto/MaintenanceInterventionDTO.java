@@ -31,7 +31,6 @@ public class MaintenanceInterventionDTO implements Serializable {
     @Lob
     private String notes;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

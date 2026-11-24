@@ -26,7 +26,6 @@ public class DroneMissionTargetDTO implements Serializable {
     @Size(max = 250)
     private String notes;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

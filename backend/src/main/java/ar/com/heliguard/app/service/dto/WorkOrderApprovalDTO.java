@@ -30,7 +30,6 @@ public class WorkOrderApprovalDTO implements Serializable {
     @Size(max = 300)
     private String decisionNote;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

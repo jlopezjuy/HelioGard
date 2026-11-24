@@ -1,93 +1,155 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.MissionSafetyCheck;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
+import ar.com.heliguard.app.repository.DroneMissionRepository;
 import ar.com.heliguard.app.repository.MissionSafetyCheckRepository;
 import ar.com.heliguard.app.service.MissionSafetyCheckService;
 import ar.com.heliguard.app.service.dto.MissionSafetyCheckDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.MissionSafetyCheckMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.MissionSafetyCheck}.
+ * Tenant-isolated service for {@link MissionSafetyCheck}.
  */
 @Service
 @Transactional
 public class MissionSafetyCheckServiceImpl implements MissionSafetyCheckService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MissionSafetyCheckServiceImpl.class);
-
-    private final MissionSafetyCheckRepository missionSafetyCheckRepository;
-
-    private final MissionSafetyCheckMapper missionSafetyCheckMapper;
+    private final MissionSafetyCheckRepository repository;
+    private final DroneMissionRepository missionRepository;
+    private final MissionSafetyCheckMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
     public MissionSafetyCheckServiceImpl(
-        MissionSafetyCheckRepository missionSafetyCheckRepository,
-        MissionSafetyCheckMapper missionSafetyCheckMapper
+        MissionSafetyCheckRepository repository,
+        DroneMissionRepository missionRepository,
+        MissionSafetyCheckMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
     ) {
-        this.missionSafetyCheckRepository = missionSafetyCheckRepository;
-        this.missionSafetyCheckMapper = missionSafetyCheckMapper;
+        this.repository = repository;
+        this.missionRepository = missionRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<MissionSafetyCheckDTO> save(MissionSafetyCheckDTO missionSafetyCheckDTO) {
-        LOG.debug("Request to save MissionSafetyCheck : {}", missionSafetyCheckDTO);
-        return missionSafetyCheckRepository
-            .save(missionSafetyCheckMapper.toEntity(missionSafetyCheckDTO))
-            .map(missionSafetyCheckMapper::toDto);
+    public Mono<MissionSafetyCheckDTO> save(MissionSafetyCheckDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                missionRepository
+                    .findById(dto.getMission().getId())
+                    .filter(m -> tenant.organizationId().equals(m.getOrganizationId()))
+                    .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "DRONE_MISSION_NOT_FOUND", "Not found")))
+                    .flatMap(m -> {
+                        MissionSafetyCheck entity = mapper.toEntity(dto);
+                        entity.setId(null);
+                        entity.setOrganizationId(tenant.organizationId());
+                        entity.setOrganization(new Organization().id(tenant.organizationId()));
+                        return repository.save(entity);
+                    })
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<MissionSafetyCheckDTO> update(MissionSafetyCheckDTO missionSafetyCheckDTO) {
-        LOG.debug("Request to update MissionSafetyCheck : {}", missionSafetyCheckDTO);
-        return missionSafetyCheckRepository
-            .save(missionSafetyCheckMapper.toEntity(missionSafetyCheckDTO))
-            .map(missionSafetyCheckMapper::toDto);
+    public Mono<MissionSafetyCheckDTO> update(MissionSafetyCheckDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    MissionSafetyCheck entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<MissionSafetyCheckDTO> partialUpdate(MissionSafetyCheckDTO missionSafetyCheckDTO) {
-        LOG.debug("Request to partially update MissionSafetyCheck : {}", missionSafetyCheckDTO);
-
-        return missionSafetyCheckRepository
-            .findById(missionSafetyCheckDTO.getId())
-            .map(existingMissionSafetyCheck -> {
-                missionSafetyCheckMapper.partialUpdate(existingMissionSafetyCheck, missionSafetyCheckDTO);
-
-                return existingMissionSafetyCheck;
-            })
-            .flatMap(missionSafetyCheckRepository::save)
-            .map(missionSafetyCheckMapper::toDto);
+    public Mono<MissionSafetyCheckDTO> partialUpdate(MissionSafetyCheckDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<MissionSafetyCheckDTO> findAll() {
-        LOG.debug("Request to get all MissionSafetyChecks");
-        return missionSafetyCheckRepository.findAll().map(missionSafetyCheckMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<MissionSafetyCheckDTO> findAllWithEagerRelationships() {
-        return missionSafetyCheckRepository.findAllWithEagerRelationships().map(missionSafetyCheckMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return missionSafetyCheckRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<MissionSafetyCheckDTO> findOne(Long id) {
-        LOG.debug("Request to get MissionSafetyCheck : {}", id);
-        return missionSafetyCheckRepository.findOneWithEagerRelationships(id).map(missionSafetyCheckMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete MissionSafetyCheck : {}", id);
-        return missionSafetyCheckRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(c -> repository.deleteById(c.getId()));
+    }
+
+    private Mono<MissionSafetyCheck> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(c -> orgId.equals(c.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "MISSION_SAFETY_CHECK_NOT_FOUND", "Not found")));
     }
 }

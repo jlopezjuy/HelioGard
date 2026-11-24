@@ -26,7 +26,6 @@ public class DroneAssetDTO implements Serializable {
 
     private BigDecimal maximumWindMs;
 
-    @NotNull
     private OrganizationDTO organization;
 
     public Long getId() {

@@ -1,86 +1,145 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.DroneAsset;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.DroneAssetRepository;
 import ar.com.heliguard.app.service.DroneAssetService;
 import ar.com.heliguard.app.service.dto.DroneAssetDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.DroneAssetMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.DroneAsset}.
+ * Tenant-isolated service for {@link DroneAsset}.
  */
 @Service
 @Transactional
 public class DroneAssetServiceImpl implements DroneAssetService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DroneAssetServiceImpl.class);
+    private final DroneAssetRepository repository;
+    private final DroneAssetMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final DroneAssetRepository droneAssetRepository;
-
-    private final DroneAssetMapper droneAssetMapper;
-
-    public DroneAssetServiceImpl(DroneAssetRepository droneAssetRepository, DroneAssetMapper droneAssetMapper) {
-        this.droneAssetRepository = droneAssetRepository;
-        this.droneAssetMapper = droneAssetMapper;
+    public DroneAssetServiceImpl(
+        DroneAssetRepository repository,
+        DroneAssetMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<DroneAssetDTO> save(DroneAssetDTO droneAssetDTO) {
-        LOG.debug("Request to save DroneAsset : {}", droneAssetDTO);
-        return droneAssetRepository.save(droneAssetMapper.toEntity(droneAssetDTO)).map(droneAssetMapper::toDto);
-    }
-
-    @Override
-    public Mono<DroneAssetDTO> update(DroneAssetDTO droneAssetDTO) {
-        LOG.debug("Request to update DroneAsset : {}", droneAssetDTO);
-        return droneAssetRepository.save(droneAssetMapper.toEntity(droneAssetDTO)).map(droneAssetMapper::toDto);
-    }
-
-    @Override
-    public Mono<DroneAssetDTO> partialUpdate(DroneAssetDTO droneAssetDTO) {
-        LOG.debug("Request to partially update DroneAsset : {}", droneAssetDTO);
-
-        return droneAssetRepository
-            .findById(droneAssetDTO.getId())
-            .map(existingDroneAsset -> {
-                droneAssetMapper.partialUpdate(existingDroneAsset, droneAssetDTO);
-
-                return existingDroneAsset;
+    public Mono<DroneAssetDTO> save(DroneAssetDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant -> {
+                DroneAsset entity = mapper.toEntity(dto);
+                entity.setId(null);
+                entity.setOrganizationId(tenant.organizationId());
+                entity.setOrganization(new Organization().id(tenant.organizationId()));
+                return repository.save(entity);
             })
-            .flatMap(droneAssetRepository::save)
-            .map(droneAssetMapper::toDto);
+            .map(mapper::toDto);
+    }
+
+    @Override
+    public Mono<DroneAssetDTO> update(DroneAssetDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    DroneAsset entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
+    }
+
+    @Override
+    public Mono<DroneAssetDTO> partialUpdate(DroneAssetDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<DroneAssetDTO> findAll() {
-        LOG.debug("Request to get all DroneAssets");
-        return droneAssetRepository.findAll().map(droneAssetMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<DroneAssetDTO> findAllWithEagerRelationships() {
-        return droneAssetRepository.findAllWithEagerRelationships().map(droneAssetMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return droneAssetRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<DroneAssetDTO> findOne(Long id) {
-        LOG.debug("Request to get DroneAsset : {}", id);
-        return droneAssetRepository.findOneWithEagerRelationships(id).map(droneAssetMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete DroneAsset : {}", id);
-        return droneAssetRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(d -> repository.deleteById(d.getId()));
+    }
+
+    private Mono<DroneAsset> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(d -> orgId.equals(d.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "DRONE_ASSET_NOT_FOUND", "Not found")));
     }
 }

@@ -27,7 +27,6 @@ public class WorkOrderAssignmentDTO implements Serializable {
     @Size(max = 300)
     private String notes;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

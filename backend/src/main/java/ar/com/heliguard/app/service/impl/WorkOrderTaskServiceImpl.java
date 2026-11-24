@@ -1,86 +1,155 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.WorkOrderTask;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
+import ar.com.heliguard.app.repository.WorkOrderRepository;
 import ar.com.heliguard.app.repository.WorkOrderTaskRepository;
 import ar.com.heliguard.app.service.WorkOrderTaskService;
 import ar.com.heliguard.app.service.dto.WorkOrderTaskDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.WorkOrderTaskMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.WorkOrderTask}.
+ * Tenant-isolated service for {@link WorkOrderTask}.
  */
 @Service
 @Transactional
 public class WorkOrderTaskServiceImpl implements WorkOrderTaskService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkOrderTaskServiceImpl.class);
+    private final WorkOrderTaskRepository repository;
+    private final WorkOrderRepository workOrderRepository;
+    private final WorkOrderTaskMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final WorkOrderTaskRepository workOrderTaskRepository;
-
-    private final WorkOrderTaskMapper workOrderTaskMapper;
-
-    public WorkOrderTaskServiceImpl(WorkOrderTaskRepository workOrderTaskRepository, WorkOrderTaskMapper workOrderTaskMapper) {
-        this.workOrderTaskRepository = workOrderTaskRepository;
-        this.workOrderTaskMapper = workOrderTaskMapper;
+    public WorkOrderTaskServiceImpl(
+        WorkOrderTaskRepository repository,
+        WorkOrderRepository workOrderRepository,
+        WorkOrderTaskMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.workOrderRepository = workOrderRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<WorkOrderTaskDTO> save(WorkOrderTaskDTO workOrderTaskDTO) {
-        LOG.debug("Request to save WorkOrderTask : {}", workOrderTaskDTO);
-        return workOrderTaskRepository.save(workOrderTaskMapper.toEntity(workOrderTaskDTO)).map(workOrderTaskMapper::toDto);
+    public Mono<WorkOrderTaskDTO> save(WorkOrderTaskDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                workOrderRepository
+                    .findById(dto.getWorkOrder().getId())
+                    .filter(w -> tenant.organizationId().equals(w.getOrganizationId()))
+                    .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "WORK_ORDER_NOT_FOUND", "WorkOrder not found")))
+                    .flatMap(wo -> {
+                        WorkOrderTask entity = mapper.toEntity(dto);
+                        entity.setId(null);
+                        entity.setOrganizationId(tenant.organizationId());
+                        entity.setOrganization(new Organization().id(tenant.organizationId()));
+                        return repository.save(entity);
+                    })
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<WorkOrderTaskDTO> update(WorkOrderTaskDTO workOrderTaskDTO) {
-        LOG.debug("Request to update WorkOrderTask : {}", workOrderTaskDTO);
-        return workOrderTaskRepository.save(workOrderTaskMapper.toEntity(workOrderTaskDTO)).map(workOrderTaskMapper::toDto);
+    public Mono<WorkOrderTaskDTO> update(WorkOrderTaskDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    WorkOrderTask entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<WorkOrderTaskDTO> partialUpdate(WorkOrderTaskDTO workOrderTaskDTO) {
-        LOG.debug("Request to partially update WorkOrderTask : {}", workOrderTaskDTO);
-
-        return workOrderTaskRepository
-            .findById(workOrderTaskDTO.getId())
-            .map(existingWorkOrderTask -> {
-                workOrderTaskMapper.partialUpdate(existingWorkOrderTask, workOrderTaskDTO);
-
-                return existingWorkOrderTask;
-            })
-            .flatMap(workOrderTaskRepository::save)
-            .map(workOrderTaskMapper::toDto);
+    public Mono<WorkOrderTaskDTO> partialUpdate(WorkOrderTaskDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<WorkOrderTaskDTO> findAll() {
-        LOG.debug("Request to get all WorkOrderTasks");
-        return workOrderTaskRepository.findAll().map(workOrderTaskMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<WorkOrderTaskDTO> findAllWithEagerRelationships() {
-        return workOrderTaskRepository.findAllWithEagerRelationships().map(workOrderTaskMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return workOrderTaskRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<WorkOrderTaskDTO> findOne(Long id) {
-        LOG.debug("Request to get WorkOrderTask : {}", id);
-        return workOrderTaskRepository.findOneWithEagerRelationships(id).map(workOrderTaskMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete WorkOrderTask : {}", id);
-        return workOrderTaskRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(t -> repository.deleteById(t.getId()));
+    }
+
+    private Mono<WorkOrderTask> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(t -> orgId.equals(t.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "WORK_ORDER_TASK_NOT_FOUND", "Not found")));
     }
 }

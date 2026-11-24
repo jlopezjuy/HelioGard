@@ -23,7 +23,6 @@ public class WorkOrderTaskDTO implements Serializable {
     @NotNull
     private Integer sortOrder;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

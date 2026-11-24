@@ -27,7 +27,6 @@ public class MissionSafetyCheckDTO implements Serializable {
     @Size(max = 400)
     private String evidenceReference;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

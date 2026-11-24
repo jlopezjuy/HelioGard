@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S8 work order, intervention, and drone asset constraints (expand-only).
+    -->
+    <changeSet id="20261124190000-1" author="helioguard-sdd">
+        <sql dbms="postgresql">
+            ALTER TABLE work_order
+                ADD CONSTRAINT ck_work_order_dates
+                CHECK (closed_at IS NULL OR closed_at &gt;= opened_at);
+
+            ALTER TABLE drone_asset
+                ADD CONSTRAINT ck_drone_asset_max_wind
+                CHECK (maximum_wind_ms IS NULL OR maximum_wind_ms &gt;= 0);
+
+            ALTER TABLE maintenance_intervention
+                ADD CONSTRAINT ck_intervention_cost
+                CHECK (work_cost IS NULL OR work_cost &gt;= 0);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

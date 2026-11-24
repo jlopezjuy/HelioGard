@@ -1,87 +1,178 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.DroneMission;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.DroneMissionStatus;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.DroneMissionRepository;
 import ar.com.heliguard.app.service.DroneMissionService;
 import ar.com.heliguard.app.service.dto.DroneMissionDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.DroneMissionMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import java.time.Instant;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.DroneMission}.
+ * Tenant-isolated service for {@link DroneMission} (RB-DRONE-001, RB-DRONE-002).
  */
 @Service
 @Transactional
 public class DroneMissionServiceImpl implements DroneMissionService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DroneMissionServiceImpl.class);
+    private final DroneMissionRepository repository;
+    private final DroneMissionMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final DroneMissionRepository droneMissionRepository;
-
-    private final DroneMissionMapper droneMissionMapper;
-
-    public DroneMissionServiceImpl(DroneMissionRepository droneMissionRepository, DroneMissionMapper droneMissionMapper) {
-        this.droneMissionRepository = droneMissionRepository;
-        this.droneMissionMapper = droneMissionMapper;
+    public DroneMissionServiceImpl(
+        DroneMissionRepository repository,
+        DroneMissionMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<DroneMissionDTO> save(DroneMissionDTO droneMissionDTO) {
-        LOG.debug("Request to save DroneMission : {}", droneMissionDTO);
-        return droneMissionRepository.save(droneMissionMapper.toEntity(droneMissionDTO)).map(droneMissionMapper::toDto);
+    public Mono<DroneMissionDTO> save(DroneMissionDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                permissionService
+                    .requireOwnedInstallation(dto.getInstallation().getId(), tenant.organizationId())
+                    .flatMap(inst -> {
+                        DroneMission entity = mapper.toEntity(dto);
+                        entity.setId(null);
+                        entity.setOrganizationId(inst.getOrganizationId());
+                        entity.setOrganization(new Organization().id(inst.getOrganizationId()));
+                        entity.setStatus(DroneMissionStatus.DRAFT);
+                        if (entity.getProposedAt() == null) {
+                            entity.setProposedAt(Instant.now());
+                        }
+                        return repository.save(entity);
+                    })
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<DroneMissionDTO> update(DroneMissionDTO droneMissionDTO) {
-        LOG.debug("Request to update DroneMission : {}", droneMissionDTO);
-        return droneMissionRepository.save(droneMissionMapper.toEntity(droneMissionDTO)).map(droneMissionMapper::toDto);
+    public Mono<DroneMissionDTO> update(DroneMissionDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                dto.getStatus() == DroneMissionStatus.DISPATCHED && existing.getStatus() != DroneMissionStatus.DISPATCHED
+                                    ? Mono.error(
+                                        new DomainRuleException(
+                                            HttpStatus.CONFLICT,
+                                            "USE_DRONE_DISPATCH_ENDPOINT",
+                                            "Dispatch DroneMission via POST /api/drone-missions/{id}/dispatch"
+                                        )
+                                    )
+                                    : Mono.empty()
+                            )
+                            .then(
+                                Mono.defer(() -> {
+                                    DroneMission entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<DroneMissionDTO> partialUpdate(DroneMissionDTO droneMissionDTO) {
-        LOG.debug("Request to partially update DroneMission : {}", droneMissionDTO);
-
-        return droneMissionRepository
-            .findById(droneMissionDTO.getId())
-            .map(existingDroneMission -> {
-                droneMissionMapper.partialUpdate(existingDroneMission, droneMissionDTO);
-
-                return existingDroneMission;
-            })
-            .flatMap(droneMissionRepository::save)
-            .map(droneMissionMapper::toDto);
+    public Mono<DroneMissionDTO> partialUpdate(DroneMissionDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.MAINTENANCE)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                dto.getStatus() == DroneMissionStatus.DISPATCHED && existing.getStatus() != DroneMissionStatus.DISPATCHED
+                                    ? Mono.error(
+                                        new DomainRuleException(
+                                            HttpStatus.CONFLICT,
+                                            "USE_DRONE_DISPATCH_ENDPOINT",
+                                            "Dispatch DroneMission via POST /api/drone-missions/{id}/dispatch"
+                                        )
+                                    )
+                                    : Mono.empty()
+                            )
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<DroneMissionDTO> findAll(Pageable pageable) {
-        LOG.debug("Request to get all DroneMissions");
-        return droneMissionRepository.findAllBy(pageable).map(droneMissionMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findPageByOrganization(tenant.organizationId(), pageable.getPageSize(), pageable.getOffset()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<DroneMissionDTO> findAllWithEagerRelationships(Pageable pageable) {
-        return droneMissionRepository.findAllWithEagerRelationships(pageable).map(droneMissionMapper::toDto);
+        return findAll(pageable);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return droneMissionRepository.count();
+        return tenantContextService.requireCurrentTenant().flatMap(tenant -> repository.countByOrganization(tenant.organizationId()));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<DroneMissionDTO> findOne(Long id) {
-        LOG.debug("Request to get DroneMission : {}", id);
-        return droneMissionRepository.findOneWithEagerRelationships(id).map(droneMissionMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete DroneMission : {}", id);
-        return droneMissionRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(m -> repository.deleteById(m.getId()));
+    }
+
+    private Mono<DroneMission> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(m -> orgId.equals(m.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "DRONE_MISSION_NOT_FOUND", "Not found")));
     }
 }
