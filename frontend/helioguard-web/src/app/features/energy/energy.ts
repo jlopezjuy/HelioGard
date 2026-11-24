@@ -2,6 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { canSeeEconomics, visibleInstallations } from '../../core/domain/access';
 import { DiurnalMode, DiurnalStatus } from '../../core/domain/diurnal-sim';
+import { NOA_REGIONS, NOA_REGION_LIST, NoaRegionId, simulateNoaDay } from '../../core/domain/noa-regional';
 import { SECTOR } from '../../core/domain/model';
 import { deficitWh, formatArs, formatWh, wattHoursFromPower } from '../../core/domain/rules';
 import { DEMO_REPOSITORY } from '../../infra/mock/demo-store';
@@ -16,6 +17,7 @@ import {
   HgControl,
   HgField,
   HgKpi,
+  HgProgress,
   HgSensor,
   HgSkeleton,
   HgTable,
@@ -34,6 +36,7 @@ import {
     HgControl,
     HgField,
     HgKpi,
+    HgProgress,
     HgSensor,
     HgSkeleton,
     HgTable,
@@ -48,12 +51,57 @@ export class EnergyPage {
   protected readonly formatWh = formatWh;
   protected readonly formatArs = formatArs;
   protected readonly zones = ['Puna', 'Quebrada', 'Valles', 'Yungas', 'Valles Calchaquíes'];
-  protected readonly tab = signal<'grafico' | 'tabla' | 'diurna'>('grafico');
+  protected readonly tab = signal<'grafico' | 'tabla' | 'diurna' | 'noa'>('grafico');
   protected readonly tabs = [
     { id: 'grafico', label: 'Gráfico Wh' },
     { id: 'tabla', label: 'Tabla de intervalos' },
     { id: 'diurna', label: 'Simulación diurna (07:00–19:00)' },
+    { id: 'noa', label: 'Clima NOA (ampliación)' },
   ] as const;
+
+  protected readonly noaRegions = NOA_REGION_LIST;
+  protected readonly noaRegionId = signal<NoaRegionId>('abra');
+  protected readonly noaKwp = signal(6.6);
+  protected readonly noaSoiling = signal(18);
+  protected readonly noaCloud = signal(8);
+  protected readonly noaFrost = signal(true);
+  protected readonly noaStorm = signal(false);
+  protected readonly noaFailure = signal(false);
+
+  protected readonly noaResult = computed(() =>
+    simulateNoaDay({
+      regionId: this.noaRegionId(),
+      kwp: this.noaKwp(),
+      soilingPct: this.noaSoiling(),
+      cloudPct: this.noaCloud(),
+      windKmH: NOA_REGIONS[this.noaRegionId()].wind,
+      frost: this.noaFrost(),
+      failure: this.noaFailure(),
+      storm: this.noaStorm(),
+    }),
+  );
+
+  protected readonly noaChart = computed(() => {
+    const res = this.noaResult();
+    const yMax = Math.max(this.noaKwp() * 1.1, 1);
+    const xOf = (m: number) => 42 + ((m - 390) / 750) * 490;
+    const yOf = (kw: number) => 185 - (Math.max(0, kw) / yMax) * 160;
+    return {
+      yMax,
+      expectedLine: res.points.map((p) => `${xOf(p.minute).toFixed(1)},${yOf(p.expectedKw).toFixed(1)}`).join(' '),
+      actualLine: res.points.map((p) => `${xOf(p.minute).toFixed(1)},${yOf(p.powerKw).toFixed(1)}`).join(' '),
+    };
+  });
+
+  protected selectNoaRegion(id: string): void {
+    if (id in NOA_REGIONS) {
+      const region = NOA_REGIONS[id as NoaRegionId];
+      this.noaRegionId.set(region.id);
+      this.noaCloud.set(region.cloud);
+      this.noaSoiling.set(region.soil);
+      this.noaFrost.set(region.frost);
+    }
+  }
 
   protected readonly modes: readonly { id: DiurnalMode; label: string }[] = [
     { id: 'normal', label: 'Día normal' },

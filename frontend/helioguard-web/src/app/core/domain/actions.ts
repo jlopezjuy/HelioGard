@@ -596,6 +596,7 @@ export function ingestMessage(snapshot: DemoSnapshot, message: TelemetryMessage)
       acceptedForEnergy: outcome.useInEnergy,
       trustLevel: outcome.trustLevel,
       powerW: message.powerW,
+      voltageV: message.voltageV,
     });
   }
   const integrityEventId =
@@ -684,6 +685,49 @@ export function publishNewBoot(snapshot: DemoSnapshot): DemoSnapshot {
 
 export function publishImplausible(snapshot: DemoSnapshot): DemoSnapshot {
   return ingestMessage(snapshot, messageImplausible(snapshot));
+}
+
+export function messageElectricalInjection(snapshot: DemoSnapshot): TelemetryMessage {
+  return {
+    gatewayId: 'gw-1',
+    eventId: `evt-b2-vxi-${snapshot.scenario.ledger.length + 1}`,
+    deviceId: 'inverter-03',
+    bootId: 'boot-7',
+    sequenceNumber: 200 + snapshot.scenario.ledger.length + 1,
+    powerW: 82_400,
+    voltageV: 380,
+    currentA: 121,
+    expectedPowerW: SECTOR.expectedPowerW,
+    observedAt: snapshot.clockIso,
+    authenticSignature: false,
+    channelCode: 'inv-03-ac-power',
+  };
+}
+
+export function publishElectricalInjection(snapshot: DemoSnapshot): DemoSnapshot {
+  return ingestMessage(snapshot, messageElectricalInjection(snapshot));
+}
+
+export function publishFrozenStream(snapshot: DemoSnapshot): DemoSnapshot {
+  let current = snapshot;
+  const baseSeq = 300 + snapshot.scenario.ledger.length;
+  for (let i = 0; i < 5; i += 1) {
+    current = ingestMessage(current, {
+      gatewayId: 'gw-1',
+      eventId: `evt-b2-freeze-${baseSeq + i}`,
+      deviceId: 'inverter-03',
+      bootId: 'boot-7',
+      sequenceNumber: baseSeq + i,
+      powerW: SECTOR.healthyPowerW,
+      voltageV: 380.2,
+      currentA: Math.round((SECTOR.healthyPowerW / 380.2) * 100) / 100,
+      expectedPowerW: SECTOR.expectedPowerW,
+      observedAt: current.clockIso,
+      authenticSignature: false,
+      channelCode: 'inv-03-ac-power',
+    });
+  }
+  return current;
 }
 
 export function cutWan(snapshot: DemoSnapshot): DemoSnapshot {

@@ -1,0 +1,32 @@
+{
+  "file": "/mnt/data/helioguard_backend_v5/specs/domain.v5.review.jdl",
+  "base_entities": 47,
+  "entities": 67,
+  "new_entities": 20,
+  "relations": 178,
+  "enum_count": 44,
+  "errors": [],
+  "added_entities": [
+    "AlertRuleVersion",
+    "AuditReportSignature",
+    "ClimateRiskProfile",
+    "DroneMissionEvent",
+    "DroneMissionTarget",
+    "EnergyModelConfiguration",
+    "EquipmentConnection",
+    "IncidentLocalization",
+    "InverterMpptInput",
+    "MissionSafetyCheck",
+    "PlanBenefit",
+    "PlanEligibilityAssessment",
+    "SecurityCaseEvent",
+    "SecurityCaseEvidence",
+    "SolarSector",
+    "StringInputAssignment",
+    "TelemetryChannelBinding",
+    "WeatherIngestionBatch",
+    "WorkOrderApproval",
+    "WorkOrderAssignment"
+  ],
+  "validation": "STRUCTURAL_ONLY"
+}

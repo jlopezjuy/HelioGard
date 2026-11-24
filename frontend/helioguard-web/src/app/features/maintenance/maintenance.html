@@ -84,5 +84,74 @@
         </ul>
       }
     </hg-card>
+
+    @let spec = interventionSpec();
+    @let metrics = interventionMetrics();
+    @let safety = interventionSafety();
+    <hg-card title="Simulador de intervención y retorno (ampliación flow)">
+      <p class="hg-note" style="margin-bottom: 0.9rem">
+        Compará rutas de limpieza (Dron, Cuadrilla técnica o Propietario), compuertas de seguridad y días de recupero según suciedad y tarifa (portado desde ideas/demos/helioguard_flow.html).
+      </p>
+
+      <div class="hg-row" style="margin-bottom: 1rem">
+        @for (r of routes; track r.id) {
+          <hg-button [variant]="routeId() === r.id ? 'primary' : 'secondary'" (click)="routeId.set(r.id)">
+            {{ r.name }}
+          </hg-button>
+        }
+      </div>
+
+      <div class="hg-grid-cards" style="margin-bottom: 1rem">
+        <hg-field label="Condición climática">
+          <select hgControl [value]="weather()" (change)="weather.set($any($event.target).value)">
+            <option value="clear">Despejado / apto</option>
+            <option value="wind">Viento fuerte</option>
+            <option value="frost">Riesgo de helada</option>
+          </select>
+        </hg-field>
+        <hg-field label="Acceso a los paneles">
+          <select hgControl [value]="access()" (change)="access.set($any($event.target).value)">
+            <option value="ground">A nivel del suelo</option>
+            <option value="roof">En techo / altura</option>
+          </select>
+        </hg-field>
+        <hg-field label="Suciedad estimada (%)" hint="0 a 80 %">
+          <input hgControl type="number" min="0" max="80" [value]="dustPct()" (change)="dustPct.set(+$any($event.target).value || 0)" />
+        </hg-field>
+        <hg-field label="Tarifa (ARS/kWh)">
+          <input hgControl type="number" min="0" step="10" [value]="tariffArs()" (change)="tariffArs.set(+$any($event.target).value || 0)" />
+        </hg-field>
+      </div>
+
+      @if (!safety.ok) {
+        <div style="margin-bottom: 1rem" role="status">
+          <hg-alert tone="danger" title="Intervención bloqueada por seguridad">
+            {{ safety.reason }}
+          </hg-alert>
+        </div>
+      } @else {
+        <div style="margin-bottom: 1rem" role="status">
+          <hg-alert tone="success" [title]="spec.title + ' · habilitada'">
+            {{ spec.person }} — {{ spec.note }}
+          </hg-alert>
+        </div>
+      }
+
+      <div class="hg-grid-cards">
+        <hg-kpi
+          label="Recupero estimado de la intervención"
+          [value]="metrics.recoveredArs <= 0 ? '—' : ((metrics.paybackDays | number:'1.1-1') ?? '0')"
+          unit="días"
+          [note]="'Costo ' + formatArs(metrics.costArs) + ' · ahorro diario ' + formatArs(metrics.recoveredArs)"
+        />
+        <hg-card title="Balance energético diario simulado">
+          <dl class="hg-dl">
+            <div class="hg-dl-row"><dt>Referencia limpia / Antes</dt><dd>{{ metrics.expectedKwh }} kWh/d · {{ metrics.beforeKwh }} kWh/d</dd></div>
+            <div class="hg-dl-row"><dt>Pérdida actual por suciedad</dt><dd>{{ metrics.lossKwh }} kWh/d ({{ formatArs(metrics.lossArs) }})</dd></div>
+            <div class="hg-dl-row"><dt>Recuperación estimada ({{ (spec.recoveryRatio * 100) | number:'1.0-0' }} %)</dt><dd>+{{ metrics.recoveredKwh }} kWh/d → {{ metrics.afterKwh }} kWh/d</dd></div>
+          </dl>
+        </hg-card>
+      </div>
+    </hg-card>
   }
 </div>

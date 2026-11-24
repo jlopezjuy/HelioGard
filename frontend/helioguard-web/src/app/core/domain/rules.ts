@@ -175,15 +175,53 @@ export function evaluateIngest(
     };
   }
 
-  if (message.powerW > limits.maxPowerW + limits.uncertaintyW) {
+  if (message.voltageV !== undefined) {
+    const recentForDevice = ledger
+      .filter((entry) => entry.deviceId === message.deviceId)
+      .slice(-4);
+    if (
+      recentForDevice.length === 4 &&
+      recentForDevice.every(
+        (entry) => entry.powerW === message.powerW && entry.voltageV === message.voltageV,
+      )
+    ) {
+      return {
+        action: 'RETAIN',
+        eventType: 'REPLAY',
+        status: 'UNDER_REVIEW',
+        trustLevel: 'SUSPECT',
+        reason:
+          'Cinco lecturas seguidas con idéntico par potencia/tensión sin ruido físico (stream congelado). No demuestra intrusión por sí solo.',
+        matchedKeys: ['deviceId', 'powerW', 'voltageV'],
+        useInEnergy: false,
+        cryptographicallyVerified: false,
+      };
+    }
+  }
+
+  const exceedsAbsolute = message.powerW > limits.maxPowerW + limits.uncertaintyW;
+  const pviW =
+    message.voltageV !== undefined && message.currentA !== undefined
+      ? message.voltageV * message.currentA
+      : null;
+  const failsVxI = pviW !== null && Math.abs(message.powerW - pviW) > 0.08 * Math.max(pviW, 100);
+  const exceedsExpectedCeiling =
+    message.expectedPowerW !== undefined && message.powerW > 1.25 * message.expectedPowerW + 300;
+
+  if (exceedsAbsolute || failsVxI || exceedsExpectedCeiling) {
+    const matchedKeys: string[] = [];
+    if (failsVxI) matchedKeys.push('V*I');
+    if (exceedsExpectedCeiling) matchedKeys.push('expectedPowerW');
+    if (exceedsAbsolute) matchedKeys.push('maxPowerW');
     return {
       action: 'REVIEW',
       eventType: 'PHYSICAL_INCONSISTENCY',
       status: 'UNDER_REVIEW',
       trustLevel: 'SUSPECT',
-      reason:
-        'La potencia supera el límite físico del equipo más la incertidumbre del intervalo. Puede ser sensor o dato inconsistente. No demuestra intrusión.',
-      matchedKeys: [],
+      reason: failsVxI
+        ? 'La potencia informada no coincide con V×I (> 8 % de desvío). Puede ser sensor o dato inconsistente. No demuestra intrusión.'
+        : 'La potencia supera el límite físico o el 125 % de la esperada. Puede ser sensor o dato inconsistente. No demuestra intrusión.',
+      matchedKeys,
       useInEnergy: false,
       cryptographicallyVerified: false,
     };

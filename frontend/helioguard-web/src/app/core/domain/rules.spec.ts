@@ -7,6 +7,8 @@ import {
   dispatchMission,
   messageExactReplay,
   messageImplausible,
+  publishElectricalInjection,
+  publishFrozenStream,
   messageNewBoot,
   messageOriginal,
   messageSameSequence,
@@ -191,5 +193,18 @@ describe('cobertura', () => {
     expect(messageSameSequence(seed).eventId).not.toBe(messageOriginal(seed).eventId);
     expect(messageNewBoot(seed).bootId).toBe('boot-8');
     expect(messageImplausible(seed).powerW).toBe(8_000_000);
+  });
+
+  it('detecta inyección moderada por inconsistencia V×I y stream congelado de 5 muestras idénticas', () => {
+    const vxi = publishElectricalInjection(fresh());
+    expect(vxi.scenario.lastProof?.eventType).toBe('PHYSICAL_INCONSISTENCY');
+    expect(vxi.scenario.lastProof?.useInEnergy).toBe(false);
+    expect(vxi.scenario.lastProof?.matchedKeys).toContain('V*I');
+
+    const frozen = publishFrozenStream(fresh());
+    expect(frozen.scenario.ledger).toHaveLength(5);
+    expect(frozen.scenario.lastProof?.eventType).toBe('REPLAY');
+    expect(frozen.scenario.lastProof?.useInEnergy).toBe(false);
+    expect(frozen.scenario.lastProof?.matchedKeys).toEqual(['deviceId', 'powerW', 'voltageV']);
   });
 });

@@ -624,6 +624,9 @@ export interface TelemetryMessage {
   observedAt: string;
   authenticSignature: boolean;
   channelCode: string;
+  voltageV?: number;
+  currentA?: number;
+  expectedPowerW?: number;
 }
 
 export interface IngestLedgerEntry {
@@ -635,6 +638,7 @@ export interface IngestLedgerEntry {
   acceptedForEnergy: boolean;
   trustLevel: DataTrustLevel;
   powerW: number;
+  voltageV?: number;
 }
 
 export interface IngestProof {

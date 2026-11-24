@@ -9,6 +9,8 @@ import {
   dispatchMission,
   publishExactReplay,
   setLossScenario,
+  publishElectricalInjection,
+  publishFrozenStream,
   publishImplausible,
   publishNewBoot,
   publishOriginal,
@@ -64,6 +66,8 @@ export interface DemoRepository {
   sameSequence(): void;
   newBoot(): void;
   implausible(): void;
+  electricalInjection(): void;
+  frozenStream(): void;
   cut(): void;
   restore(): void;
   acknowledge(incidentId: string): void;
@@ -176,6 +180,14 @@ export class DemoStore implements DemoRepository {
 
   implausible(): void {
     this.commit(publishImplausible(this.snapshot()));
+  }
+
+  electricalInjection(): void {
+    this.commit(publishElectricalInjection(this.snapshot()));
+  }
+
+  frozenStream(): void {
+    this.commit(publishFrozenStream(this.snapshot()));
   }
 
   cut(): void {

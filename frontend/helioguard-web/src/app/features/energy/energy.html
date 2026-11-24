@@ -35,7 +35,7 @@
 
     <div class="hg-row" style="justify-content: space-between">
       <hg-tabs [tabs]="tabs" [(selected)]="tab" label="Vista de energía" />
-      @if (tab() !== 'diurna') {
+      @if (tab() === 'grafico' || tab() === 'tabla') {
         <hg-button variant="secondary" (click)="toggleComparable()">Marcar 10:15 como no comparable</hg-button>
       }
     </div>
@@ -91,7 +91,7 @@
           </table>
         </hg-table>
       </hg-card>
-    } @else {
+    } @else if (tab() === 'diurna') {
       @let s = sim.state();
       @let chart = diurnalChart();
       <div class="hg-stack">
@@ -121,6 +121,11 @@
                 {{ mode.label }}
               </hg-button>
             }
+            @if (s.suciedad < 1 || s.estado === 'amarillo') {
+              <hg-button variant="primary" (click)="sim.sendCleaning()">
+                Enviar limpieza
+              </hg-button>
+            }
           </div>
 
           <div class="hg-grid-cards">
@@ -147,6 +152,16 @@
           </div>
         </hg-card>
 
+        @if (sim.cleaningState() === 'cleaning') {
+          <hg-alert tone="info" title="Limpieza simulada en curso">
+            Se envió limpieza al sector. La potencia real irá subiendo paso a paso hasta igualar la curva esperada (suciedad actual: {{ (s.suciedad * 100) | number:'1.0-0' }} %).
+          </hg-alert>
+        } @else if (sim.cleaningState() === 'recovered') {
+          <hg-alert tone="success" title="Paneles limpios · producción recuperada">
+            La limpieza simulada completó la recuperación al 100 % y la generación volvió al régimen esperado.
+          </hg-alert>
+        }
+
         @for (alerta of s.alertas; track alerta.titulo) {
           <hg-alert
             [tone]="alerta.nivel === 'rojo' ? 'danger' : 'warning'"
@@ -155,6 +170,10 @@
             {{ alerta.detalle }}
             @if (alerta.nivel === 'rojo') {
               La acumulación de pérdida económica permanece congelada mientras el dato sea sospechoso.
+            } @else if (alerta.titulo === 'Rendimiento bajo' && sim.cleaningState() !== 'cleaning') {
+              <div style="margin-top: 0.65rem">
+                <hg-button variant="primary" (click)="sim.sendCleaning()">Enviar limpieza</hg-button>
+              </div>
             }
           </hg-alert>
         }
@@ -212,6 +231,96 @@
             } @else {
               <p class="hg-note">Pulsá Reproducir o +5 min para iniciar el día solar.</p>
             }
+          </hg-card>
+        </div>
+      </div>
+    } @else {
+      @let noa = noaResult();
+      @let nChart = noaChart();
+      <div class="hg-stack">
+        <hg-alert tone="info" title="Ampliación regional NOA (post-Idea Original)">
+          Perfil climático ilustrativo de 6 zonas del NOA (Abra Pampa, Tilcara, San Salvador, Orán, Cafayate, Tartagal) portado desde ideas/demos/helioguard_lab.html.
+        </hg-alert>
+
+        <hg-card title="Configuración regional NOA">
+          <div class="hg-grid-cards">
+            <hg-field label="Región del NOA" [hint]="noa.region.detail">
+              <select hgControl [value]="noaRegionId()" (change)="selectNoaRegion($any($event.target).value)">
+                @for (reg of noaRegions; track reg.id) {
+                  <option [value]="reg.id">{{ reg.name }} ({{ reg.zone }} · {{ reg.tmin }}°/{{ reg.tmax }}°C)</option>
+                }
+              </select>
+            </hg-field>
+            <hg-field label="Potencia instalada (kWp)">
+              <input hgControl type="number" min="1" step="0.5" [value]="noaKwp()" (change)="noaKwp.set(+$any($event.target).value || 6.6)" />
+            </hg-field>
+            <hg-field label="Suciedad simulada (%)" hint="0 a 75 %">
+              <input hgControl type="number" min="0" max="75" [value]="noaSoiling()" (change)="noaSoiling.set(+$any($event.target).value || 0)" />
+            </hg-field>
+            <hg-field label="Nubosidad (%)" hint="0 a 100 %">
+              <input hgControl type="number" min="0" max="100" [value]="noaCloud()" (change)="noaCloud.set(+$any($event.target).value || 0)" />
+            </hg-field>
+          </div>
+
+          <div class="hg-row" style="margin-top: 1rem">
+            <hg-button [variant]="noaFrost() ? 'primary' : 'secondary'" (click)="noaFrost.set(!noaFrost())">
+              Helada matinal: {{ noaFrost() ? 'Activa' : 'No' }}
+            </hg-button>
+            <hg-button [variant]="noaStorm() ? 'primary' : 'secondary'" (click)="noaStorm.set(!noaStorm())">
+              Tormenta: {{ noaStorm() ? 'Activa' : 'No' }}
+            </hg-button>
+            <hg-button [variant]="noaFailure() ? 'danger' : 'secondary'" (click)="noaFailure.set(!noaFailure())">
+              Falla inversor: {{ noaFailure() ? 'Activa' : 'No' }}
+            </hg-button>
+          </div>
+
+          @if (noa.frostIgnored) {
+            <p class="hg-note" style="margin-top: 0.75rem; color: var(--color-hg-amber)">
+              {{ noa.region.name }} tiene mínima sobre 0 °C ({{ noa.region.tmin }} °C); la regla de escarcha no aplica pérdidas. Cambiá a Abra Pampa o Tilcara para simular deshielo.
+            </p>
+          }
+        </hg-card>
+
+        <hg-chart-frame
+          [title]="'Perfil diario NOA · ' + noa.region.name"
+          unit="kW"
+          rangeLabel="06:30 a 19:00 (pasos de 10 min)"
+          note="Referencia limpia (punteada lima) vs. generación resultante con factores polvo · escarcha · falla (menta)."
+        >
+          <svg viewBox="0 0 560 220" style="width: 100%; max-width: 48rem; height: auto" role="img" aria-label="Perfil diario regional NOA">
+            <line x1="42" y1="20" x2="42" y2="185" stroke="#223027" />
+            <line x1="42" y1="185" x2="532" y2="185" stroke="#223027" />
+            <text x="8" y="24" font-size="10" fill="#8ea192">{{ nChart.yMax | number:'1.1-1' }} kW</text>
+            <text x="42" y="204" font-size="11" fill="#8ea192">06:30</text>
+            <text x="274" y="204" font-size="11" fill="#8ea192">12:45</text>
+            <text x="502" y="204" font-size="11" fill="#8ea192">19:00</text>
+            <polyline fill="none" stroke="#d8fb1c" stroke-width="2" stroke-dasharray="5 4" [attr.points]="nChart.expectedLine" />
+            <polyline fill="none" stroke="#19c37d" stroke-width="2.5" [attr.points]="nChart.actualLine" />
+          </svg>
+        </hg-chart-frame>
+
+        <div class="hg-grid-cards">
+          <hg-kpi
+            label="Energía diaria esperada vs. real"
+            [value]="(noa.totals.actualKwh | number:'1.1-1') ?? '0'"
+            unit="kWh"
+            [note]="'Esperada ' + (noa.totals.expectedKwh | number:'1.1-1') + ' kWh · clima ' + noa.region.zone"
+          />
+          <hg-card title="Descomposición secuencial de pérdidas">
+            <div class="hg-stack" style="gap: 0.6rem">
+              <hg-progress
+                [label]="'Polvo (' + (noa.totals.dustKwh | number:'1.2-2') + ' kWh)'"
+                [value]="noa.totals.expectedKwh > 0 ? (noa.totals.dustKwh / noa.totals.expectedKwh) * 100 : 0"
+              />
+              <hg-progress
+                [label]="'Escarcha matinal (' + (noa.totals.frostKwh | number:'1.2-2') + ' kWh)'"
+                [value]="noa.totals.expectedKwh > 0 ? (noa.totals.frostKwh / noa.totals.expectedKwh) * 100 : 0"
+              />
+              <hg-progress
+                [label]="'Falla inversor (' + (noa.totals.faultKwh | number:'1.2-2') + ' kWh)'"
+                [value]="noa.totals.expectedKwh > 0 ? (noa.totals.faultKwh / noa.totals.expectedKwh) * 100 : 0"
+              />
+            </div>
           </hg-card>
         </div>
       </div>
