@@ -56,7 +56,7 @@ HelioGuard compara la potencia informada por una planta solar contra la generaci
 | `ideas/specs/` y `ideas/contracts/` | Modelo JDL (`domain.v4.draft.jdl`, 47 entidades), `REQUIREMENTS.md`, OpenAPI y esquemas JSON | **Especificación** |
 | `ideas/maquetas/` | Maquetas visuales de Google Stitch y tokens de diseño | **Referencia UI** |
 | `ideas/demos/` | Prototipos HTML exploratorios (`helioguard_lab.html`, `helioguard_orbit.html`, `helioguard_flow.html`) | **Referencia de simulaciones** |
-| `backend/` | Scaffolding JHipster 9.4.0 (usuarios y autenticación JWT) | **Base inicial (sin entidades de dominio aún)** |
+| `backend/` | Spring Boot 4.1.1 / JHipster 9.4.0 reactivo (WebFlux + R2DBC + PostgreSQL + Liquibase), lógica SDD S0.5–S8 | **Implementado (S1–S8 verificados)** |
 | `Idea Original/` | Pitch y prototipo inicial en Flask (`app.py`, `index.html`, `pichoriginal.md`) | **Solo lectura (histórico)** |
 | `docker/` y `movil/` | Espacios reservados para despliegue y cliente móvil | **Vacíos / reserva** |
 
@@ -94,17 +94,44 @@ Todas las rutas de `frontend/helioguard-web` usan los componentes reutilizables 
 
 ## Backend (`backend/`)
 
-Scaffold generado con **JHipster 9.4.0** (Spring Boot / Java). Actualmente provee autenticación y gestión de usuarios; las 47 entidades del dominio definidas en `ideas/specs/domain.v4.draft.jdl` corresponden al Sprint S4 (pendiente de implementación en backend).
+Backend reactivo sobre **Spring Boot 4.1.1**, **JHipster 9.4.0**, **Spring WebFlux**, **Spring Data R2DBC**, **PostgreSQL 18** y **Liquibase**, con lógica de negocio SDD implementada de punta a punta (**Sprints S0.5–S8**) y verificada contra PostgreSQL en Testcontainers (`T01`–`T20`):
+
+- **Aislamiento multi-tenant por JWT (`active_org`):** nunca confía en `X-Organization-Id` ni permite `organizationId` editable en DTOs de creación; el servidor resuelve `organization` desde el JWT validado y `OrganizationMembership` `ACTIVE` (o exige selección explícita cuando el usuario pertenece a múltiples empresas).
+- **Colaboración delegada sin IDOR:** los colaboradores externos operan solo sobre instalaciones con `InstallationAccessGrant` vigente y dentro del scope otorgado; los accesos cruzados responden `404` uniforme.
+- **Autenticación M2M para Edge / ESP32:** los gateways no heredan JWT humano; autentican con `X-Device-Uid` + `X-Device-Secret` contra `DeviceIdentity.keyFingerprint` (SHA-256 en tiempo constante) y resuelven su tenant/instalación desde DB.
+
+### Capacidades y Endpoints de Dominio (`S1`–`S8`)
+
+| Sprint | Dominio | Endpoints / Componentes clave | Reglas de negocio destacadas |
+|---|---|---|---|
+| **S1** | Multi-tenancy y acceso | `POST /api/authenticate`, `POST /api/auth/active-organization`, `GET /api/me/context`, `GET/POST /api/installations`, `GET /api/installations/{id}` | Selección obligatoria de empresa en multi-org (`409` sin `active_org`), grants temporales (`InstallationAccessGrant`), aislamiento cross-tenant. |
+| **S2** | Topología eléctrica y binding Edge | Servicios de `Site`, `Installation`, `SolarBlock`, `Inverter`, `SolarString`, `Gateway`, `DeviceIdentity`, `GatewayInstallationBinding` | Exclusión temporal (`btree_gist`) para bindings activos, jerarquía consistente dentro del mismo tenant, restricciones `CHECK` de capacidad/potencia. |
+| **S3** | Telemetría Edge e idempotencia | `POST /api/ingest/telemetry` (`X-Device-Uid` + `X-Device-Secret`) | Idempotencia por `(gatewayId, eventId)`, detección de replay (`deviceId+bootId+sequenceNumber`), stream congelado y retención en `TelemetryIntegrityEvent`. |
+| **S4** | Modelado energético y clima | `POST /api/energy-runs/execute`, `DataProvenanceServiceImpl` | Cálculo esperado AC con banda de incertidumbre (±8 %) usando `EnergyModelConfiguration` y `WeatherIngestionBatch`; rechaza (`400`) falsos reclamos de termografía de módulo sobre Sentinel/GOES. |
+| **S5** | Alertas, diagnóstico e integridad | `POST /api/incidents/evaluate`, `POST /api/integrity/evaluate` | Diferencia noche (`NO_PRODUCTION_NIGHT`), offline (`TELEMETRY_OFFLINE`) y clima (`WEATHER_LIMITED`) sin falsas fallas; deduplica incidentes activos; anomalías físicas generan `SUSPECT` con `cyberAttackConfirmed = false`. |
+| **S6** | Pérdidas económicas y tarifas | `POST /api/economic-assessments/evaluate` | Selección de `TariffRate` vigente; cálculo exacto con curva de autoconsumo o 3 escenarios con supuestos explícitos (`ALL_EXPORTED`, `MIXED_50_50`, `ALL_SELF_CONSUMED`). |
+| **S7** | Auditorías y elegibilidad de planes | `POST /api/audit-reports/{id}/approve`, `POST /api/plan-eligibility-assessments/evaluate` | `AuditTemplate` publicado inmutable (`409`); aprobación exige preguntas obligatorias, evidencia en hallazgos `CRITICAL` y firma; elegibilidad bloquea auto-contratación ante críticos abiertos. |
+| **S8** | Mantenimiento, recuperación y drones | `POST /api/work-orders/{id}/accept`, `POST /api/drone-missions/{id}/dispatch`, `POST /api/recovery-assessments/verify` | Aceptación por grant (`WORK_ORDER_EXECUTION`); **drones físicos deshabilitados en MVP** (`simulatedOnly = true`, `physicalHardwareInvoked = false`) con guardas de autorización, safety check y viento; recuperación `INCONCLUSIVE` sin muestras suficientes. |
+
+### Ejecución y pruebas (`backend/`)
 
 ```bash
+# Levantar backend en desarrollo
 cd backend
 ./mvnw
+
+# Ejecutar suite SDD completa (T01–T20) + ArchUnit + Auth contra PostgreSQL Testcontainers
+./mvnw test -Dtest="MaintenanceDroneSddIT,AuditAndPlanSddIT,EconomicLossSddIT,IncidentDiagnosticSddIT,EnergyModelingSddIT,TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
 ```
+
+- **Resultado verificado:** código de salida `0` contra PostgreSQL 18.6 en Testcontainers (`T01`–`T20`, reglas ArchUnit y autenticación).
+- **Nota sobre `*ResourceIT` autogenerados:** la suite completa de JHipster (`./mvnw verify`) incluye los `*ResourceIT` autogenerados de las 67 entidades, que fallan porque usan `@WithMockUser` sin JWT `active_org` y un `slug` estático en `OrganizationResourceIT.createEntity()`.
 
 ---
 
 ## Documentación de referencia
 
+- **Implementación Backend SDD (S0.5–S8):** `docs/backend-sdd/IMPLEMENTACION_LOGICA_NEGOCIO.md`
 - **Auditoría Idea Original vs. actual:** `ideas/docs/AUDITORIA_IDEA_ORIGINAL.md`
 - **Matriz de trazabilidad:** `ideas/docs/MATRIZ_TRAZABILIDAD.md`
 - **Escenarios y fórmulas de simulación:** `ideas/docs/ESCENARIOS_SIMULACION.md`
