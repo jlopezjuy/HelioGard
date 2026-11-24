@@ -26,7 +26,6 @@ public class AuditEvidenceDTO implements Serializable {
 
     private Instant capturedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

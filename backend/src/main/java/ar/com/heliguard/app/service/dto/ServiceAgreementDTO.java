@@ -24,7 +24,6 @@ public class ServiceAgreementDTO implements Serializable {
 
     private Instant approvedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

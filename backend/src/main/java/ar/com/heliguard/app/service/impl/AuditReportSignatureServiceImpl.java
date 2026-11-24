@@ -1,93 +1,167 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.AuditReportSignature;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
+import ar.com.heliguard.app.repository.AuditReportRepository;
 import ar.com.heliguard.app.repository.AuditReportSignatureRepository;
 import ar.com.heliguard.app.service.AuditReportSignatureService;
 import ar.com.heliguard.app.service.dto.AuditReportSignatureDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.AuditReportSignatureMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.AuditReportSignature}.
+ * Tenant-isolated service for {@link AuditReportSignature} (RB-AUD-002).
  */
 @Service
 @Transactional
 public class AuditReportSignatureServiceImpl implements AuditReportSignatureService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuditReportSignatureServiceImpl.class);
-
-    private final AuditReportSignatureRepository auditReportSignatureRepository;
-
-    private final AuditReportSignatureMapper auditReportSignatureMapper;
+    private final AuditReportSignatureRepository repository;
+    private final AuditReportRepository reportRepository;
+    private final AuditReportSignatureMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
     public AuditReportSignatureServiceImpl(
-        AuditReportSignatureRepository auditReportSignatureRepository,
-        AuditReportSignatureMapper auditReportSignatureMapper
+        AuditReportSignatureRepository repository,
+        AuditReportRepository reportRepository,
+        AuditReportSignatureMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
     ) {
-        this.auditReportSignatureRepository = auditReportSignatureRepository;
-        this.auditReportSignatureMapper = auditReportSignatureMapper;
+        this.repository = repository;
+        this.reportRepository = reportRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<AuditReportSignatureDTO> save(AuditReportSignatureDTO auditReportSignatureDTO) {
-        LOG.debug("Request to save AuditReportSignature : {}", auditReportSignatureDTO);
-        return auditReportSignatureRepository
-            .save(auditReportSignatureMapper.toEntity(auditReportSignatureDTO))
-            .map(auditReportSignatureMapper::toDto);
+    public Mono<AuditReportSignatureDTO> save(AuditReportSignatureDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                checkReport(dto.getAuditReport() != null ? dto.getAuditReport().getId() : null, tenant.organizationId())
+                    .then(
+                        Mono.defer(() -> {
+                            AuditReportSignature entity = mapper.toEntity(dto);
+                            entity.setId(null);
+                            entity.setOrganizationId(tenant.organizationId());
+                            entity.setOrganization(new Organization().id(tenant.organizationId()));
+                            return repository.save(entity);
+                        })
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AuditReportSignatureDTO> update(AuditReportSignatureDTO auditReportSignatureDTO) {
-        LOG.debug("Request to update AuditReportSignature : {}", auditReportSignatureDTO);
-        return auditReportSignatureRepository
-            .save(auditReportSignatureMapper.toEntity(auditReportSignatureDTO))
-            .map(auditReportSignatureMapper::toDto);
+    public Mono<AuditReportSignatureDTO> update(AuditReportSignatureDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    AuditReportSignature entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AuditReportSignatureDTO> partialUpdate(AuditReportSignatureDTO auditReportSignatureDTO) {
-        LOG.debug("Request to partially update AuditReportSignature : {}", auditReportSignatureDTO);
-
-        return auditReportSignatureRepository
-            .findById(auditReportSignatureDTO.getId())
-            .map(existingAuditReportSignature -> {
-                auditReportSignatureMapper.partialUpdate(existingAuditReportSignature, auditReportSignatureDTO);
-
-                return existingAuditReportSignature;
-            })
-            .flatMap(auditReportSignatureRepository::save)
-            .map(auditReportSignatureMapper::toDto);
+    public Mono<AuditReportSignatureDTO> partialUpdate(AuditReportSignatureDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<AuditReportSignatureDTO> findAll() {
-        LOG.debug("Request to get all AuditReportSignatures");
-        return auditReportSignatureRepository.findAll().map(auditReportSignatureMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<AuditReportSignatureDTO> findAllWithEagerRelationships() {
-        return auditReportSignatureRepository.findAllWithEagerRelationships().map(auditReportSignatureMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return auditReportSignatureRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<AuditReportSignatureDTO> findOne(Long id) {
-        LOG.debug("Request to get AuditReportSignature : {}", id);
-        return auditReportSignatureRepository.findOneWithEagerRelationships(id).map(auditReportSignatureMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete AuditReportSignature : {}", id);
-        return auditReportSignatureRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(s -> repository.deleteById(s.getId()));
+    }
+
+    private Mono<Void> checkReport(Long reportId, Long orgId) {
+        if (reportId == null) {
+            return Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "AUDIT_REPORT_REQUIRED", "auditReport.id is required"));
+        }
+        return reportRepository
+            .findById(reportId)
+            .filter(r -> orgId.equals(r.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "AUDIT_REPORT_NOT_IN_TENANT", "Not found in tenant")))
+            .then();
+    }
+
+    private Mono<AuditReportSignature> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(s -> orgId.equals(s.getOrganizationId()))
+            .switchIfEmpty(
+                Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "AUDIT_SIGNATURE_NOT_FOUND", "AuditReportSignature not found"))
+            );
     }
 }

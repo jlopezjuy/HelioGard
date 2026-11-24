@@ -29,7 +29,6 @@ public class AuditAnswerDTO implements Serializable {
 
     private Boolean compliant;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

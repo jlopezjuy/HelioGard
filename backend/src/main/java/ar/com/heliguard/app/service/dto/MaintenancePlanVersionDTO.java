@@ -31,7 +31,6 @@ public class MaintenancePlanVersionDTO implements Serializable {
     @Size(max = 400)
     private String termsReference;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

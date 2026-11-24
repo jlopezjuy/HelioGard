@@ -28,6 +28,12 @@ public interface ServiceProposalRepository extends ReactiveCrudRepository<Servic
     @Query("SELECT * FROM service_proposal entity WHERE entity.organization_id = :id")
     Flux<ServiceProposal> findByOrganization(Long id);
 
+    @Query("SELECT * FROM service_proposal entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<ServiceProposal> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM service_proposal entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM service_proposal entity WHERE entity.organization_id IS NULL")
     Flux<ServiceProposal> findAllWhereOrganizationIsNull();
 

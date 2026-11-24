@@ -228,7 +228,37 @@ Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
 
 ---
 
-## 8. Pendientes (Sprints S7–S8)
-- **S7:** Auditorías y planes de mantenimiento (`MaintenancePlan`, `MaintenancePlanVersion`, `PlanBenefit`, `PlanEligibilityAssessment`).
+## 8. Sprint S7 — Auditorías y Planes de Mantenimiento
+
+### Reglas de Negocio (`RB-*`) Implementadas
+
+| RB-ID | Regla | Clase / Método | Comportamiento implementado |
+|---|---|---|---|
+| `RB-AUD-001` | Ciclo de `AuditReport` y gate de aprobación | `AuditAndPlanWorkflowService.approveAuditReport()`<br>`AuditAndPlanWorkflowResource.approveAuditReport()`<br>`AuditReportServiceImpl` | `AuditReport` inicia en `DRAFT`; `POST /api/audit-reports/{id}/approve` exige todas las preguntas obligatorias respondidas (`400 AUDIT_MANDATORY_QUESTIONS_MISSING` con códigos faltantes), evidencia en hallazgos `CRITICAL` abiertos (`AUDIT_CRITICAL_FINDING_EVIDENCE_REQUIRED`) y `AuditReportSignature` (`AUDIT_SIGNATURE_REQUIRED`). |
+| `RB-AUD-002` | Inmutabilidad de templates publicados y aislamiento de evidencias/firmas | `AuditTemplateServiceImpl`<br>`AuditQuestionServiceImpl`<br>`AuditEvidenceServiceImpl`<br>`AuditReportSignatureServiceImpl` | Templates publicados (`publishedAt != null`) o usados por un reporte quedan inmutables (`409 AUDIT_TEMPLATE_IMMUTABLE`), incluyendo sus preguntas. |
+| `RB-PLAN-001` | Evaluación de elegibilidad por hallazgos críticos | `AuditAndPlanWorkflowService.evaluateEligibility()`<br>`AuditAndPlanWorkflowResource.evaluatePlanEligibility()` | `POST /api/plan-eligibility-assessments/evaluate` devuelve `INCOMPLETE` si el reporte no está aprobado, `REQUIRES_REMEDIATION` (`requiresCorrection = true`) ante hallazgos `CRITICAL` abiertos, `CONDITIONAL` ante `HIGH`, y `ELIGIBLE` sin auto-contratación (`autoContracted = false`). |
+| `RB-PLAN-002` | Versiones/beneficios inmutables y precio congelado en suscripción | `MaintenancePlanVersionServiceImpl`<br>`PlanBenefitServiceImpl`<br>`PlanSubscriptionServiceImpl` | Versiones publicadas/suscritas y sus beneficios son inmutables (`409 PLAN_VERSION_IMMUTABLE`). Al suscribir, `agreedAmount` y `currencyCode` se congelan desde `MaintenancePlanVersion` ignorando overrides del cliente. |
+
+### Migración Liquibase S7
+
+- `backend/src/main/resources/config/liquibase/changelog/20261124180000_s7_audits_and_plans_constraints.xml` (registrada en `master.xml`, expand-only): índices únicos `uq_plan_version_name`, `uq_benefit_version_code` y checks `ck_service_agreement_window`, `ck_plan_subscription_window`, `ck_plan_version_amount`.
+
+### Pruebas y Resultados Reales (S1–S7)
+
+Comando ejecutado en `/Users/juanlopez/Proyectos/Solar/backend`:
+
+```bash
+./mvnw test -Dtest="AuditAndPlanSddIT,EconomicLossSddIT,IncidentDiagnosticSddIT,EnergyModelingSddIT,TelemetryEdgeSddIT,TopologySddIT,TenantSddIT,TechnicalStructureTest,AuthenticateControllerIT,SecurityUtilsUnitTest" -q
+```
+
+- **Resultado:** Código de salida `0` (todos los tests pasaron contra PostgreSQL 18.6 en Testcontainers).
+- **Cobertura en `AuditAndPlanSddIT` (`backend/src/test/java/ar/com/heliguard/app/web/rest/AuditAndPlanSddIT.java`):**
+  - `T16`: aprobación con pregunta obligatoria vacía (`Q_GROUNDING`) → `400` listando el código faltante; tras responder + adjuntar evidencia a hallazgo `CRITICAL` + firmar → `200 APPROVED`.
+  - `T17`: evaluación de elegibilidad con hallazgo `CRITICAL` abierto → `REQUIRES_REMEDIATION` (`requiresCorrection == true`, `autoContracted == false`).
+  - Inmutabilidad de `AuditTemplate` publicado (`409`), precio/moneda congelados en `PlanSubscription` (`149.99 USD`) e IDOR `404`.
+
+---
+
+## 9. Pendientes (Sprint S8)
 - **S8:** Mantenimiento y misiones (`WorkOrder`, `DroneMission` simulada/controlada con drones físicos deshabilitados).
 - **Nota:** La suite completa de CRUD autogenerados por JHipster (`*ResourceIT` de las 67 entidades) no se ejecutó en este corte; solo se ejecutaron `TenantSddIT`, `TechnicalStructureTest`, `AuthenticateControllerIT` y `SecurityUtilsUnitTest`.

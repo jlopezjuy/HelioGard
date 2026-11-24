@@ -27,7 +27,6 @@ public class PlanSubscriptionDTO implements Serializable {
     @Size(max = 3)
     private String currencyCode;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

@@ -30,7 +30,6 @@ public class AuditQuestionDTO implements Serializable {
     @NotNull
     private Boolean mandatory;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

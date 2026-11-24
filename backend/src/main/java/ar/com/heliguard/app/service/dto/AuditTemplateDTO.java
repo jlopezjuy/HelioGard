@@ -26,7 +26,6 @@ public class AuditTemplateDTO implements Serializable {
 
     private Instant publishedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     public Long getId() {

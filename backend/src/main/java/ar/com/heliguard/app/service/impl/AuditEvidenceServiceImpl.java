@@ -1,86 +1,165 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.AuditEvidence;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.AuditEvidenceRepository;
+import ar.com.heliguard.app.repository.AuditFindingRepository;
 import ar.com.heliguard.app.service.AuditEvidenceService;
 import ar.com.heliguard.app.service.dto.AuditEvidenceDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.AuditEvidenceMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.AuditEvidence}.
+ * Tenant-isolated service for {@link AuditEvidence} (RB-AUD-002).
  */
 @Service
 @Transactional
 public class AuditEvidenceServiceImpl implements AuditEvidenceService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuditEvidenceServiceImpl.class);
+    private final AuditEvidenceRepository repository;
+    private final AuditFindingRepository findingRepository;
+    private final AuditEvidenceMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final AuditEvidenceRepository auditEvidenceRepository;
-
-    private final AuditEvidenceMapper auditEvidenceMapper;
-
-    public AuditEvidenceServiceImpl(AuditEvidenceRepository auditEvidenceRepository, AuditEvidenceMapper auditEvidenceMapper) {
-        this.auditEvidenceRepository = auditEvidenceRepository;
-        this.auditEvidenceMapper = auditEvidenceMapper;
+    public AuditEvidenceServiceImpl(
+        AuditEvidenceRepository repository,
+        AuditFindingRepository findingRepository,
+        AuditEvidenceMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.findingRepository = findingRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<AuditEvidenceDTO> save(AuditEvidenceDTO auditEvidenceDTO) {
-        LOG.debug("Request to save AuditEvidence : {}", auditEvidenceDTO);
-        return auditEvidenceRepository.save(auditEvidenceMapper.toEntity(auditEvidenceDTO)).map(auditEvidenceMapper::toDto);
+    public Mono<AuditEvidenceDTO> save(AuditEvidenceDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                checkFinding(dto.getFinding() != null ? dto.getFinding().getId() : null, tenant.organizationId())
+                    .then(
+                        Mono.defer(() -> {
+                            AuditEvidence entity = mapper.toEntity(dto);
+                            entity.setId(null);
+                            entity.setOrganizationId(tenant.organizationId());
+                            entity.setOrganization(new Organization().id(tenant.organizationId()));
+                            return repository.save(entity);
+                        })
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AuditEvidenceDTO> update(AuditEvidenceDTO auditEvidenceDTO) {
-        LOG.debug("Request to update AuditEvidence : {}", auditEvidenceDTO);
-        return auditEvidenceRepository.save(auditEvidenceMapper.toEntity(auditEvidenceDTO)).map(auditEvidenceMapper::toDto);
+    public Mono<AuditEvidenceDTO> update(AuditEvidenceDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    AuditEvidence entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AuditEvidenceDTO> partialUpdate(AuditEvidenceDTO auditEvidenceDTO) {
-        LOG.debug("Request to partially update AuditEvidence : {}", auditEvidenceDTO);
-
-        return auditEvidenceRepository
-            .findById(auditEvidenceDTO.getId())
-            .map(existingAuditEvidence -> {
-                auditEvidenceMapper.partialUpdate(existingAuditEvidence, auditEvidenceDTO);
-
-                return existingAuditEvidence;
-            })
-            .flatMap(auditEvidenceRepository::save)
-            .map(auditEvidenceMapper::toDto);
+    public Mono<AuditEvidenceDTO> partialUpdate(AuditEvidenceDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<AuditEvidenceDTO> findAll() {
-        LOG.debug("Request to get all AuditEvidences");
-        return auditEvidenceRepository.findAll().map(auditEvidenceMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<AuditEvidenceDTO> findAllWithEagerRelationships() {
-        return auditEvidenceRepository.findAllWithEagerRelationships().map(auditEvidenceMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return auditEvidenceRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<AuditEvidenceDTO> findOne(Long id) {
-        LOG.debug("Request to get AuditEvidence : {}", id);
-        return auditEvidenceRepository.findOneWithEagerRelationships(id).map(auditEvidenceMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete AuditEvidence : {}", id);
-        return auditEvidenceRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(e -> repository.deleteById(e.getId()));
+    }
+
+    private Mono<Void> checkFinding(Long findingId, Long orgId) {
+        if (findingId == null) {
+            return Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "AUDIT_FINDING_REQUIRED", "finding.id is required"));
+        }
+        return findingRepository
+            .findById(findingId)
+            .filter(f -> orgId.equals(f.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "AUDIT_FINDING_NOT_IN_TENANT", "Not found in tenant")))
+            .then();
+    }
+
+    private Mono<AuditEvidence> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(e -> orgId.equals(e.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "AUDIT_EVIDENCE_NOT_FOUND", "AuditEvidence not found")));
     }
 }

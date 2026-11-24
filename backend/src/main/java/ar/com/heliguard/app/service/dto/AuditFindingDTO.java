@@ -30,7 +30,6 @@ public class AuditFindingDTO implements Serializable {
 
     private Instant resolvedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

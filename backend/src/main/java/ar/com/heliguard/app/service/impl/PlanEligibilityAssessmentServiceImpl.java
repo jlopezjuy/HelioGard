@@ -1,93 +1,153 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.PlanEligibilityAssessment;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.PlanEligibilityAssessmentRepository;
 import ar.com.heliguard.app.service.PlanEligibilityAssessmentService;
 import ar.com.heliguard.app.service.dto.PlanEligibilityAssessmentDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.PlanEligibilityAssessmentMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.PlanEligibilityAssessment}.
+ * Tenant-isolated service for {@link PlanEligibilityAssessment}.
  */
 @Service
 @Transactional
 public class PlanEligibilityAssessmentServiceImpl implements PlanEligibilityAssessmentService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PlanEligibilityAssessmentServiceImpl.class);
-
-    private final PlanEligibilityAssessmentRepository planEligibilityAssessmentRepository;
-
-    private final PlanEligibilityAssessmentMapper planEligibilityAssessmentMapper;
+    private final PlanEligibilityAssessmentRepository repository;
+    private final PlanEligibilityAssessmentMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
     public PlanEligibilityAssessmentServiceImpl(
-        PlanEligibilityAssessmentRepository planEligibilityAssessmentRepository,
-        PlanEligibilityAssessmentMapper planEligibilityAssessmentMapper
+        PlanEligibilityAssessmentRepository repository,
+        PlanEligibilityAssessmentMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
     ) {
-        this.planEligibilityAssessmentRepository = planEligibilityAssessmentRepository;
-        this.planEligibilityAssessmentMapper = planEligibilityAssessmentMapper;
+        this.repository = repository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<PlanEligibilityAssessmentDTO> save(PlanEligibilityAssessmentDTO planEligibilityAssessmentDTO) {
-        LOG.debug("Request to save PlanEligibilityAssessment : {}", planEligibilityAssessmentDTO);
-        return planEligibilityAssessmentRepository
-            .save(planEligibilityAssessmentMapper.toEntity(planEligibilityAssessmentDTO))
-            .map(planEligibilityAssessmentMapper::toDto);
+    public Mono<PlanEligibilityAssessmentDTO> save(PlanEligibilityAssessmentDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                permissionService
+                    .requireOwnedInstallation(dto.getInstallation().getId(), tenant.organizationId())
+                    .flatMap(inst -> {
+                        PlanEligibilityAssessment entity = mapper.toEntity(dto);
+                        entity.setId(null);
+                        entity.setOrganizationId(tenant.organizationId());
+                        entity.setOrganization(new Organization().id(tenant.organizationId()));
+                        return repository.save(entity);
+                    })
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<PlanEligibilityAssessmentDTO> update(PlanEligibilityAssessmentDTO planEligibilityAssessmentDTO) {
-        LOG.debug("Request to update PlanEligibilityAssessment : {}", planEligibilityAssessmentDTO);
-        return planEligibilityAssessmentRepository
-            .save(planEligibilityAssessmentMapper.toEntity(planEligibilityAssessmentDTO))
-            .map(planEligibilityAssessmentMapper::toDto);
+    public Mono<PlanEligibilityAssessmentDTO> update(PlanEligibilityAssessmentDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    PlanEligibilityAssessment entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<PlanEligibilityAssessmentDTO> partialUpdate(PlanEligibilityAssessmentDTO planEligibilityAssessmentDTO) {
-        LOG.debug("Request to partially update PlanEligibilityAssessment : {}", planEligibilityAssessmentDTO);
-
-        return planEligibilityAssessmentRepository
-            .findById(planEligibilityAssessmentDTO.getId())
-            .map(existingPlanEligibilityAssessment -> {
-                planEligibilityAssessmentMapper.partialUpdate(existingPlanEligibilityAssessment, planEligibilityAssessmentDTO);
-
-                return existingPlanEligibilityAssessment;
-            })
-            .flatMap(planEligibilityAssessmentRepository::save)
-            .map(planEligibilityAssessmentMapper::toDto);
+    public Mono<PlanEligibilityAssessmentDTO> partialUpdate(PlanEligibilityAssessmentDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<PlanEligibilityAssessmentDTO> findAll() {
-        LOG.debug("Request to get all PlanEligibilityAssessments");
-        return planEligibilityAssessmentRepository.findAll().map(planEligibilityAssessmentMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<PlanEligibilityAssessmentDTO> findAllWithEagerRelationships() {
-        return planEligibilityAssessmentRepository.findAllWithEagerRelationships().map(planEligibilityAssessmentMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return planEligibilityAssessmentRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<PlanEligibilityAssessmentDTO> findOne(Long id) {
-        LOG.debug("Request to get PlanEligibilityAssessment : {}", id);
-        return planEligibilityAssessmentRepository.findOneWithEagerRelationships(id).map(planEligibilityAssessmentMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete PlanEligibilityAssessment : {}", id);
-        return planEligibilityAssessmentRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(a -> repository.deleteById(a.getId()));
+    }
+
+    private Mono<PlanEligibilityAssessment> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(a -> orgId.equals(a.getOrganizationId()))
+            .switchIfEmpty(
+                Mono.error(
+                    new DomainRuleException(HttpStatus.NOT_FOUND, "PLAN_ELIGIBILITY_NOT_FOUND", "PlanEligibilityAssessment not found")
+                )
+            );
     }
 }

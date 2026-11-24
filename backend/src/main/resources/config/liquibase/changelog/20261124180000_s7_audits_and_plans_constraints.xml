@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        Sprint S7 audit & maintenance plan uniqueness and window constraints (expand-only).
+    -->
+    <changeSet id="20261124180000-1" author="helioguard-sdd">
+        <sql dbms="postgresql">
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_plan_version_name
+                ON maintenance_plan_version (maintenance_plan_id, version_code);
+
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_benefit_version_code
+                ON plan_benefit (plan_version_id, benefit_code);
+
+            ALTER TABLE service_agreement
+                ADD CONSTRAINT ck_service_agreement_window
+                CHECK (ends_at IS NULL OR ends_at &gt; starts_at);
+
+            ALTER TABLE plan_subscription
+                ADD CONSTRAINT ck_plan_subscription_window
+                CHECK (expires_at IS NULL OR activated_at IS NULL OR expires_at &gt; activated_at);
+
+            ALTER TABLE maintenance_plan_version
+                ADD CONSTRAINT ck_plan_version_amount
+                CHECK (recurring_amount &gt;= 0);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

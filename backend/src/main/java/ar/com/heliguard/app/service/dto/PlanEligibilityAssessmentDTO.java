@@ -27,7 +27,6 @@ public class PlanEligibilityAssessmentDTO implements Serializable {
     @NotNull
     private Boolean requiresCorrection;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

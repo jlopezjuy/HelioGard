@@ -26,7 +26,6 @@ public class AuditReportDTO implements Serializable {
     @Lob
     private String summary;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

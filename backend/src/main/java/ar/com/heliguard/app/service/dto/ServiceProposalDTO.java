@@ -32,7 +32,6 @@ public class ServiceProposalDTO implements Serializable {
 
     private Instant acceptedAt;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

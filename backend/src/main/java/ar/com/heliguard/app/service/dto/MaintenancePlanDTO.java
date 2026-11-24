@@ -20,7 +20,6 @@ public class MaintenancePlanDTO implements Serializable {
     @NotNull
     private MaintenancePlanStatus status;
 
-    @NotNull
     private OrganizationDTO organization;
 
     public Long getId() {

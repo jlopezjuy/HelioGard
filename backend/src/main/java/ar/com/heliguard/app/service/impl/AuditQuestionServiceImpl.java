@@ -1,86 +1,179 @@
 package ar.com.heliguard.app.service.impl;
 
+import ar.com.heliguard.app.domain.AuditQuestion;
+import ar.com.heliguard.app.domain.Organization;
+import ar.com.heliguard.app.domain.enumeration.PermissionScope;
 import ar.com.heliguard.app.repository.AuditQuestionRepository;
+import ar.com.heliguard.app.repository.AuditTemplateRepository;
 import ar.com.heliguard.app.service.AuditQuestionService;
 import ar.com.heliguard.app.service.dto.AuditQuestionDTO;
+import ar.com.heliguard.app.service.error.DomainRuleException;
 import ar.com.heliguard.app.service.mapper.AuditQuestionMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ar.com.heliguard.app.service.tenant.PermissionService;
+import ar.com.heliguard.app.service.tenant.TenantContextService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Service Implementation for managing {@link ar.com.heliguard.app.domain.AuditQuestion}.
+ * Tenant-isolated service for {@link AuditQuestion} enforcing published template immutability (RB-AUD-002).
  */
 @Service
 @Transactional
 public class AuditQuestionServiceImpl implements AuditQuestionService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuditQuestionServiceImpl.class);
+    private final AuditQuestionRepository repository;
+    private final AuditTemplateRepository templateRepository;
+    private final AuditQuestionMapper mapper;
+    private final TenantContextService tenantContextService;
+    private final PermissionService permissionService;
 
-    private final AuditQuestionRepository auditQuestionRepository;
-
-    private final AuditQuestionMapper auditQuestionMapper;
-
-    public AuditQuestionServiceImpl(AuditQuestionRepository auditQuestionRepository, AuditQuestionMapper auditQuestionMapper) {
-        this.auditQuestionRepository = auditQuestionRepository;
-        this.auditQuestionMapper = auditQuestionMapper;
+    public AuditQuestionServiceImpl(
+        AuditQuestionRepository repository,
+        AuditTemplateRepository templateRepository,
+        AuditQuestionMapper mapper,
+        TenantContextService tenantContextService,
+        PermissionService permissionService
+    ) {
+        this.repository = repository;
+        this.templateRepository = templateRepository;
+        this.mapper = mapper;
+        this.tenantContextService = tenantContextService;
+        this.permissionService = permissionService;
     }
 
     @Override
-    public Mono<AuditQuestionDTO> save(AuditQuestionDTO auditQuestionDTO) {
-        LOG.debug("Request to save AuditQuestion : {}", auditQuestionDTO);
-        return auditQuestionRepository.save(auditQuestionMapper.toEntity(auditQuestionDTO)).map(auditQuestionMapper::toDto);
+    public Mono<AuditQuestionDTO> save(AuditQuestionDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                checkTemplateMutable(dto.getAuditTemplate() != null ? dto.getAuditTemplate().getId() : null, tenant.organizationId())
+                    .then(
+                        Mono.defer(() -> {
+                            AuditQuestion entity = mapper.toEntity(dto);
+                            entity.setId(null);
+                            entity.setOrganizationId(tenant.organizationId());
+                            entity.setOrganization(new Organization().id(tenant.organizationId()));
+                            return repository.save(entity);
+                        })
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AuditQuestionDTO> update(AuditQuestionDTO auditQuestionDTO) {
-        LOG.debug("Request to update AuditQuestion : {}", auditQuestionDTO);
-        return auditQuestionRepository.save(auditQuestionMapper.toEntity(auditQuestionDTO)).map(auditQuestionMapper::toDto);
+    public Mono<AuditQuestionDTO> update(AuditQuestionDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(checkTemplateMutable(existing.getAuditTemplateId(), tenant.organizationId()))
+                            .then(
+                                Mono.defer(() -> {
+                                    AuditQuestion entity = mapper.toEntity(dto);
+                                    entity.setOrganizationId(existing.getOrganizationId());
+                                    entity.setOrganization(new Organization().id(existing.getOrganizationId()));
+                                    return repository.save(entity);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
-    public Mono<AuditQuestionDTO> partialUpdate(AuditQuestionDTO auditQuestionDTO) {
-        LOG.debug("Request to partially update AuditQuestion : {}", auditQuestionDTO);
-
-        return auditQuestionRepository
-            .findById(auditQuestionDTO.getId())
-            .map(existingAuditQuestion -> {
-                auditQuestionMapper.partialUpdate(existingAuditQuestion, auditQuestionDTO);
-
-                return existingAuditQuestion;
-            })
-            .flatMap(auditQuestionRepository::save)
-            .map(auditQuestionMapper::toDto);
+    public Mono<AuditQuestionDTO> partialUpdate(AuditQuestionDTO dto) {
+        return permissionService
+            .requireRoleForScope(PermissionScope.AUDIT)
+            .flatMap(tenant ->
+                findOwned(dto.getId(), tenant.organizationId())
+                    .flatMap(existing ->
+                        permissionService
+                            .assertNoOrgReassignment(dto.getOrganization(), tenant.organizationId())
+                            .then(checkTemplateMutable(existing.getAuditTemplateId(), tenant.organizationId()))
+                            .then(
+                                Mono.defer(() -> {
+                                    mapper.partialUpdate(existing, dto);
+                                    existing.setOrganizationId(tenant.organizationId());
+                                    existing.setOrganization(new Organization().id(tenant.organizationId()));
+                                    return repository.save(existing);
+                                })
+                            )
+                    )
+            )
+            .map(mapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<AuditQuestionDTO> findAll() {
-        LOG.debug("Request to get all AuditQuestions");
-        return auditQuestionRepository.findAll().map(auditQuestionMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMapMany(tenant -> repository.findByOrganization(tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Flux<AuditQuestionDTO> findAllWithEagerRelationships() {
-        return auditQuestionRepository.findAllWithEagerRelationships().map(auditQuestionMapper::toDto);
+        return findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
-        return auditQuestionRepository.count();
+        return findAll().count();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Mono<AuditQuestionDTO> findOne(Long id) {
-        LOG.debug("Request to get AuditQuestion : {}", id);
-        return auditQuestionRepository.findOneWithEagerRelationships(id).map(auditQuestionMapper::toDto);
+        return tenantContextService
+            .requireCurrentTenant()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .map(mapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete AuditQuestion : {}", id);
-        return auditQuestionRepository.deleteById(id);
+        return permissionService
+            .requireManageRole()
+            .flatMap(tenant -> findOwned(id, tenant.organizationId()))
+            .flatMap(q -> checkTemplateMutable(q.getAuditTemplateId(), q.getOrganizationId()).then(repository.deleteById(q.getId())));
+    }
+
+    private Mono<Void> checkTemplateMutable(Long templateId, Long orgId) {
+        if (templateId == null) {
+            return Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "AUDIT_TEMPLATE_REQUIRED", "auditTemplate.id is required"));
+        }
+        return templateRepository
+            .findById(templateId)
+            .filter(t -> orgId.equals(t.getOrganizationId()))
+            .switchIfEmpty(
+                Mono.error(new DomainRuleException(HttpStatus.BAD_REQUEST, "AUDIT_TEMPLATE_NOT_IN_TENANT", "AuditTemplate not found in tenant"))
+            )
+            .flatMap(t ->
+                t.getPublishedAt() != null
+                    ? Mono.error(
+                        new DomainRuleException(
+                            HttpStatus.CONFLICT,
+                            "AUDIT_TEMPLATE_IMMUTABLE",
+                            "Cannot modify questions of a published AuditTemplate"
+                        )
+                    )
+                    : Mono.empty()
+            );
+    }
+
+    private Mono<AuditQuestion> findOwned(Long id, Long orgId) {
+        return repository
+            .findById(id)
+            .filter(q -> orgId.equals(q.getOrganizationId()))
+            .switchIfEmpty(Mono.error(new DomainRuleException(HttpStatus.NOT_FOUND, "AUDIT_QUESTION_NOT_FOUND", "AuditQuestion not found")));
     }
 }

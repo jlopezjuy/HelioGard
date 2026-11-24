@@ -32,7 +32,6 @@ public class PlanBenefitDTO implements Serializable {
     @Size(max = 350)
     private String termsReference;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

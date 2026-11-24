@@ -23,7 +23,6 @@ public class AuditReportSignatureDTO implements Serializable {
     @Size(max = 400)
     private String signatureReference;
 
-    @NotNull
     private OrganizationDTO organization;
 
     @NotNull

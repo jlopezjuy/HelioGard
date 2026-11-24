@@ -28,6 +28,12 @@ public interface PlanSubscriptionRepository extends ReactiveCrudRepository<PlanS
     @Query("SELECT * FROM plan_subscription entity WHERE entity.organization_id = :id")
     Flux<PlanSubscription> findByOrganization(Long id);
 
+    @Query("SELECT * FROM plan_subscription entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<PlanSubscription> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM plan_subscription entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM plan_subscription entity WHERE entity.organization_id IS NULL")
     Flux<PlanSubscription> findAllWhereOrganizationIsNull();
 

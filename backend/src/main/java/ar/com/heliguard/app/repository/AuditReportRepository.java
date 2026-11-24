@@ -28,6 +28,12 @@ public interface AuditReportRepository extends ReactiveCrudRepository<AuditRepor
     @Query("SELECT * FROM audit_report entity WHERE entity.organization_id = :id")
     Flux<AuditReport> findByOrganization(Long id);
 
+    @Query("SELECT * FROM audit_report entity WHERE entity.organization_id = :orgId ORDER BY entity.id DESC LIMIT :limit OFFSET :offset")
+    Flux<AuditReport> findPageByOrganization(Long orgId, int limit, long offset);
+
+    @Query("SELECT COUNT(*) FROM audit_report entity WHERE entity.organization_id = :orgId")
+    Mono<Long> countByOrganization(Long orgId);
+
     @Query("SELECT * FROM audit_report entity WHERE entity.organization_id IS NULL")
     Flux<AuditReport> findAllWhereOrganizationIsNull();
 
